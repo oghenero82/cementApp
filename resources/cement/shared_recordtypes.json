@@ -1,0 +1,621 @@
+[
+  {
+    "code": "account_type",
+    "name": "Account Type",
+    "module": "cement_finance",
+    "description": "Shared standalone Account Type",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "category",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "account",
+    "name": "Account",
+    "module": "cement_finance",
+    "description": "Shared standalone Account",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "accountTypeId",
+        "type": "reference",
+        "required": true,
+        "target": "account_type"
+      },
+      {
+        "code": "currency",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "fiscal_year",
+    "name": "Fiscal Year",
+    "module": "cement_finance",
+    "description": "Shared standalone Fiscal Year",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "startDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "endDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "journal",
+    "name": "Journal",
+    "module": "cement_finance",
+    "description": "Shared standalone Journal",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "postedAt",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "source",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "description",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "journal_line",
+    "name": "Journal Line",
+    "module": "cement_finance",
+    "description": "Shared standalone Journal Line",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": true,
+        "target": "journal"
+      },
+      {
+        "code": "accountId",
+        "type": "reference",
+        "required": true,
+        "target": "account"
+      },
+      {
+        "code": "debit",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "credit",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "account_balance",
+    "name": "Account Balance",
+    "module": "cement_finance",
+    "description": "Shared standalone Account Balance",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "accountId",
+        "type": "reference",
+        "required": true,
+        "target": "account"
+      },
+      {
+        "code": "balance",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ],
+      [
+        "accountId"
+      ]
+    ]
+  },
+  {
+    "code": "bank_account",
+    "name": "Bank Account",
+    "module": "cement_finance",
+    "description": "Shared standalone Bank Account",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "accountId",
+        "type": "reference",
+        "required": true,
+        "target": "account"
+      },
+      {
+        "code": "bankName",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "accountNumber",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "currency",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "bank_statement",
+    "name": "Bank Statement",
+    "module": "cement_finance",
+    "description": "Shared standalone Bank Statement",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "bankAccountId",
+        "type": "reference",
+        "required": true,
+        "target": "bank_account"
+      },
+      {
+        "code": "periodStart",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "periodEnd",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "openingBalance",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "closingBalance",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "bank_statement_line",
+    "name": "Bank Statement Line",
+    "module": "cement_finance",
+    "description": "Shared standalone Bank Statement Line",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "statementId",
+        "type": "reference",
+        "required": true,
+        "target": "bank_statement"
+      },
+      {
+        "code": "transactionDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "description",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "amount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "bank_reconciliation",
+    "name": "Bank Reconciliation",
+    "module": "cement_finance",
+    "description": "Shared standalone Bank Reconciliation",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "statementId",
+        "type": "reference",
+        "required": true,
+        "target": "bank_statement"
+      },
+      {
+        "code": "reconciledAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "statementBalance",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "ledgerBalance",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "difference",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "member",
+    "name": "Cooperative Member",
+    "module": "cement_people",
+    "description": "Shared standalone Cooperative Member",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "personId",
+        "type": "reference",
+        "required": true,
+        "target": "person"
+      },
+      {
+        "code": "memberNumber",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ],
+      [
+        "memberNumber"
+      ]
+    ]
+  },
+  {
+    "code": "member_account",
+    "name": "Cooperative Member Account",
+    "module": "cement_people",
+    "description": "Shared standalone Cooperative Member Account",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "memberId",
+        "type": "reference",
+        "required": true,
+        "target": "member"
+      },
+      {
+        "code": "accountType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "balanceLimit",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "balance",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "cooperative_transaction",
+    "name": "Cooperative Transaction",
+    "module": "cement_people",
+    "description": "Shared standalone Cooperative Transaction",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "memberAccountId",
+        "type": "reference",
+        "required": true,
+        "target": "member_account"
+      },
+      {
+        "code": "postingDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "amount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "transactionType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "source",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  }
+]

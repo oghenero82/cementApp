@@ -1,0 +1,102 @@
+{
+  "account_type": {
+    "CODE": "code",
+    "NAME": "name",
+    "CATEGORY": "category",
+    "STATUS": "status"
+  },
+  "account": {
+    "CODE": "code",
+    "NAME": "name",
+    "ACCOUNT_TYPE_ID": "accountTypeId",
+    "CURRENCY": "currency",
+    "STATUS": "status"
+  },
+  "fiscal_year": {
+    "CODE": "code",
+    "NAME": "name",
+    "START_DATE": "startDate",
+    "END_DATE": "endDate",
+    "STATUS": "status"
+  },
+  "journal": {
+    "CODE": "code",
+    "POSTED_AT": "postedAt",
+    "SOURCE": "source",
+    "DESCRIPTION": "description",
+    "STATUS": "status"
+  },
+  "journal_line": {
+    "CODE": "code",
+    "JOURNAL_ID": "journalId",
+    "ACCOUNT_ID": "accountId",
+    "DEBIT": "debit",
+    "CREDIT": "credit",
+    "STATUS": "status"
+  },
+  "account_balance": {
+    "CODE": "code",
+    "ACCOUNT_ID": "accountId",
+    "BALANCE": "balance",
+    "STATUS": "status"
+  },
+  "bank_account": {
+    "CODE": "code",
+    "NAME": "name",
+    "ACCOUNT_ID": "accountId",
+    "BANK_NAME": "bankName",
+    "ACCOUNT_NUMBER": "accountNumber",
+    "CURRENCY": "currency",
+    "STATUS": "status"
+  },
+  "bank_statement": {
+    "CODE": "code",
+    "BANK_ACCOUNT_ID": "bankAccountId",
+    "PERIOD_START": "periodStart",
+    "PERIOD_END": "periodEnd",
+    "OPENING_BALANCE": "openingBalance",
+    "CLOSING_BALANCE": "closingBalance",
+    "STATUS": "status"
+  },
+  "bank_statement_line": {
+    "CODE": "code",
+    "STATEMENT_ID": "statementId",
+    "TRANSACTION_DATE": "transactionDate",
+    "DESCRIPTION": "description",
+    "AMOUNT": "amount",
+    "JOURNAL_ID": "journalId",
+    "STATUS": "status"
+  },
+  "bank_reconciliation": {
+    "CODE": "code",
+    "STATEMENT_ID": "statementId",
+    "RECONCILED_AT": "reconciledAt",
+    "STATEMENT_BALANCE": "statementBalance",
+    "LEDGER_BALANCE": "ledgerBalance",
+    "DIFFERENCE": "difference",
+    "STATUS": "status"
+  },
+  "member": {
+    "CODE": "code",
+    "PERSON_ID": "personId",
+    "MEMBER_NUMBER": "memberNumber",
+    "STATUS": "status"
+  },
+  "member_account": {
+    "CODE": "code",
+    "MEMBER_ID": "memberId",
+    "ACCOUNT_TYPE": "accountType",
+    "BALANCE_LIMIT": "balanceLimit",
+    "BALANCE": "balance",
+    "STATUS": "status"
+  },
+  "cooperative_transaction": {
+    "CODE": "code",
+    "MEMBER_ACCOUNT_ID": "memberAccountId",
+    "POSTING_DATE": "postingDate",
+    "AMOUNT": "amount",
+    "TRANSACTION_TYPE": "transactionType",
+    "SOURCE": "source",
+    "STATUS": "status"
+  }
+}

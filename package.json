@@ -1,0 +1,16 @@
+{
+  "name": "cement-app",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "test": "node --test tests/cement/*.test.mjs",
+    "test:browser": "node tests/cement/browser.mjs",
+    "check:registry": "python3 scripts/check_registry.py"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.56.1",
+    "acorn": "^8.15.0",
+    "prettier": "^3.6.2"
+  }
+}

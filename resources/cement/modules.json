@@ -1,0 +1,52 @@
+[
+  {
+    "code": "cement_master",
+    "name": "Master Data",
+    "description": "Customers, people, suppliers, depot and product catalog"
+  },
+  {
+    "code": "cement_pricing",
+    "name": "Pricing",
+    "description": "Versioned customer and quantity tier pricing"
+  },
+  {
+    "code": "cement_procurement",
+    "name": "Procurement",
+    "description": "Supplier entitlements, purchases, loading and clearing"
+  },
+  {
+    "code": "cement_sales",
+    "name": "Sales & Receivables",
+    "description": "Customer sales, payments and returns"
+  },
+  {
+    "code": "cement_inventory",
+    "name": "Warehouse & Inventory",
+    "description": "Locations, stock, FIFO/weighted costs, counts and damages"
+  },
+  {
+    "code": "cement_logistics",
+    "name": "Fleet & Trips",
+    "description": "Vehicles, drivers, trips with multiple destinations, fuel and maintenance"
+  },
+  {
+    "code": "cement_incentives",
+    "name": "Supplier Benefits",
+    "description": "Supplier incentives, entitlements and settlements"
+  },
+  {
+    "code": "cement_people",
+    "name": "Workforce & Payroll",
+    "description": "Staff employment and payroll; reuse Cooperative savings/loans"
+  },
+  {
+    "code": "cement_finance",
+    "name": "Finance & Reporting",
+    "description": "Expense and operational reports; reuse Accounting general ledger"
+  },
+  {
+    "code": "cement_admin",
+    "name": "Configuration",
+    "description": "Cement institution policies, audit and integrations"
+  }
+]

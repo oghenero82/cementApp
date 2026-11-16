@@ -1,0 +1,798 @@
+{
+  "purchase": {
+    "title": "Purchase control workspace",
+    "module": "cement_procurement",
+    "icon": "shopping-bag",
+    "root": "purchase",
+    "subtitle": "Supplier entitlement, batch items, PIN/BIN, funding, loading history and benefit reconciliation.",
+    "steps": [
+      "Supplier / depot",
+      "Purchase + item prices",
+      "Payment \u2192 entitlement GL",
+      "Load & clear",
+      "Deliver / reconcile"
+    ],
+    "tabs": [
+      "Overview",
+      "Items & entitlements",
+      "Loading & clearance",
+      "Payments & finance",
+      "Incentives",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Purchase items",
+        "purchaseItem",
+        "PURCHASE_ID"
+      ],
+      [
+        "Supplier payments",
+        "supplier_purchase_payment",
+        "PURCHASE_ID"
+      ],
+      [
+        "Purchase adjustments",
+        "purchase_adjustment",
+        "PURCHASE_ID"
+      ],
+      [
+        "Supplier benefits",
+        "supplier_incentive",
+        "PURCHASE_ID"
+      ]
+    ],
+    "rules": [
+      "Each purchase and purchaseItem is a root RecordType, not an embedded line.",
+      "Purchase confirmation posts Dr supplier prepaid/entitlement account and Cr bank account once.",
+      "Supplier PIN, BIN, login code and depot remain traceable throughout loading.",
+      "Price, quantity and discount on an item become immutable once its first loading exists.",
+      "Loaded, cleared and delivered quantities are separate counters; never infer one from another."
+    ],
+    "actions": [
+      [
+        "New purchase item",
+        "purchaseItem"
+      ],
+      [
+        "Record supplier payment",
+        "supplier_purchase_payment"
+      ],
+      [
+        "Create loading",
+        "cement_loading"
+      ]
+    ]
+  },
+  "loading": {
+    "title": "Loading & clearance workspace",
+    "module": "cement_logistics",
+    "icon": "truck",
+    "root": "cement_loading",
+    "subtitle": "Allocate each truckload to customers or warehouse, confirm, clear and transfer ownership correctly.",
+    "steps": [
+      "Reserve purchase item",
+      "Select depot / PIN / BIN",
+      "Allocate quantities",
+      "Confirm loading",
+      "Clear / deliver / post"
+    ],
+    "tabs": [
+      "Overview",
+      "Allocation designer",
+      "Clearances",
+      "Trip & delivery",
+      "Stock & sales effects",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Clearance records",
+        "loading_clearance",
+        "LOADING_ID"
+      ],
+      [
+        "Trips",
+        "trip",
+        "LOADING_ID"
+      ],
+      [
+        "Customer sales",
+        "customer_sales",
+        "SOURCE_LOADING_ID"
+      ],
+      [
+        "Delivery proof",
+        "delivery_proof",
+        null
+      ]
+    ],
+    "rules": [
+      "Customer quantity plus warehouse quantity must equal confirmed loading quantity; no negative quantities.",
+      "Support mixed destinations and multiple customer allocations, with independent destination statuses.",
+      "Total loading cannot exceed remaining purchase entitlement; clearances cannot exceed loaded quantity.",
+      "On confirmed loading: create customer_sales for customer quantity or inventory_movement for warehouse quantity.",
+      "Respect institution ownershipTransferPolicy: loading-transfer or delivery-transfer.",
+      "Never create purchaseItem records during loading; use existing immutable purchase-item references."
+    ],
+    "actions": [
+      [
+        "New loading",
+        "cement_loading"
+      ],
+      [
+        "Record partial clearance",
+        "loading_clearance"
+      ],
+      [
+        "Plan delivery trip",
+        "trip"
+      ]
+    ]
+  },
+  "customer": {
+    "title": "Customer 360\u00b0 workspace",
+    "module": "cement_sales",
+    "icon": "users",
+    "root": "customer",
+    "subtitle": "Credit profile, negotiated prices, invoices, receipts, deliveries, returns and customer statement.",
+    "steps": [
+      "Onboard customer",
+      "Check terms & prices",
+      "Sell / allocate stock",
+      "Collect payment",
+      "Deliver & close"
+    ],
+    "tabs": [
+      "Overview",
+      "Sales & invoices",
+      "Receipts & balances",
+      "Deliveries / returns",
+      "Price agreements",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Customer sales",
+        "customer_sales",
+        "CUSTOMER_ID"
+      ],
+      [
+        "Payments",
+        "customer_payment",
+        "CUSTOMER_ID"
+      ],
+      [
+        "Returns",
+        "customer_sale_return",
+        "CUSTOMER_ID"
+      ]
+    ],
+    "rules": [
+      "Customers can be persons or companies; link to shared person record where applicable.",
+      "Enforce customer credit limits and payment terms on the server.",
+      "Customer-specific dated price lists, quantity breaks and authorized overrides resolve at sale entry.",
+      "Every sale line snapshots actual agreed price; later price list changes never rewrite history.",
+      "Invoice balances and statements derive from authoritative posted transactions."
+    ],
+    "actions": [
+      [
+        "New customer sale",
+        "customer_sales"
+      ],
+      [
+        "Receive payment",
+        "customer_payment"
+      ],
+      [
+        "Set customer price list",
+        "price_list"
+      ]
+    ]
+  },
+  "sales": {
+    "title": "Sales & receivables workspace",
+    "module": "cement_sales",
+    "icon": "bar-chart",
+    "root": "customer_sales",
+    "subtitle": "Sales order, priced lines, stock/loading sources, tax, collections and delivery confirmation.",
+    "steps": [
+      "Select customer",
+      "Resolve price / discount",
+      "Allocate source",
+      "Confirm sale",
+      "Receive / deliver / post"
+    ],
+    "tabs": [
+      "Overview",
+      "Sale lines & pricing",
+      "Receipts",
+      "Fulfilment & proof",
+      "Returns",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Sale items",
+        "customer_sale_item",
+        "SALE_ID"
+      ],
+      [
+        "Payments",
+        "customer_payment",
+        "SALE_ID"
+      ],
+      [
+        "Returns",
+        "customer_sale_return",
+        "SALE_ID"
+      ],
+      [
+        "Delivery proofs",
+        "delivery_proof",
+        "SALE_ID"
+      ]
+    ],
+    "rules": [
+      "One customer sale can contain multiple root customer_sale_item records.",
+      "Line source can be direct supplier loading or existing warehouse movement; prevent double selling.",
+      "Snapshot listed price, agreed price, discount, applicable tax and unit conversion on each line.",
+      "Do not book sales revenue or customer balance twice; statuses are server-controlled.",
+      "Support partial receipts, delivery proof, rejected quantities and returns."
+    ],
+    "actions": [
+      [
+        "Add sale line",
+        "customer_sale_item"
+      ],
+      [
+        "Record receipt",
+        "customer_payment"
+      ],
+      [
+        "Delivery proof",
+        "delivery_proof"
+      ]
+    ]
+  },
+  "warehouse": {
+    "title": "Inventory & stocktake workspace",
+    "module": "cement_inventory",
+    "icon": "boxes",
+    "root": "inventory_stock",
+    "subtitle": "Live stock by location/condition, movements, reserved quantities, cost layers and counted variances.",
+    "steps": [
+      "Receive/transfer stock",
+      "Check stock position",
+      "Count & verify",
+      "Approve variance",
+      "Post stock adjustment"
+    ],
+    "tabs": [
+      "Overview",
+      "Stock movement",
+      "Stocktake & counts",
+      "Quality & damaged",
+      "Valuation / FIFO",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Movements",
+        "inventory_movement",
+        "PRODUCT_ID"
+      ],
+      [
+        "Stocktake lines",
+        "inventory_stocktake_line",
+        "PRODUCT_ID"
+      ],
+      [
+        "Adjustments",
+        "stock_adjustment",
+        "PRODUCT_ID"
+      ],
+      [
+        "Damaged goods",
+        "damaged_goods",
+        "PRODUCT_ID"
+      ],
+      [
+        "Cost layers",
+        "inventory_cost_layer",
+        "PRODUCT_ID"
+      ]
+    ],
+    "rules": [
+      "Product inventory balances must never be manually edited: use confirmed/effective inventory movements.",
+      "InventoryKeepingMethod supports fixed, daily, weekly, monthly, yearly and manual_stocktaken.",
+      "Valuation by configured FIFO or weighted average; keep historically correct cost layers.",
+      "A physical stocktake includes counted rows, variance approvals and posted adjustments.",
+      "Track good, damaged and other configured stock conditions separately; support returns.",
+      "Only confirmed/effective inventory_movement related actions update inventory_stock."
+    ],
+    "actions": [
+      [
+        "Record inventory movement",
+        "inventory_movement"
+      ],
+      [
+        "Start stocktake",
+        "inventory_stocktake"
+      ],
+      [
+        "Adjust damaged goods",
+        "damaged_goods"
+      ]
+    ]
+  },
+  "trip": {
+    "title": "Fleet & multi-stop trip workspace",
+    "module": "cement_logistics",
+    "icon": "truck",
+    "root": "trip",
+    "subtitle": "Assign vehicle and driver, sequence multiple customers, add fuel/expenses and obtain proof of delivery.",
+    "steps": [
+      "Dispatch vehicle",
+      "Load at depot",
+      "Visit multiple stops",
+      "Collect POD / expenses",
+      "Allocate trip cost"
+    ],
+    "tabs": [
+      "Overview",
+      "Route & destinations",
+      "Fuel & expenses",
+      "Proof of delivery",
+      "Trip costing",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Trip destinations",
+        "trip_destination",
+        "TRIP_ID"
+      ],
+      [
+        "Trip expenses",
+        "trip_expense",
+        "TRIP_ID"
+      ],
+      [
+        "Fuel transactions",
+        "fuel_transaction",
+        "TRIP_ID"
+      ],
+      [
+        "Delivery proofs",
+        "delivery_proof",
+        null
+      ]
+    ],
+    "rules": [
+      "Trip has one assigned driver and vehicle, and may contain multiple destinations and customers.",
+      "trip_destination orders stops and links delivery quantities to sale / loading / product.",
+      "Trip-level fuel, maintenance and other expenses contribute to totalTripCost.",
+      "Allocate trip costs to customer sales when policy permits; trip net margin accounts for transport.",
+      "Proof of delivery can include accepted/rejected quantities, receiver, signature and photos.",
+      "Financial posting belongs to MetaForge services; do not treat local proof as authoritative."
+    ],
+    "actions": [
+      [
+        "Add destination",
+        "trip_destination"
+      ],
+      [
+        "Record trip fuel",
+        "fuel_transaction"
+      ],
+      [
+        "Record trip expense",
+        "trip_expense"
+      ]
+    ]
+  },
+  "staff": {
+    "title": "Staff, payroll & loans workspace",
+    "module": "cement_people",
+    "icon": "users",
+    "root": "staff_employment",
+    "subtitle": "Employee profile, salary, monthly payroll, deductions, cooperative savings and staff loans.",
+    "steps": [
+      "Person \u2192 employment",
+      "Set pay & deduction",
+      "Monthly payroll upload",
+      "Approve & pay",
+      "Post savings / loans"
+    ],
+    "tabs": [
+      "Overview",
+      "Employment & payroll",
+      "Deductions",
+      "Savings & loans",
+      "Monthly upload history",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Payroll entries",
+        "payroll_item",
+        "EMPLOYMENT_ID"
+      ],
+      [
+        "Staff deductions",
+        "staff_deduction",
+        "EMPLOYMENT_ID"
+      ]
+    ],
+    "rules": [
+      "Staff_employment must link to person; employment can link to Cooperative member account.",
+      "Staff savings and staff loans reuse Cooperative RecordTypes, never duplicate them inside Cement.",
+      "Monthly salary uploads must have month/period, source file hash, row outcomes, reconciliation and history.",
+      "Deductions can route to savings contributions, loan repayments or other authorized ledger accounts.",
+      "Require payroll approval before payment/posting; posted payroll is immutable except reversal.",
+      "Isolate payroll visibility to authorized HR, Admin and Accountant roles."
+    ],
+    "actions": [
+      [
+        "Create payroll batch",
+        "payroll"
+      ],
+      [
+        "Add staff deduction",
+        "staff_deduction"
+      ],
+      [
+        "View payroll payments",
+        "payroll_payment"
+      ]
+    ]
+  },
+  "finance": {
+    "title": "Accounting & reconciliation workspace",
+    "module": "cement_finance",
+    "icon": "wallet",
+    "root": "expense",
+    "subtitle": "General ledger, journal traceability, purchase prepayments, receivables and bank reconciliation.",
+    "steps": [
+      "Capture transaction",
+      "Determine posting policy",
+      "Post balanced journal",
+      "Reconcile bank",
+      "Close/report period"
+    ],
+    "tabs": [
+      "Overview",
+      "Journal & account views",
+      "Supplier / customer balances",
+      "Bank reconciliation",
+      "Expenses / controls",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Business expenses",
+        "expense",
+        null
+      ],
+      [
+        "Supplier purchase payments",
+        "supplier_purchase_payment",
+        null
+      ],
+      [
+        "Customer payments",
+        "customer_payment",
+        null
+      ]
+    ],
+    "rules": [
+      "Use shared Accounting RecordTypes: account_type, account, journal, journal_line, fiscal_year, account_balance.",
+      "Bank integration uses bank_account, bank_statement, bank_statement_line, bank_reconciliation.",
+      "Do not clone Accounting RecordTypes in Cement seeders.",
+      "Purchase posts Dr prepaid/entitlement GL and Cr bank GL once; subsequent clearing/ownership effects use policy.",
+      "Postings are balanced, atomic, idempotent; no frontend-generated ledger authority.",
+      "Year closing, account balances and reporting are handled by registered MetaForge services."
+    ],
+    "actions": [
+      [
+        "Record expense",
+        "expense"
+      ],
+      [
+        "Record customer receipt",
+        "customer_payment"
+      ],
+      [
+        "View reports",
+        "report"
+      ]
+    ]
+  },
+  "supplier": {
+    "title": "Supplier & depot workspace",
+    "module": "cement_master",
+    "icon": "building",
+    "root": "supplier",
+    "subtitle": "Supplier financial terms, unique PIN/BIN logic, depot configuration, product availability and incentive schemes.",
+    "steps": [
+      "Register supplier",
+      "Add depot/code",
+      "Map products",
+      "Set payment accounts",
+      "Review performance"
+    ],
+    "tabs": [
+      "Overview",
+      "Depots",
+      "Product mappings",
+      "Purchases & entitlement",
+      "Incentives",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Supplier depots",
+        "supplier_depot",
+        "SUPPLIER_ID"
+      ],
+      [
+        "Products sold",
+        "supplier_product",
+        "SUPPLIER_ID"
+      ],
+      [
+        "Purchases",
+        "purchase",
+        "SUPPLIER_ID"
+      ],
+      [
+        "Benefits",
+        "supplier_incentive",
+        "SUPPLIER_ID"
+      ]
+    ],
+    "rules": [
+      "Supplier-to-product is many-to-many; map supplier product codes and valid depots.",
+      "Supplier controls the PIN/BIN/login-code flow on each purchase and loading.",
+      "Supplier purchase entitlement can remain open even after partial loading.",
+      "Optional supplier incentive schemes are controlled by enableIncentiveSchemes institution setting.",
+      "Record actual benefits even when no scheme is configured."
+    ],
+    "actions": [
+      [
+        "Register depot",
+        "supplier_depot"
+      ],
+      [
+        "Map supplier product",
+        "supplier_product"
+      ],
+      [
+        "New supplier purchase",
+        "purchase"
+      ]
+    ]
+  },
+  "pricing": {
+    "title": "Products, units & pricing workspace",
+    "module": "cement_pricing",
+    "icon": "tags",
+    "root": "price_list",
+    "subtitle": "Generic products, configurable bag/tonne conversion, dated customer/wholesale price books and overrides.",
+    "steps": [
+      "Product / category",
+      "Base unit & packaging",
+      "Supplier mapping",
+      "Price-list effective dates",
+      "Snapshot sale price"
+    ],
+    "tabs": [
+      "Overview",
+      "Price entries",
+      "Product conversion",
+      "Supplier product mapping",
+      "Override controls",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Price list entries",
+        "price_list_item",
+        "PRICE_LIST_ID"
+      ]
+    ],
+    "rules": [
+      "Reusable ROOT RecordTypes: product_category, product, unit_of_measure, price_list, price_list_item.",
+      "Product identity includes brand/grade, inventory base unit, packaging, conversion metadata and active state.",
+      "50kg/bag conversion is not universal: derive from declared package size for each product.",
+      "Dated price entries can be retail, wholesale or customer-specific, with quantity thresholds and priority.",
+      "Authorized sales overrides are configurable; persist historical sale line snapshots."
+    ],
+    "actions": [
+      [
+        "New price list item",
+        "price_list_item"
+      ],
+      [
+        "New product",
+        "product"
+      ],
+      [
+        "New unit",
+        "unit_of_measure"
+      ]
+    ]
+  },
+  "incentives": {
+    "title": "Supplier incentive settlement workspace",
+    "module": "cement_incentives",
+    "icon": "gift",
+    "root": "supplier_incentive",
+    "subtitle": "Scheme eligibility, direct benefits, rebates, actual receipts and receivable reconciliation.",
+    "steps": [
+      "Activate optional scheme",
+      "Earn benefit",
+      "Recognize receivable",
+      "Receive benefit",
+      "Reconcile posting"
+    ],
+    "tabs": [
+      "Overview",
+      "Schemes",
+      "Earned benefits",
+      "Receipts",
+      "Accounting",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Benefit receipts",
+        "supplier_incentive_receipt",
+        "INCENTIVE_ID"
+      ],
+      [
+        "Scheme details",
+        "supplier_incentive_scheme",
+        null
+      ]
+    ],
+    "rules": [
+      "Incentive basis may be per purchase or actual loading; never assume one method.",
+      "enableIncentiveSchemes policy toggles eligibility schemes, not recording actual benefits.",
+      "Allow actual direct supplier benefits even without a scheme.",
+      "Track earned, received and outstanding amounts, with GL revenue/receivable mapping.",
+      "Receipt journals must be idempotent; support monthly supplier incentive reconciliation."
+    ],
+    "actions": [
+      [
+        "Record benefit receipt",
+        "supplier_incentive_receipt"
+      ],
+      [
+        "Create scheme",
+        "supplier_incentive_scheme"
+      ],
+      [
+        "New benefit",
+        "supplier_incentive"
+      ]
+    ]
+  },
+  "onboarding": {
+    "title": "Business onboarding & access workspace",
+    "module": "cement_admin",
+    "icon": "settings",
+    "root": "cement_branch",
+    "subtitle": "Configure institution, operating branches, suppliers, customers, finance mappings and role-based access.",
+    "steps": [
+      "Institution policies",
+      "Branches & depots",
+      "People & partners",
+      "Products & price books",
+      "Roles, permissions & go-live"
+    ],
+    "tabs": [
+      "Overview",
+      "Startup checklist",
+      "Access / roles",
+      "Configuration policies",
+      "Import & verification",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Branches",
+        "cement_branch",
+        null
+      ],
+      [
+        "Audit events",
+        "cement_audit_event",
+        null
+      ]
+    ],
+    "rules": [
+      "Cement CI4 is a distinct frontend/backend; frontend calls only Cement CI4 endpoints.",
+      "Cement CI4 backend calls MetaForge auth, mutation and sync APIs; session authorization stays server side.",
+      "Portal \u2192 Module \u2192 RecordType; role belongs to exactly one Portal; send role-authorized routes/sidebar from backend.",
+      "Institution types and portals govern accessible modules; do not permit frontend role preview to override permissions.",
+      "Startup records include branches, suppliers, depots, products, units, customers, accounts, staff and roles.",
+      "System Admin importer uses validated rows and the same mutation API with idempotent retries."
+    ],
+    "actions": [
+      [
+        "Register branch",
+        "cement_branch"
+      ],
+      [
+        "Register supplier",
+        "supplier"
+      ],
+      [
+        "Register customer",
+        "customer"
+      ]
+    ]
+  },
+  "reporting": {
+    "title": "Management reports & exports workspace",
+    "module": "cement_finance",
+    "icon": "chart",
+    "root": "report",
+    "subtitle": "20 catalog reports, generated results, scheduled delivery, filters, export and audit lineage.",
+    "steps": [
+      "Select report",
+      "Authorize data sources",
+      "Choose period & filters",
+      "Generate frontend/server",
+      "Export / schedule"
+    ],
+    "tabs": [
+      "Overview",
+      "Report catalog",
+      "Generated history",
+      "Delivery / schedules",
+      "Finance & operations",
+      "Business rules"
+    ],
+    "links": [
+      [
+        "Generated results",
+        "report_result",
+        "REPORT_ID"
+      ],
+      [
+        "Report schedules",
+        "report_schedule",
+        null
+      ],
+      [
+        "Delivered reports",
+        "report_delivery",
+        null
+      ]
+    ],
+    "rules": [
+      "Report definitions support generationMode frontend or server_stored.",
+      "server_stored generation persists report_result as a root record and supports export/email.",
+      "Expose date, period, supplier, product, depot, branch, customer, truck and staff filters where relevant.",
+      "Reports include purchases/entitlements, gross profit, stock valuation, aging, fuel, trip margin, payroll and dividends where authorized.",
+      "Users see only authorized report templates and scoped data; downloadable exports must enforce same permissions."
+    ],
+    "actions": [
+      [
+        "New report definition",
+        "report"
+      ],
+      [
+        "New report schedule",
+        "report_schedule"
+      ],
+      [
+        "Open report center",
+        null
+      ]
+    ]
+  }
+}

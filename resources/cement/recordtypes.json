@@ -1,0 +1,5265 @@
+[
+  {
+    "code": "person",
+    "module": "cement_master",
+    "name": "Person",
+    "description": "Person record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "firstName",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "middleName",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "lastName",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "phone",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "email",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "address",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "dateOfBirth",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "identification",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "phone",
+      "email"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "customer",
+    "module": "cement_master",
+    "name": "Customer",
+    "description": "Customer record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "personId",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "companyName",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "customerType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "contactPersonId",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "phone",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "email",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "billingAddress",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "deliveryAddresses",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "creditLimit",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "paymentTermsDays",
+        "type": "integer",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "defaultPriceListId",
+        "type": "reference",
+        "required": false,
+        "target": "price_list"
+      },
+      {
+        "code": "accountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "taxNumber",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "companyName",
+      "phone"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "supplier",
+    "module": "cement_master",
+    "name": "Supplier",
+    "description": "Supplier record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "supplierNumber",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "contactPersonId",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "phone",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "email",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "address",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "bankAccounts",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "creditTermsDays",
+        "type": "integer",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "controlAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "prepaidAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "taxNumber",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "name",
+      "supplierNumber"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "supplier_depot",
+    "module": "cement_master",
+    "name": "Supplier Depot",
+    "description": "Supplier Depot record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "supplierId",
+        "type": "reference",
+        "required": true,
+        "target": "supplier"
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "address",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "region",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "contactPhone",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "supplierDepotCode",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "loadingRules",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "supplierId",
+      "supplierDepotCode"
+    ],
+    "uniques": [
+      [
+        "code"
+      ],
+      [
+        "supplierId",
+        "supplierDepotCode"
+      ]
+    ]
+  },
+  {
+    "code": "supplier_product",
+    "module": "cement_master",
+    "name": "Supplier Product Mapping",
+    "description": "Supplier Product Mapping record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "supplierId",
+        "type": "reference",
+        "required": true,
+        "target": "supplier"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "supplierProductCode",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "productNameAtSupplier",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "depotIds",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "minOrderQuantity",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "active",
+        "type": "boolean",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "supplierId",
+      "productId"
+    ],
+    "uniques": [
+      [
+        "code"
+      ],
+      [
+        "supplierId",
+        "productId"
+      ]
+    ]
+  },
+  {
+    "code": "unit_of_measure",
+    "module": "cement_master",
+    "name": "Unit of Measure",
+    "description": "Unit of Measure record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "symbol",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "dimension",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "decimalPlaces",
+        "type": "integer",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "conversionBaseFactor",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "symbol"
+    ],
+    "uniques": [
+      [
+        "code"
+      ],
+      [
+        "symbol"
+      ]
+    ]
+  },
+  {
+    "code": "product_category",
+    "module": "cement_master",
+    "name": "Product Category",
+    "description": "Product Category record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "parentCategoryId",
+        "type": "reference",
+        "required": false,
+        "target": "product_category"
+      },
+      {
+        "code": "description",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "name"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "product",
+    "module": "cement_master",
+    "name": "Product",
+    "description": "Reusable Product: immutable historical quantity conversions through transaction snapshots, no editable stock",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "categoryId",
+        "type": "reference",
+        "required": true,
+        "target": "product_category"
+      },
+      {
+        "code": "brand",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "grade",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "description",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "baseUnitId",
+        "type": "reference",
+        "required": true,
+        "target": "unit_of_measure"
+      },
+      {
+        "code": "packageUnitId",
+        "type": "reference",
+        "required": false,
+        "target": "unit_of_measure"
+      },
+      {
+        "code": "packageSize",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "packageWeightKg",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "unitsPerBag",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "bagsPerPallet",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "trackingMode",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "inventoryTracked",
+        "type": "boolean",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "taxable",
+        "type": "boolean",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "name",
+      "categoryId"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "price_list",
+    "module": "cement_pricing",
+    "name": "Price List",
+    "description": "Price List record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "priceType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "currency",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "validFrom",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "validTo",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "customerId",
+        "type": "reference",
+        "required": false,
+        "target": "customer"
+      },
+      {
+        "code": "priority",
+        "type": "integer",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "taxInclusive",
+        "type": "boolean",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "priceType",
+      "customerId"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "price_list_item",
+    "module": "cement_pricing",
+    "name": "Price List Item",
+    "description": "Versioned list tiers; transaction price snapshots do not change after posting",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "priceListId",
+        "type": "reference",
+        "required": true,
+        "target": "price_list"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "unitId",
+        "type": "reference",
+        "required": true,
+        "target": "unit_of_measure"
+      },
+      {
+        "code": "minQuantity",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "maxQuantity",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "unitPrice",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "validFrom",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "validTo",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "customerId",
+        "type": "reference",
+        "required": false,
+        "target": "customer"
+      },
+      {
+        "code": "priority",
+        "type": "integer",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "priceListId",
+      "productId",
+      "unitId",
+      "minQuantity",
+      "validFrom"
+    ],
+    "uniques": [
+      [
+        "code"
+      ],
+      [
+        "priceListId",
+        "productId",
+        "unitId",
+        "minQuantity",
+        "validFrom"
+      ]
+    ]
+  },
+  {
+    "code": "purchase",
+    "module": "cement_procurement",
+    "name": "Supplier Purchase",
+    "description": "Root batch purchase; posts prepaid/entitlement against payment account only once",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "supplierId",
+        "type": "reference",
+        "required": true,
+        "target": "supplier"
+      },
+      {
+        "code": "supplierDepotId",
+        "type": "reference",
+        "required": false,
+        "target": "supplier_depot"
+      },
+      {
+        "code": "purchaseDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "supplierOrderNo",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "supplierPin",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "supplierBin",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "supplierLoginCode",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "currency",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "exchangeRate",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "paymentAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "prepaidAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "grossAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "discountAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "netAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "paidAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "ownershipTransferPolicy",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "notes",
+        "type": "string",
+        "required": false,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementPurchasePostingService",
+        "stage": "afterSave",
+        "trigger": "status == \"paid\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "approved",
+        "paid",
+        "part_loaded",
+        "fully_loaded",
+        "closed",
+        "cancelled"
+      ],
+      "terminalStates": [
+        "closed",
+        "cancelled"
+      ]
+    },
+    "indexes": [
+      "code",
+      "supplierId",
+      "purchaseDate",
+      "supplierPin"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "purchaseItem",
+    "module": "cement_procurement",
+    "name": "Purchase Item",
+    "description": "Generic root purchaseItem; product/quantity/price/discount immutable after first loadedQty > 0",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "purchaseId",
+        "type": "reference",
+        "required": true,
+        "target": "purchase"
+      },
+      {
+        "code": "supplierProductId",
+        "type": "reference",
+        "required": false,
+        "target": "supplier_product"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "unitId",
+        "type": "reference",
+        "required": true,
+        "target": "unit_of_measure"
+      },
+      {
+        "code": "originalQuantity",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "quantityBase",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "unitConversionSnapshot",
+        "type": "object",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "unitPrice",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "discountType",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "discountValue",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "netUnitCost",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "amount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "loadedQty",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "clearedQty",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "deliveredQty",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "fullyDelivered",
+        "type": "boolean",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "firstLoadedAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "batchReference",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementPurchaseItemLockService",
+        "stage": "beforeSave",
+        "trigger": "loadedQty > 0"
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "open",
+      "states": [
+        "open",
+        "part_loaded",
+        "fully_loaded",
+        "closed"
+      ],
+      "terminalStates": [
+        "closed"
+      ]
+    },
+    "indexes": [
+      "code",
+      "purchaseId",
+      "productId"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "cement_loading",
+    "module": "cement_procurement",
+    "name": "Cement Loading",
+    "description": "Confirmed allocations issue customer_sales for customer quantity or inventory_movement for warehouse quantity",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "purchaseItemId",
+        "type": "reference",
+        "required": true,
+        "target": "purchaseItem"
+      },
+      {
+        "code": "supplierDepotId",
+        "type": "reference",
+        "required": true,
+        "target": "supplier_depot"
+      },
+      {
+        "code": "supplierLoadingNo",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "supplierPin",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "supplierBin",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "loadingDate",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "truckId",
+        "type": "reference",
+        "required": false,
+        "target": "vehicle"
+      },
+      {
+        "code": "driverId",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "quantity",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "quantityBase",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "unitId",
+        "type": "reference",
+        "required": true,
+        "target": "unit_of_measure"
+      },
+      {
+        "code": "unitConversionSnapshot",
+        "type": "object",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "customerQuantity",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "warehouseQuantity",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "clearedQuantity",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "destinations",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "allocationRows",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "tripId",
+        "type": "reference",
+        "required": false,
+        "target": "trip"
+      },
+      {
+        "code": "confirmedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "confirmedAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "notes",
+        "type": "string",
+        "required": false,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementLoadingAllocationService",
+        "stage": "afterSave",
+        "trigger": "status == \"confirmed\""
+      },
+      {
+        "code": "CementPurchaseQuantityRollupService",
+        "stage": "afterSave",
+        "trigger": "status == \"confirmed\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "submitted",
+        "confirmed",
+        "cancelled"
+      ],
+      "terminalStates": [
+        "confirmed",
+        "cancelled"
+      ]
+    },
+    "indexes": [
+      "code",
+      "purchaseItemId",
+      "supplierDepotId",
+      "status"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "loading_clearance",
+    "module": "cement_procurement",
+    "name": "Loading Clearance",
+    "description": "Loading Clearance record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "purchaseItemId",
+        "type": "reference",
+        "required": true,
+        "target": "purchaseItem"
+      },
+      {
+        "code": "loadingId",
+        "type": "reference",
+        "required": false,
+        "target": "cement_loading"
+      },
+      {
+        "code": "supplierClearingRef",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "clearanceDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "quantity",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "supplierDocument",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "verifiedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementLoadingClearingService",
+        "stage": "afterSave",
+        "trigger": "status == \"verified\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "verified",
+        "cancelled"
+      ],
+      "terminalStates": [
+        "verified",
+        "cancelled"
+      ]
+    },
+    "indexes": [
+      "code",
+      "purchaseItemId"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "supplier_purchase_payment",
+    "module": "cement_procurement",
+    "name": "Supplier Payment",
+    "description": "Supplier Payment record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "purchaseId",
+        "type": "reference",
+        "required": true,
+        "target": "purchase"
+      },
+      {
+        "code": "amount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "paidAt",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "paymentMethod",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "bankAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "bank_account"
+      },
+      {
+        "code": "reference",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "purchase_adjustment",
+    "module": "cement_procurement",
+    "name": "Purchase Adjustment",
+    "description": "Purchase Adjustment record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "purchaseId",
+        "type": "reference",
+        "required": true,
+        "target": "purchase"
+      },
+      {
+        "code": "purchaseItemId",
+        "type": "reference",
+        "required": false,
+        "target": "purchaseItem"
+      },
+      {
+        "code": "adjustmentType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "quantity",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "amount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "reason",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "approvedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "customer_sales",
+    "module": "cement_sales",
+    "name": "Customer Sale",
+    "description": "Sale header linked to supplier loading or warehouse stock, preserving price and ownership policy",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "customerId",
+        "type": "reference",
+        "required": true,
+        "target": "customer"
+      },
+      {
+        "code": "saleDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "sourceLoadingId",
+        "type": "reference",
+        "required": false,
+        "target": "cement_loading"
+      },
+      {
+        "code": "sourceTripId",
+        "type": "reference",
+        "required": false,
+        "target": "trip"
+      },
+      {
+        "code": "warehouseId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_location"
+      },
+      {
+        "code": "priceListId",
+        "type": "reference",
+        "required": false,
+        "target": "price_list"
+      },
+      {
+        "code": "currency",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "grossAmount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "discountAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "taxAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "netAmount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "amountPaid",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "balanceDue",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "paymentTermsDays",
+        "type": "integer",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "ownershipTransferPolicy",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "deliveredAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "deliveryStatus",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementSalesPostingService",
+        "stage": "afterSave",
+        "trigger": "status == \"invoiced\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "confirmed",
+        "part_delivered",
+        "delivered",
+        "invoiced",
+        "paid",
+        "cancelled"
+      ],
+      "terminalStates": [
+        "paid",
+        "cancelled"
+      ]
+    },
+    "indexes": [
+      "code",
+      "customerId",
+      "saleDate",
+      "status"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "customer_sale_item",
+    "module": "cement_sales",
+    "name": "Customer Sale Item",
+    "description": "Each line stores the actual agreed unit price, discount and conversion snapshot",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "saleId",
+        "type": "reference",
+        "required": true,
+        "target": "customer_sales"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "unitId",
+        "type": "reference",
+        "required": true,
+        "target": "unit_of_measure"
+      },
+      {
+        "code": "quantity",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "quantityBase",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "listedUnitPrice",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "agreedUnitPrice",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "discountType",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "discountValue",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "netUnitPrice",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "taxRate",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "taxAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "lineAmount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "priceListItemId",
+        "type": "reference",
+        "required": false,
+        "target": "price_list_item"
+      },
+      {
+        "code": "sourcePurchaseItemId",
+        "type": "reference",
+        "required": false,
+        "target": "purchaseItem"
+      },
+      {
+        "code": "sourceLoadingId",
+        "type": "reference",
+        "required": false,
+        "target": "cement_loading"
+      },
+      {
+        "code": "sourceMovementId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_movement"
+      },
+      {
+        "code": "unitConversionSnapshot",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementSalesPricingService",
+        "stage": "beforeSave",
+        "trigger": "true"
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "open",
+      "states": [
+        "open",
+        "delivered",
+        "returned",
+        "cancelled"
+      ],
+      "terminalStates": [
+        "returned",
+        "cancelled"
+      ]
+    },
+    "indexes": [
+      "code",
+      "saleId",
+      "productId"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "customer_payment",
+    "module": "cement_sales",
+    "name": "Customer Payment",
+    "description": "Customer Payment record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "customerId",
+        "type": "reference",
+        "required": true,
+        "target": "customer"
+      },
+      {
+        "code": "saleId",
+        "type": "reference",
+        "required": false,
+        "target": "customer_sales"
+      },
+      {
+        "code": "amount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "paymentDate",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "paymentMethod",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "bankAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "bank_account"
+      },
+      {
+        "code": "reference",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "postedJournalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementPaymentPostingService",
+        "stage": "afterSave",
+        "trigger": "status == \"completed\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "completed",
+        "cancelled"
+      ],
+      "terminalStates": [
+        "completed",
+        "cancelled"
+      ]
+    },
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "customer_sale_return",
+    "module": "cement_sales",
+    "name": "Customer Return",
+    "description": "Customer Return record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "saleId",
+        "type": "reference",
+        "required": true,
+        "target": "customer_sales"
+      },
+      {
+        "code": "saleItemId",
+        "type": "reference",
+        "required": true,
+        "target": "customer_sale_item"
+      },
+      {
+        "code": "quantity",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "unitId",
+        "type": "reference",
+        "required": true,
+        "target": "unit_of_measure"
+      },
+      {
+        "code": "returnReason",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "disposition",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "stockMovementId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_movement"
+      },
+      {
+        "code": "refundAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "approvedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementSalesReturnService",
+        "stage": "afterSave",
+        "trigger": "status == \"confirmed\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "approved",
+        "confirmed",
+        "rejected"
+      ],
+      "terminalStates": [
+        "confirmed",
+        "rejected"
+      ]
+    },
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "delivery_proof",
+    "module": "cement_sales",
+    "name": "Delivery Proof",
+    "description": "Delivery Proof record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "saleId",
+        "type": "reference",
+        "required": true,
+        "target": "customer_sales"
+      },
+      {
+        "code": "tripDestinationId",
+        "type": "reference",
+        "required": false,
+        "target": "trip_destination"
+      },
+      {
+        "code": "deliveredDate",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "acceptedQuantity",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "rejectedQuantity",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "signature",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "photos",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "receiverName",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "receiverPhone",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "deliveryNoteNo",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementDeliveryAcceptanceService",
+        "stage": "afterSave",
+        "trigger": "status == \"confirmed\""
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "inventory_location",
+    "module": "cement_inventory",
+    "name": "Inventory Location",
+    "description": "Inventory Location record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "locationType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "parentLocationId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_location"
+      },
+      {
+        "code": "address",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "branchCode",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "isQuarantine",
+        "type": "boolean",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "inventory_stock",
+    "module": "cement_inventory",
+    "name": "Inventory Stock",
+    "description": "System managed balance; no direct human quantity edits; unique location/product/condition",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "locationId",
+        "type": "reference",
+        "required": true,
+        "target": "inventory_location"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "stockCondition",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "quantityOnHand",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "quantityReserved",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "quantityAvailable",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "averageUnitCost",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "totalValue",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "lastMovementAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "lastStocktakeAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "locationId",
+      "productId",
+      "stockCondition"
+    ],
+    "uniques": [
+      [
+        "code"
+      ],
+      [
+        "locationId",
+        "productId",
+        "stockCondition"
+      ]
+    ]
+  },
+  {
+    "code": "inventory_movement",
+    "module": "cement_inventory",
+    "name": "Inventory Movement",
+    "description": "Only effective confirmed movements affect inventory_stock; stock is updated by authorized service/RA",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "movementDate",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "movementType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "sourceLocationId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_location"
+      },
+      {
+        "code": "destinationLocationId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_location"
+      },
+      {
+        "code": "stockCondition",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "qtyBase",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "unitId",
+        "type": "reference",
+        "required": false,
+        "target": "unit_of_measure"
+      },
+      {
+        "code": "unitConversionSnapshot",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "costPolicy",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "unitCost",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "totalCost",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "sourceRecordTypeCode",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "sourceRecordId",
+        "type": "integer",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "purchaseItemId",
+        "type": "reference",
+        "required": false,
+        "target": "purchaseItem"
+      },
+      {
+        "code": "loadingId",
+        "type": "reference",
+        "required": false,
+        "target": "cement_loading"
+      },
+      {
+        "code": "saleItemId",
+        "type": "reference",
+        "required": false,
+        "target": "customer_sale_item"
+      },
+      {
+        "code": "fifoAllocations",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "authorizedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "effectiveAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementInventoryMovementService",
+        "stage": "afterSave",
+        "trigger": "status == \"confirmed\""
+      },
+      {
+        "code": "CementInventoryValuationService",
+        "stage": "afterSave",
+        "trigger": "status == \"confirmed\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "approved",
+        "confirmed",
+        "reversed"
+      ],
+      "terminalStates": [
+        "reversed"
+      ]
+    },
+    "indexes": [
+      "code",
+      "productId",
+      "sourceRecordId",
+      "status"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "inventory_cost_layer",
+    "module": "cement_inventory",
+    "name": "FIFO Cost Layer",
+    "description": "Ledger of immutable FIFO receipt layers, consumed by valuation service",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "stockId",
+        "type": "reference",
+        "required": true,
+        "target": "inventory_stock"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "locationId",
+        "type": "reference",
+        "required": true,
+        "target": "inventory_location"
+      },
+      {
+        "code": "sourceMovementId",
+        "type": "reference",
+        "required": true,
+        "target": "inventory_movement"
+      },
+      {
+        "code": "receiptDate",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "originalQty",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "remainingQty",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "unitCost",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "stockId",
+      "sourceMovementId"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "inventory_stocktake",
+    "module": "cement_inventory",
+    "name": "Stocktake",
+    "description": "Stocktake record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "locationId",
+        "type": "reference",
+        "required": true,
+        "target": "inventory_location"
+      },
+      {
+        "code": "countDate",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "inventoryKeepingMethod",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "reference",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "countedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "verifiedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "postedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementStocktakePostingService",
+        "stage": "afterSave",
+        "trigger": "status == \"posted\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "counting",
+        "review",
+        "approved",
+        "posted",
+        "cancelled"
+      ],
+      "terminalStates": [
+        "posted",
+        "cancelled"
+      ]
+    },
+    "indexes": [
+      "code",
+      "locationId",
+      "countDate"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "inventory_stocktake_line",
+    "module": "cement_inventory",
+    "name": "Stocktake Line",
+    "description": "Stocktake Line record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "stocktakeId",
+        "type": "reference",
+        "required": true,
+        "target": "inventory_stocktake"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "stockCondition",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "systemQty",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "countedQty",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "varianceQty",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "unitCost",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "varianceValue",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "notes",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "stocktakeId",
+      "productId"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "stock_adjustment",
+    "module": "cement_inventory",
+    "name": "Stock Adjustment",
+    "description": "Approval before stock movements; positive/negative adjustment and stock condition supported",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "locationId",
+        "type": "reference",
+        "required": true,
+        "target": "inventory_location"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "adjustmentDate",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "reasonCode",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "stockCondition",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "quantityDelta",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "unitCost",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "amount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "stocktakeLineId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_stocktake_line"
+      },
+      {
+        "code": "sourceMovementId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_movement"
+      },
+      {
+        "code": "approvedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "approvalDate",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementStockAdjustmentService",
+        "stage": "afterSave",
+        "trigger": "status == \"confirmed\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "pending_approval",
+        "approved",
+        "confirmed",
+        "rejected"
+      ],
+      "terminalStates": [
+        "confirmed",
+        "rejected"
+      ]
+    },
+    "indexes": [
+      "code",
+      "locationId",
+      "productId",
+      "status"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "damaged_goods",
+    "module": "cement_inventory",
+    "name": "Damaged or Bad Goods",
+    "description": "Damaged or Bad Goods record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "locationId",
+        "type": "reference",
+        "required": true,
+        "target": "inventory_location"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "relatedMovementId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_movement"
+      },
+      {
+        "code": "quantity",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "reason",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "severity",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "condition",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "photoEvidence",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "decision",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "approvedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "writeOffAdjustmentId",
+        "type": "reference",
+        "required": false,
+        "target": "stock_adjustment"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "inventory_transfer",
+    "module": "cement_inventory",
+    "name": "Inventory Transfer",
+    "description": "Inventory Transfer record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "sourceLocationId",
+        "type": "reference",
+        "required": true,
+        "target": "inventory_location"
+      },
+      {
+        "code": "destinationLocationId",
+        "type": "reference",
+        "required": true,
+        "target": "inventory_location"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "quantity",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "unitId",
+        "type": "reference",
+        "required": true,
+        "target": "unit_of_measure"
+      },
+      {
+        "code": "requestDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "dispatchedAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "receivedAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "outMovementId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_movement"
+      },
+      {
+        "code": "inMovementId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_movement"
+      },
+      {
+        "code": "approvedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementInventoryTransferService",
+        "stage": "afterSave",
+        "trigger": "status == \"received\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "approved",
+        "dispatched",
+        "received",
+        "cancelled"
+      ],
+      "terminalStates": [
+        "received",
+        "cancelled"
+      ]
+    },
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "vehicle",
+    "module": "cement_logistics",
+    "name": "Vehicle",
+    "description": "Vehicle record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "registrationNumber",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "vehicleType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "make",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "model",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "capacityTonnes",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "capacityBags",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "ownerType",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "ownerName",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "insuranceExpiry",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "roadworthinessExpiry",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "odometer",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "registrationNumber"
+    ],
+    "uniques": [
+      [
+        "code"
+      ],
+      [
+        "registrationNumber"
+      ]
+    ]
+  },
+  {
+    "code": "trip",
+    "module": "cement_logistics",
+    "name": "Delivery Trip",
+    "description": "One truck trip can deliver to several customers/destinations",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "vehicleId",
+        "type": "reference",
+        "required": true,
+        "target": "vehicle"
+      },
+      {
+        "code": "driverId",
+        "type": "reference",
+        "required": true,
+        "target": "person"
+      },
+      {
+        "code": "loadingId",
+        "type": "reference",
+        "required": false,
+        "target": "cement_loading"
+      },
+      {
+        "code": "originDepotId",
+        "type": "reference",
+        "required": false,
+        "target": "supplier_depot"
+      },
+      {
+        "code": "originLocationId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_location"
+      },
+      {
+        "code": "departureAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "arrivalAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "scheduledDate",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "destinationCount",
+        "type": "integer",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "totalQuantity",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "totalFuelCost",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "totalMaintenanceCost",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "totalTripExpense",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "totalTripCost",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "notes",
+        "type": "string",
+        "required": false,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementTripCostAllocationService",
+        "stage": "afterSave",
+        "trigger": "status == \"completed\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "planned",
+      "states": [
+        "planned",
+        "loading",
+        "dispatched",
+        "in_transit",
+        "completed",
+        "cancelled"
+      ],
+      "terminalStates": [
+        "completed",
+        "cancelled"
+      ]
+    },
+    "indexes": [
+      "code",
+      "vehicleId",
+      "driverId",
+      "status"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "trip_destination",
+    "module": "cement_logistics",
+    "name": "Trip Destination",
+    "description": "Trip Destination record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "tripId",
+        "type": "reference",
+        "required": true,
+        "target": "trip"
+      },
+      {
+        "code": "destinationOrder",
+        "type": "integer",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "customerId",
+        "type": "reference",
+        "required": false,
+        "target": "customer"
+      },
+      {
+        "code": "deliveryAddress",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "saleId",
+        "type": "reference",
+        "required": false,
+        "target": "customer_sales"
+      },
+      {
+        "code": "loadingId",
+        "type": "reference",
+        "required": false,
+        "target": "cement_loading"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": false,
+        "target": "product"
+      },
+      {
+        "code": "quantity",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "unitId",
+        "type": "reference",
+        "required": true,
+        "target": "unit_of_measure"
+      },
+      {
+        "code": "arrivalAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "deliveredAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "proofId",
+        "type": "reference",
+        "required": false,
+        "target": "delivery_proof"
+      },
+      {
+        "code": "deliveryStatus",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "notes",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "tripId",
+      "customerId"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "fuel_transaction",
+    "module": "cement_logistics",
+    "name": "Fuel Transaction",
+    "description": "Fuel Transaction record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "vehicleId",
+        "type": "reference",
+        "required": true,
+        "target": "vehicle"
+      },
+      {
+        "code": "tripId",
+        "type": "reference",
+        "required": false,
+        "target": "trip"
+      },
+      {
+        "code": "stationName",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "fuelDate",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "litres",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "pricePerLitre",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "totalAmount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "paidBy",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "paymentAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "receiptNumber",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "odometer",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "postedJournalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementFuelPostingService",
+        "stage": "afterSave",
+        "trigger": "status == \"posted\""
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "vehicle_maintenance",
+    "module": "cement_logistics",
+    "name": "Vehicle Maintenance",
+    "description": "Vehicle Maintenance record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "vehicleId",
+        "type": "reference",
+        "required": true,
+        "target": "vehicle"
+      },
+      {
+        "code": "tripId",
+        "type": "reference",
+        "required": false,
+        "target": "trip"
+      },
+      {
+        "code": "serviceDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "maintenanceType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "description",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "serviceProvider",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "odometer",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "partsCost",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "laborCost",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "totalCost",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "paymentAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "nextServiceDate",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementMaintenancePostingService",
+        "stage": "afterSave",
+        "trigger": "status == \"posted\""
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "trip_expense",
+    "module": "cement_logistics",
+    "name": "Trip Expense",
+    "description": "Trip Expense record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "tripId",
+        "type": "reference",
+        "required": true,
+        "target": "trip"
+      },
+      {
+        "code": "tripDestinationId",
+        "type": "reference",
+        "required": false,
+        "target": "trip_destination"
+      },
+      {
+        "code": "expenseType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "expenseDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "amount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "paidTo",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "paymentAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "accountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "reference",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "allocatedToSaleId",
+        "type": "reference",
+        "required": false,
+        "target": "customer_sales"
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementTripExpensePostingService",
+        "stage": "afterSave",
+        "trigger": "status == \"posted\""
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "supplier_incentive_scheme",
+    "module": "cement_incentives",
+    "name": "Supplier Incentive Scheme",
+    "description": "Supplier Incentive Scheme record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "supplierId",
+        "type": "reference",
+        "required": true,
+        "target": "supplier"
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "basis",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "calculationType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "rate",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "fixedAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "thresholdQty",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "thresholdAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "validFrom",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "validTo",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "productIds",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "depotIds",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "supplier_incentive",
+    "module": "cement_incentives",
+    "name": "Supplier Incentive Benefit",
+    "description": "Handles optional scheme or directly entered actual benefit based on purchase or loading",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "supplierId",
+        "type": "reference",
+        "required": true,
+        "target": "supplier"
+      },
+      {
+        "code": "schemeId",
+        "type": "reference",
+        "required": false,
+        "target": "supplier_incentive_scheme"
+      },
+      {
+        "code": "purchaseId",
+        "type": "reference",
+        "required": false,
+        "target": "purchase"
+      },
+      {
+        "code": "loadingId",
+        "type": "reference",
+        "required": false,
+        "target": "cement_loading"
+      },
+      {
+        "code": "benefitDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "benefitType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "basisQuantity",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "basisAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "rate",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "actualAmount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "amountReceived",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "receivableAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "incomeAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementIncentiveAccrualService",
+        "stage": "afterSave",
+        "trigger": "status == \"verified\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "pending",
+      "states": [
+        "pending",
+        "verified",
+        "part_received",
+        "received",
+        "rejected"
+      ],
+      "terminalStates": [
+        "received",
+        "rejected"
+      ]
+    },
+    "indexes": [
+      "code",
+      "supplierId",
+      "purchaseId"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "supplier_incentive_receipt",
+    "module": "cement_incentives",
+    "name": "Supplier Incentive Receipt",
+    "description": "Supplier Incentive Receipt record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "incentiveId",
+        "type": "reference",
+        "required": true,
+        "target": "supplier_incentive"
+      },
+      {
+        "code": "amount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "receivedDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "bankAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "bank_account"
+      },
+      {
+        "code": "reference",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementIncentiveReceiptService",
+        "stage": "afterSave",
+        "trigger": "status == \"completed\""
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "staff_employment",
+    "module": "cement_people",
+    "name": "Staff Employment",
+    "description": "Staff Employment record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "personId",
+        "type": "reference",
+        "required": true,
+        "target": "person"
+      },
+      {
+        "code": "employeeNumber",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "department",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "designation",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "hireDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "terminationDate",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "managerEmploymentId",
+        "type": "reference",
+        "required": false,
+        "target": "staff_employment"
+      },
+      {
+        "code": "employmentType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "basicSalary",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "defaultBankAccount",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "payrollAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "cooperativeMemberId",
+        "type": "reference",
+        "required": false,
+        "target": "member"
+      },
+      {
+        "code": "defaultSavingsAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "member_account"
+      },
+      {
+        "code": "defaultLoanAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "member_account"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "personId",
+      "employeeNumber"
+    ],
+    "uniques": [
+      [
+        "code"
+      ],
+      [
+        "employeeNumber"
+      ]
+    ]
+  },
+  {
+    "code": "payroll",
+    "module": "cement_people",
+    "name": "Payroll Batch",
+    "description": "Payroll Batch record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "periodStart",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "periodEnd",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "paymentDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "totalGross",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "totalDeductions",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "totalNet",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "currency",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "approvedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementPayrollPostingService",
+        "stage": "afterSave",
+        "trigger": "status == \"posted\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "reviewed",
+        "approved",
+        "posted",
+        "paid",
+        "cancelled"
+      ],
+      "terminalStates": [
+        "paid",
+        "cancelled"
+      ]
+    },
+    "indexes": [
+      "code",
+      "periodStart"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "payroll_item",
+    "module": "cement_people",
+    "name": "Payroll Item",
+    "description": "Payroll Item record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "payrollId",
+        "type": "reference",
+        "required": true,
+        "target": "payroll"
+      },
+      {
+        "code": "employmentId",
+        "type": "reference",
+        "required": true,
+        "target": "staff_employment"
+      },
+      {
+        "code": "basicSalary",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "allowances",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "otherEarnings",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "grossPay",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "taxAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "pensionAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "deductions",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "savingsDeduction",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "loanDeduction",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "netPay",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "payrollId",
+      "employmentId"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "payroll_payment",
+    "module": "cement_people",
+    "name": "Payroll Payment",
+    "description": "Payroll Payment record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "payrollItemId",
+        "type": "reference",
+        "required": true,
+        "target": "payroll_item"
+      },
+      {
+        "code": "employmentId",
+        "type": "reference",
+        "required": true,
+        "target": "staff_employment"
+      },
+      {
+        "code": "paidDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "paymentMethod",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "bankAccount",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "paymentAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "amount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "transferReference",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementPayrollPaymentService",
+        "stage": "afterSave",
+        "trigger": "status == \"completed\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "completed",
+        "failed"
+      ],
+      "terminalStates": [
+        "completed",
+        "failed"
+      ]
+    },
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "staff_deduction",
+    "module": "cement_people",
+    "name": "Staff Deduction Schedule",
+    "description": "Staff Deduction Schedule record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "employmentId",
+        "type": "reference",
+        "required": true,
+        "target": "staff_employment"
+      },
+      {
+        "code": "deductionType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "savingsAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "member_account"
+      },
+      {
+        "code": "loanAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "member_account"
+      },
+      {
+        "code": "fixedAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "rate",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "startDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "endDate",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "currentBalance",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "expense",
+    "module": "cement_finance",
+    "name": "General Expense",
+    "description": "General Expense record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "expenseDate",
+        "type": "date",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "expenseType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "description",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "amount",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "taxAmount",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "supplierId",
+        "type": "reference",
+        "required": false,
+        "target": "supplier"
+      },
+      {
+        "code": "vehicleId",
+        "type": "reference",
+        "required": false,
+        "target": "vehicle"
+      },
+      {
+        "code": "tripId",
+        "type": "reference",
+        "required": false,
+        "target": "trip"
+      },
+      {
+        "code": "employeeId",
+        "type": "reference",
+        "required": false,
+        "target": "staff_employment"
+      },
+      {
+        "code": "paymentAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "expenseAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "account"
+      },
+      {
+        "code": "reference",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "journalId",
+        "type": "reference",
+        "required": false,
+        "target": "journal"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "CementExpensePostingService",
+        "stage": "afterSave",
+        "trigger": "status == \"posted\""
+      }
+    ],
+    "lifecycle": {
+      "fieldCode": "status",
+      "initialState": "draft",
+      "states": [
+        "draft",
+        "approved",
+        "posted",
+        "cancelled"
+      ],
+      "terminalStates": [
+        "posted",
+        "cancelled"
+      ]
+    },
+    "indexes": [
+      "code",
+      "tripId",
+      "expenseDate"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "report",
+    "module": "cement_finance",
+    "name": "Report Definition",
+    "description": "Reusable report root: frontend or server_stored mode",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "moduleCode",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "generationMode",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "sourceRecordTypes",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "columns",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "filters",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "groupings",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "calculations",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "renderer",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "defaultPeriod",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "outputFormats",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "accessRoles",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "scheduleCode",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "isActive",
+        "type": "boolean",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code",
+      "generationMode"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "report_result",
+    "module": "cement_finance",
+    "name": "Stored Report Result",
+    "description": "Stored server generated report snapshots",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "reportId",
+        "type": "reference",
+        "required": true,
+        "target": "report"
+      },
+      {
+        "code": "generatedAt",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "periodStart",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "periodEnd",
+        "type": "date",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "parameters",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "totals",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "rows",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "artifactPath",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "fileType",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "generatedBy",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "ReportGenerationService",
+        "stage": "afterCommit",
+        "trigger": "true"
+      },
+      {
+        "code": "ReportExporterService",
+        "stage": "afterCommit",
+        "trigger": "true"
+      }
+    ],
+    "indexes": [
+      "code",
+      "reportId",
+      "generatedAt"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "report_delivery",
+    "module": "cement_finance",
+    "name": "Report Delivery",
+    "description": "Report Delivery record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "reportResultId",
+        "type": "reference",
+        "required": true,
+        "target": "report_result"
+      },
+      {
+        "code": "deliveryMethod",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "recipient",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "deliveredAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "deliveryStatus",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "failureReason",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "retryCount",
+        "type": "integer",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "ReportEmailService",
+        "stage": "afterCommit",
+        "trigger": "true"
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "report_schedule",
+    "module": "cement_finance",
+    "name": "Report Schedule",
+    "description": "Report Schedule record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "reportId",
+        "type": "reference",
+        "required": true,
+        "target": "report"
+      },
+      {
+        "code": "cadence",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "timezone",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "recipients",
+        "type": "array",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "outputFormat",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "enabled",
+        "type": "boolean",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "lastRunAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "nextRunAt",
+        "type": "datetime",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "services": [
+      {
+        "code": "ReportScheduleService",
+        "stage": "afterCommit",
+        "trigger": "true"
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "cement_branch",
+    "module": "cement_admin",
+    "name": "Branch",
+    "description": "Branch record",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "name",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "address",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "defaultDepotId",
+        "type": "reference",
+        "required": false,
+        "target": "supplier_depot"
+      },
+      {
+        "code": "defaultWarehouseId",
+        "type": "reference",
+        "required": false,
+        "target": "inventory_location"
+      },
+      {
+        "code": "defaultBankAccountId",
+        "type": "reference",
+        "required": false,
+        "target": "bank_account"
+      },
+      {
+        "code": "managerId",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  },
+  {
+    "code": "cement_audit_event",
+    "module": "cement_admin",
+    "name": "Operational Audit Event",
+    "description": "Optional cement domain audit projection; MetaForge mutation history remains authoritative",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "eventType",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "sourceRecordTypeCode",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "sourceRecordId",
+        "type": "integer",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "actorId",
+        "type": "reference",
+        "required": false,
+        "target": "person"
+      },
+      {
+        "code": "mutationId",
+        "type": "integer",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "requestId",
+        "type": "string",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "eventDate",
+        "type": "datetime",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "beforeState",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "afterState",
+        "type": "object",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "description",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "indexes": [
+      "code"
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
+  }
+]

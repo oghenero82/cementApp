@@ -1,0 +1,74 @@
+{
+  "ownershipTransferPolicy": {
+    "type": "string",
+    "default": "loading-transfer",
+    "enum": [
+      "loading-transfer",
+      "delivery-transfer"
+    ]
+  },
+  "inventoryKeepingMethod": {
+    "type": "string",
+    "default": "manual_stocktaken",
+    "enum": [
+      "fixed",
+      "daily",
+      "weekly",
+      "monthly",
+      "yearly",
+      "manual_stocktaken"
+    ]
+  },
+  "inventoryValuationMethod": {
+    "type": "string",
+    "default": "weighted_average",
+    "enum": [
+      "fifo",
+      "weighted_average"
+    ]
+  },
+  "enableIncentiveSchemes": {
+    "type": "boolean",
+    "default": false
+  },
+  "enableCashTransferPosting": {
+    "type": "boolean",
+    "default": false
+  },
+  "allowSalesPriceOverride": {
+    "type": "boolean",
+    "default": false
+  },
+  "requireLoadingApproval": {
+    "type": "boolean",
+    "default": true
+  },
+  "requireStockAdjustmentApproval": {
+    "type": "boolean",
+    "default": true
+  },
+  "loadingClearingMode": {
+    "type": "string",
+    "default": "partial",
+    "enum": [
+      "partial",
+      "full_only"
+    ]
+  },
+  "allowCreditSales": {
+    "type": "boolean",
+    "default": true
+  },
+  "defaultCurrency": {
+    "type": "string",
+    "default": "NGN"
+  },
+  "supplierDocumentFields": {
+    "type": "array",
+    "default": [
+      "supplierPin",
+      "supplierBin",
+      "supplierLoginCode"
+    ]
+  }
+}

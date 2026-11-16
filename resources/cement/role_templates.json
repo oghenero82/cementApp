@@ -1,0 +1,152 @@
+{
+  "cement_system_admin": {
+    "name": "System Admin",
+    "modules": [
+      "cement_master",
+      "cement_pricing",
+      "cement_procurement",
+      "cement_sales",
+      "cement_inventory",
+      "cement_logistics",
+      "cement_incentives",
+      "cement_people",
+      "cement_finance",
+      "cement_admin"
+    ],
+    "can_write": [
+      "*"
+    ],
+    "can_read": [
+      "*"
+    ]
+  },
+  "cement_admin": {
+    "name": "Administrator",
+    "modules": [
+      "cement_master",
+      "cement_pricing",
+      "cement_procurement",
+      "cement_sales",
+      "cement_inventory",
+      "cement_logistics",
+      "cement_incentives",
+      "cement_people",
+      "cement_finance",
+      "cement_admin"
+    ],
+    "can_write": [
+      "*"
+    ],
+    "can_read": [
+      "*"
+    ]
+  },
+  "cement_accountant": {
+    "name": "Accountant",
+    "modules": [
+      "cement_master",
+      "cement_pricing",
+      "cement_procurement",
+      "cement_sales",
+      "cement_incentives",
+      "cement_people",
+      "cement_finance"
+    ],
+    "can_write": [
+      "customer_payment",
+      "supplier_purchase_payment",
+      "expense",
+      "payroll",
+      "payroll_item",
+      "payroll_payment",
+      "report",
+      "report_schedule"
+    ],
+    "can_read": [
+      "*"
+    ]
+  },
+  "cement_sales_manager": {
+    "name": "Sales Manager",
+    "modules": [
+      "cement_master",
+      "cement_pricing",
+      "cement_procurement",
+      "cement_sales",
+      "cement_inventory",
+      "cement_logistics"
+    ],
+    "can_write": [
+      "customer",
+      "customer_sales",
+      "customer_sale_item",
+      "delivery_proof"
+    ],
+    "can_read": [
+      "*"
+    ]
+  },
+  "cement_store_keeper": {
+    "name": "Store Keeper",
+    "modules": [
+      "cement_master",
+      "cement_procurement",
+      "cement_inventory",
+      "cement_logistics"
+    ],
+    "can_write": [
+      "cement_loading",
+      "inventory_stocktake",
+      "inventory_stocktake_line",
+      "stock_adjustment",
+      "inventory_transfer",
+      "damaged_goods",
+      "delivery_proof"
+    ],
+    "can_read": [
+      "*"
+    ]
+  },
+  "cement_data_entry": {
+    "name": "Data Entry",
+    "modules": [
+      "cement_master",
+      "cement_procurement",
+      "cement_sales",
+      "cement_logistics"
+    ],
+    "can_write": [
+      "customer",
+      "supplier",
+      "supplier_depot",
+      "purchase",
+      "purchaseItem",
+      "cement_loading",
+      "customer_sales",
+      "customer_sale_item",
+      "trip",
+      "trip_destination"
+    ],
+    "can_read": [
+      "*"
+    ]
+  },
+  "cement_driver": {
+    "name": "Driver",
+    "modules": [
+      "cement_logistics",
+      "cement_sales"
+    ],
+    "can_write": [
+      "trip_destination",
+      "delivery_proof",
+      "fuel_transaction"
+    ],
+    "can_read": [
+      "trip",
+      "trip_destination",
+      "delivery_proof",
+      "vehicle"
+    ]
+  }
+}

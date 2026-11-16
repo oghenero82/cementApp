@@ -1,0 +1,348 @@
+[
+  {
+    "code": "cement.sales_daily",
+    "name": "Daily Sales",
+    "module": "cement_sales",
+    "sourceRecordTypes": [
+      "customer_sales",
+      "customer_sale_item"
+    ],
+    "defaultGrouping": "date",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.sales_margin",
+    "name": "Sales Margin by Product and Customer",
+    "module": "cement_sales",
+    "sourceRecordTypes": [
+      "customer_sales",
+      "customer_sale_item",
+      "trip_expense"
+    ],
+    "defaultGrouping": "product",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.customer_balances",
+    "name": "Customer Outstanding Balances",
+    "module": "cement_sales",
+    "sourceRecordTypes": [
+      "customer_sales",
+      "customer_payment"
+    ],
+    "defaultGrouping": "customer",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.purchase_balance",
+    "name": "Supplier Purchase Entitlement Balance",
+    "module": "cement_procurement",
+    "sourceRecordTypes": [
+      "purchase",
+      "purchaseItem",
+      "cement_loading"
+    ],
+    "defaultGrouping": "supplier",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.purchase_vs_loading",
+    "name": "Purchase vs Loaded and Cleared",
+    "module": "cement_procurement",
+    "sourceRecordTypes": [
+      "purchaseItem",
+      "cement_loading",
+      "loading_clearance"
+    ],
+    "defaultGrouping": "purchase",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.supplier_pins",
+    "name": "Supplier PIN and BIN Tracking",
+    "module": "cement_procurement",
+    "sourceRecordTypes": [
+      "purchase",
+      "cement_loading"
+    ],
+    "defaultGrouping": "supplier",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.loading_register",
+    "name": "Confirmed Loading Register",
+    "module": "cement_procurement",
+    "sourceRecordTypes": [
+      "cement_loading",
+      "purchaseItem"
+    ],
+    "defaultGrouping": "depot",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.inventory_status",
+    "name": "Inventory On Hand by Location",
+    "module": "cement_inventory",
+    "sourceRecordTypes": [
+      "inventory_stock"
+    ],
+    "defaultGrouping": "warehouse",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.inventory_valuation",
+    "name": "FIFO / Weighted Average Inventory Valuation",
+    "module": "cement_inventory",
+    "sourceRecordTypes": [
+      "inventory_cost_layer",
+      "inventory_stock"
+    ],
+    "defaultGrouping": "warehouse",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.inventory_bad_goods",
+    "name": "Damaged Goods and Write Off",
+    "module": "cement_inventory",
+    "sourceRecordTypes": [
+      "damaged_goods",
+      "stock_adjustment"
+    ],
+    "defaultGrouping": "warehouse",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.stock_variances",
+    "name": "Stocktake Variance",
+    "module": "cement_inventory",
+    "sourceRecordTypes": [
+      "inventory_stocktake",
+      "inventory_stocktake_line"
+    ],
+    "defaultGrouping": "warehouse",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.trip_profit",
+    "name": "Trip Profitability by Destination",
+    "module": "cement_logistics",
+    "sourceRecordTypes": [
+      "trip",
+      "trip_destination",
+      "customer_sales",
+      "trip_expense"
+    ],
+    "defaultGrouping": "trip",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.fleet_cost",
+    "name": "Fleet Fuel and Maintenance Costs",
+    "module": "cement_logistics",
+    "sourceRecordTypes": [
+      "fuel_transaction",
+      "vehicle_maintenance",
+      "trip_expense"
+    ],
+    "defaultGrouping": "vehicle",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.supplier_incentives",
+    "name": "Supplier Incentives and Benefits",
+    "module": "cement_incentives",
+    "sourceRecordTypes": [
+      "supplier_incentive",
+      "supplier_incentive_receipt"
+    ],
+    "defaultGrouping": "supplier",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.payroll_summary",
+    "name": "Payroll Summary",
+    "module": "cement_people",
+    "sourceRecordTypes": [
+      "payroll",
+      "payroll_item",
+      "payroll_payment"
+    ],
+    "defaultGrouping": "period",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.expense_analysis",
+    "name": "Expense Analysis",
+    "module": "cement_finance",
+    "sourceRecordTypes": [
+      "expense",
+      "trip_expense"
+    ],
+    "defaultGrouping": "month",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.bank_position",
+    "name": "Bank and Cash Position",
+    "module": "cement_finance",
+    "sourceRecordTypes": [
+      "bank_account",
+      "journal"
+    ],
+    "defaultGrouping": "account",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.trial_balance",
+    "name": "Trial Balance",
+    "module": "cement_finance",
+    "sourceRecordTypes": [
+      "account",
+      "journal_line"
+    ],
+    "defaultGrouping": "account",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.profit_loss",
+    "name": "Income Statement",
+    "module": "cement_finance",
+    "sourceRecordTypes": [
+      "account",
+      "journal_line"
+    ],
+    "defaultGrouping": "period",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  },
+  {
+    "code": "cement.balance_sheet",
+    "name": "Balance Sheet",
+    "module": "cement_finance",
+    "sourceRecordTypes": [
+      "account",
+      "journal_line"
+    ],
+    "defaultGrouping": "period",
+    "generationMode": "frontend",
+    "isActive": true,
+    "outputFormats": [
+      "pdf",
+      "xlsx",
+      "csv"
+    ]
+  }
+]

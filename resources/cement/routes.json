@@ -1,0 +1,4554 @@
+[
+  {
+    "code": "cement.person.list",
+    "name": "Person List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "person",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "phone",
+        "email"
+      ]
+    }
+  },
+  {
+    "code": "cement.person.new",
+    "name": "Person New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "person",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "phone",
+        "email"
+      ]
+    }
+  },
+  {
+    "code": "cement.person.view",
+    "name": "Person View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "person",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "phone",
+        "email"
+      ]
+    }
+  },
+  {
+    "code": "cement.person.edit",
+    "name": "Person Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "person",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "phone",
+        "email"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer.list",
+    "name": "Customer List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "customer",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "companyName",
+        "phone"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer.new",
+    "name": "Customer New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "customer",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "companyName",
+        "phone"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer.view",
+    "name": "Customer View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "customer",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "companyName",
+        "phone"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer.edit",
+    "name": "Customer Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "customer",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "companyName",
+        "phone"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier.list",
+    "name": "Supplier List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "supplier",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "name",
+        "supplierNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier.new",
+    "name": "Supplier New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "name",
+        "supplierNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier.view",
+    "name": "Supplier View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "supplier",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "name",
+        "supplierNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier.edit",
+    "name": "Supplier Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "name",
+        "supplierNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_depot.list",
+    "name": "Supplier Depot List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "supplier_depot",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "supplierDepotCode"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_depot.new",
+    "name": "Supplier Depot New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_depot",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "supplierDepotCode"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_depot.view",
+    "name": "Supplier Depot View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "supplier_depot",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "supplierDepotCode"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_depot.edit",
+    "name": "Supplier Depot Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_depot",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "supplierDepotCode"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_product.list",
+    "name": "Supplier Product Mapping List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "supplier_product",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_product.new",
+    "name": "Supplier Product Mapping New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_product",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_product.view",
+    "name": "Supplier Product Mapping View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "supplier_product",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_product.edit",
+    "name": "Supplier Product Mapping Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_product",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.unit_of_measure.list",
+    "name": "Unit of Measure List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "unit_of_measure",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "symbol"
+      ]
+    }
+  },
+  {
+    "code": "cement.unit_of_measure.new",
+    "name": "Unit of Measure New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "unit_of_measure",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "symbol"
+      ]
+    }
+  },
+  {
+    "code": "cement.unit_of_measure.view",
+    "name": "Unit of Measure View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "unit_of_measure",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "symbol"
+      ]
+    }
+  },
+  {
+    "code": "cement.unit_of_measure.edit",
+    "name": "Unit of Measure Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "unit_of_measure",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "symbol"
+      ]
+    }
+  },
+  {
+    "code": "cement.product_category.list",
+    "name": "Product Category List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "product_category",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "name"
+      ]
+    }
+  },
+  {
+    "code": "cement.product_category.new",
+    "name": "Product Category New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "product_category",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "name"
+      ]
+    }
+  },
+  {
+    "code": "cement.product_category.view",
+    "name": "Product Category View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "product_category",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "name"
+      ]
+    }
+  },
+  {
+    "code": "cement.product_category.edit",
+    "name": "Product Category Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "product_category",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "name"
+      ]
+    }
+  },
+  {
+    "code": "cement.product.list",
+    "name": "Product List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "product",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "name",
+        "categoryId"
+      ]
+    }
+  },
+  {
+    "code": "cement.product.new",
+    "name": "Product New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "product",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "name",
+        "categoryId"
+      ]
+    }
+  },
+  {
+    "code": "cement.product.view",
+    "name": "Product View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "product",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "name",
+        "categoryId"
+      ]
+    }
+  },
+  {
+    "code": "cement.product.edit",
+    "name": "Product Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "product",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_master",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "name",
+        "categoryId"
+      ]
+    }
+  },
+  {
+    "code": "cement.price_list.list",
+    "name": "Price List List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "price_list",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_pricing",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "priceType",
+        "customerId"
+      ]
+    }
+  },
+  {
+    "code": "cement.price_list.new",
+    "name": "Price List New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "price_list",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_pricing",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "priceType",
+        "customerId"
+      ]
+    }
+  },
+  {
+    "code": "cement.price_list.view",
+    "name": "Price List View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "price_list",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_pricing",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "priceType",
+        "customerId"
+      ]
+    }
+  },
+  {
+    "code": "cement.price_list.edit",
+    "name": "Price List Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "price_list",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_pricing",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "priceType",
+        "customerId"
+      ]
+    }
+  },
+  {
+    "code": "cement.price_list_item.list",
+    "name": "Price List Item List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "price_list_item",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_pricing",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "priceListId",
+        "productId",
+        "unitId",
+        "minQuantity",
+        "validFrom"
+      ]
+    }
+  },
+  {
+    "code": "cement.price_list_item.new",
+    "name": "Price List Item New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "price_list_item",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_pricing",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "priceListId",
+        "productId",
+        "unitId",
+        "minQuantity",
+        "validFrom"
+      ]
+    }
+  },
+  {
+    "code": "cement.price_list_item.view",
+    "name": "Price List Item View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "price_list_item",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_pricing",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "priceListId",
+        "productId",
+        "unitId",
+        "minQuantity",
+        "validFrom"
+      ]
+    }
+  },
+  {
+    "code": "cement.price_list_item.edit",
+    "name": "Price List Item Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "price_list_item",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_pricing",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "priceListId",
+        "productId",
+        "unitId",
+        "minQuantity",
+        "validFrom"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchase.list",
+    "name": "Supplier Purchase List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "purchase",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "purchaseDate",
+        "supplierPin"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchase.new",
+    "name": "Supplier Purchase New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "purchase",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "purchaseDate",
+        "supplierPin"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchase.view",
+    "name": "Supplier Purchase View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "purchase",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "purchaseDate",
+        "supplierPin"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchase.edit",
+    "name": "Supplier Purchase Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "purchase",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "purchaseDate",
+        "supplierPin"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchaseItem.list",
+    "name": "Purchase Item List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "purchaseItem",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "purchaseId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchaseItem.new",
+    "name": "Purchase Item New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "purchaseItem",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "purchaseId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchaseItem.view",
+    "name": "Purchase Item View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "purchaseItem",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "purchaseId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchaseItem.edit",
+    "name": "Purchase Item Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "purchaseItem",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "purchaseId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_loading.list",
+    "name": "Cement Loading List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "cement_loading",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "purchaseItemId",
+        "supplierDepotId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_loading.new",
+    "name": "Cement Loading New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "cement_loading",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "purchaseItemId",
+        "supplierDepotId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_loading.view",
+    "name": "Cement Loading View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "cement_loading",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "purchaseItemId",
+        "supplierDepotId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_loading.edit",
+    "name": "Cement Loading Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "cement_loading",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "purchaseItemId",
+        "supplierDepotId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.loading_clearance.list",
+    "name": "Loading Clearance List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "loading_clearance",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "purchaseItemId"
+      ]
+    }
+  },
+  {
+    "code": "cement.loading_clearance.new",
+    "name": "Loading Clearance New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "loading_clearance",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "purchaseItemId"
+      ]
+    }
+  },
+  {
+    "code": "cement.loading_clearance.view",
+    "name": "Loading Clearance View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "loading_clearance",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "purchaseItemId"
+      ]
+    }
+  },
+  {
+    "code": "cement.loading_clearance.edit",
+    "name": "Loading Clearance Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "loading_clearance",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "purchaseItemId"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_purchase_payment.list",
+    "name": "Supplier Payment List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "supplier_purchase_payment",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_purchase_payment.new",
+    "name": "Supplier Payment New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_purchase_payment",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_purchase_payment.view",
+    "name": "Supplier Payment View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "supplier_purchase_payment",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_purchase_payment.edit",
+    "name": "Supplier Payment Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_purchase_payment",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchase_adjustment.list",
+    "name": "Purchase Adjustment List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "purchase_adjustment",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchase_adjustment.new",
+    "name": "Purchase Adjustment New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "purchase_adjustment",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchase_adjustment.view",
+    "name": "Purchase Adjustment View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "purchase_adjustment",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.purchase_adjustment.edit",
+    "name": "Purchase Adjustment Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "purchase_adjustment",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_procurement",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sales.list",
+    "name": "Customer Sale List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "customer_sales",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "customerId",
+        "saleDate",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sales.new",
+    "name": "Customer Sale New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "customer_sales",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "customerId",
+        "saleDate",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sales.view",
+    "name": "Customer Sale View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "customer_sales",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "customerId",
+        "saleDate",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sales.edit",
+    "name": "Customer Sale Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "customer_sales",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "customerId",
+        "saleDate",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sale_item.list",
+    "name": "Customer Sale Item List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "customer_sale_item",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "saleId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sale_item.new",
+    "name": "Customer Sale Item New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "customer_sale_item",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "saleId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sale_item.view",
+    "name": "Customer Sale Item View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "customer_sale_item",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "saleId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sale_item.edit",
+    "name": "Customer Sale Item Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "customer_sale_item",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "saleId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_payment.list",
+    "name": "Customer Payment List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "customer_payment",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_payment.new",
+    "name": "Customer Payment New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "customer_payment",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_payment.view",
+    "name": "Customer Payment View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "customer_payment",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_payment.edit",
+    "name": "Customer Payment Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "customer_payment",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sale_return.list",
+    "name": "Customer Return List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "customer_sale_return",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sale_return.new",
+    "name": "Customer Return New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "customer_sale_return",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sale_return.view",
+    "name": "Customer Return View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "customer_sale_return",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.customer_sale_return.edit",
+    "name": "Customer Return Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "customer_sale_return",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.delivery_proof.list",
+    "name": "Delivery Proof List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "delivery_proof",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.delivery_proof.new",
+    "name": "Delivery Proof New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "delivery_proof",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.delivery_proof.view",
+    "name": "Delivery Proof View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "delivery_proof",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.delivery_proof.edit",
+    "name": "Delivery Proof Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "delivery_proof",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_sales",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_location.list",
+    "name": "Inventory Location List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "inventory_location",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_location.new",
+    "name": "Inventory Location New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_location",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_location.view",
+    "name": "Inventory Location View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "inventory_location",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_location.edit",
+    "name": "Inventory Location Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_location",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stock.list",
+    "name": "Inventory Stock List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "inventory_stock",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "locationId",
+        "productId",
+        "stockCondition"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stock.new",
+    "name": "Inventory Stock New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_stock",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "locationId",
+        "productId",
+        "stockCondition"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stock.view",
+    "name": "Inventory Stock View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "inventory_stock",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "locationId",
+        "productId",
+        "stockCondition"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stock.edit",
+    "name": "Inventory Stock Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_stock",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "locationId",
+        "productId",
+        "stockCondition"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_movement.list",
+    "name": "Inventory Movement List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "inventory_movement",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "productId",
+        "sourceRecordId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_movement.new",
+    "name": "Inventory Movement New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_movement",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "productId",
+        "sourceRecordId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_movement.view",
+    "name": "Inventory Movement View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "inventory_movement",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "productId",
+        "sourceRecordId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_movement.edit",
+    "name": "Inventory Movement Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_movement",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "productId",
+        "sourceRecordId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_cost_layer.list",
+    "name": "FIFO Cost Layer List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "inventory_cost_layer",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "stockId",
+        "sourceMovementId"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_cost_layer.new",
+    "name": "FIFO Cost Layer New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_cost_layer",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "stockId",
+        "sourceMovementId"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_cost_layer.view",
+    "name": "FIFO Cost Layer View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "inventory_cost_layer",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "stockId",
+        "sourceMovementId"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_cost_layer.edit",
+    "name": "FIFO Cost Layer Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_cost_layer",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "stockId",
+        "sourceMovementId"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stocktake.list",
+    "name": "Stocktake List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "inventory_stocktake",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "locationId",
+        "countDate"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stocktake.new",
+    "name": "Stocktake New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_stocktake",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "locationId",
+        "countDate"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stocktake.view",
+    "name": "Stocktake View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "inventory_stocktake",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "locationId",
+        "countDate"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stocktake.edit",
+    "name": "Stocktake Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_stocktake",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "locationId",
+        "countDate"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stocktake_line.list",
+    "name": "Stocktake Line List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "inventory_stocktake_line",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "stocktakeId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stocktake_line.new",
+    "name": "Stocktake Line New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_stocktake_line",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "stocktakeId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stocktake_line.view",
+    "name": "Stocktake Line View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "inventory_stocktake_line",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "stocktakeId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_stocktake_line.edit",
+    "name": "Stocktake Line Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_stocktake_line",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "stocktakeId",
+        "productId"
+      ]
+    }
+  },
+  {
+    "code": "cement.stock_adjustment.list",
+    "name": "Stock Adjustment List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "stock_adjustment",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "locationId",
+        "productId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.stock_adjustment.new",
+    "name": "Stock Adjustment New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "stock_adjustment",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "locationId",
+        "productId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.stock_adjustment.view",
+    "name": "Stock Adjustment View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "stock_adjustment",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "locationId",
+        "productId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.stock_adjustment.edit",
+    "name": "Stock Adjustment Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "stock_adjustment",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "locationId",
+        "productId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.damaged_goods.list",
+    "name": "Damaged or Bad Goods List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "damaged_goods",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.damaged_goods.new",
+    "name": "Damaged or Bad Goods New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "damaged_goods",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.damaged_goods.view",
+    "name": "Damaged or Bad Goods View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "damaged_goods",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.damaged_goods.edit",
+    "name": "Damaged or Bad Goods Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "damaged_goods",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_transfer.list",
+    "name": "Inventory Transfer List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "inventory_transfer",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_transfer.new",
+    "name": "Inventory Transfer New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_transfer",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_transfer.view",
+    "name": "Inventory Transfer View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "inventory_transfer",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.inventory_transfer.edit",
+    "name": "Inventory Transfer Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "inventory_transfer",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_inventory",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.vehicle.list",
+    "name": "Vehicle List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "vehicle",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "registrationNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.vehicle.new",
+    "name": "Vehicle New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "vehicle",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "registrationNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.vehicle.view",
+    "name": "Vehicle View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "vehicle",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "registrationNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.vehicle.edit",
+    "name": "Vehicle Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "vehicle",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "registrationNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip.list",
+    "name": "Delivery Trip List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "trip",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "vehicleId",
+        "driverId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip.new",
+    "name": "Delivery Trip New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "trip",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "vehicleId",
+        "driverId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip.view",
+    "name": "Delivery Trip View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "trip",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "vehicleId",
+        "driverId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip.edit",
+    "name": "Delivery Trip Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "trip",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "vehicleId",
+        "driverId",
+        "status"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip_destination.list",
+    "name": "Trip Destination List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "trip_destination",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "tripId",
+        "customerId"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip_destination.new",
+    "name": "Trip Destination New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "trip_destination",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "tripId",
+        "customerId"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip_destination.view",
+    "name": "Trip Destination View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "trip_destination",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "tripId",
+        "customerId"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip_destination.edit",
+    "name": "Trip Destination Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "trip_destination",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "tripId",
+        "customerId"
+      ]
+    }
+  },
+  {
+    "code": "cement.fuel_transaction.list",
+    "name": "Fuel Transaction List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "fuel_transaction",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.fuel_transaction.new",
+    "name": "Fuel Transaction New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "fuel_transaction",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.fuel_transaction.view",
+    "name": "Fuel Transaction View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "fuel_transaction",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.fuel_transaction.edit",
+    "name": "Fuel Transaction Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "fuel_transaction",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.vehicle_maintenance.list",
+    "name": "Vehicle Maintenance List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "vehicle_maintenance",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.vehicle_maintenance.new",
+    "name": "Vehicle Maintenance New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "vehicle_maintenance",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.vehicle_maintenance.view",
+    "name": "Vehicle Maintenance View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "vehicle_maintenance",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.vehicle_maintenance.edit",
+    "name": "Vehicle Maintenance Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "vehicle_maintenance",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip_expense.list",
+    "name": "Trip Expense List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "trip_expense",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip_expense.new",
+    "name": "Trip Expense New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "trip_expense",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip_expense.view",
+    "name": "Trip Expense View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "trip_expense",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.trip_expense.edit",
+    "name": "Trip Expense Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "trip_expense",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_logistics",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive_scheme.list",
+    "name": "Supplier Incentive Scheme List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "supplier_incentive_scheme",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive_scheme.new",
+    "name": "Supplier Incentive Scheme New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_incentive_scheme",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive_scheme.view",
+    "name": "Supplier Incentive Scheme View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "supplier_incentive_scheme",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive_scheme.edit",
+    "name": "Supplier Incentive Scheme Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_incentive_scheme",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive.list",
+    "name": "Supplier Incentive Benefit List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "supplier_incentive",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "purchaseId"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive.new",
+    "name": "Supplier Incentive Benefit New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_incentive",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "purchaseId"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive.view",
+    "name": "Supplier Incentive Benefit View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "supplier_incentive",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "purchaseId"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive.edit",
+    "name": "Supplier Incentive Benefit Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_incentive",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "supplierId",
+        "purchaseId"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive_receipt.list",
+    "name": "Supplier Incentive Receipt List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "supplier_incentive_receipt",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive_receipt.new",
+    "name": "Supplier Incentive Receipt New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_incentive_receipt",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive_receipt.view",
+    "name": "Supplier Incentive Receipt View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "supplier_incentive_receipt",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.supplier_incentive_receipt.edit",
+    "name": "Supplier Incentive Receipt Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "supplier_incentive_receipt",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_incentives",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.staff_employment.list",
+    "name": "Staff Employment List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "staff_employment",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "personId",
+        "employeeNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.staff_employment.new",
+    "name": "Staff Employment New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "staff_employment",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "personId",
+        "employeeNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.staff_employment.view",
+    "name": "Staff Employment View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "staff_employment",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "personId",
+        "employeeNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.staff_employment.edit",
+    "name": "Staff Employment Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "staff_employment",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "personId",
+        "employeeNumber"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll.list",
+    "name": "Payroll Batch List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "payroll",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "periodStart"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll.new",
+    "name": "Payroll Batch New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "payroll",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "periodStart"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll.view",
+    "name": "Payroll Batch View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "payroll",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "periodStart"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll.edit",
+    "name": "Payroll Batch Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "payroll",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "periodStart"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll_item.list",
+    "name": "Payroll Item List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "payroll_item",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "payrollId",
+        "employmentId"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll_item.new",
+    "name": "Payroll Item New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "payroll_item",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "payrollId",
+        "employmentId"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll_item.view",
+    "name": "Payroll Item View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "payroll_item",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "payrollId",
+        "employmentId"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll_item.edit",
+    "name": "Payroll Item Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "payroll_item",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "payrollId",
+        "employmentId"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll_payment.list",
+    "name": "Payroll Payment List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "payroll_payment",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll_payment.new",
+    "name": "Payroll Payment New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "payroll_payment",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll_payment.view",
+    "name": "Payroll Payment View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "payroll_payment",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.payroll_payment.edit",
+    "name": "Payroll Payment Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "payroll_payment",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.staff_deduction.list",
+    "name": "Staff Deduction Schedule List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "staff_deduction",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.staff_deduction.new",
+    "name": "Staff Deduction Schedule New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "staff_deduction",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.staff_deduction.view",
+    "name": "Staff Deduction Schedule View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "staff_deduction",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.staff_deduction.edit",
+    "name": "Staff Deduction Schedule Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "staff_deduction",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_people",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.expense.list",
+    "name": "General Expense List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "expense",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "tripId",
+        "expenseDate"
+      ]
+    }
+  },
+  {
+    "code": "cement.expense.new",
+    "name": "General Expense New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "expense",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "tripId",
+        "expenseDate"
+      ]
+    }
+  },
+  {
+    "code": "cement.expense.view",
+    "name": "General Expense View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "expense",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "tripId",
+        "expenseDate"
+      ]
+    }
+  },
+  {
+    "code": "cement.expense.edit",
+    "name": "General Expense Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "expense",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "tripId",
+        "expenseDate"
+      ]
+    }
+  },
+  {
+    "code": "cement.report.list",
+    "name": "Report Definition List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "report",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "generationMode"
+      ]
+    }
+  },
+  {
+    "code": "cement.report.new",
+    "name": "Report Definition New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "report",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "generationMode"
+      ]
+    }
+  },
+  {
+    "code": "cement.report.view",
+    "name": "Report Definition View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "report",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "generationMode"
+      ]
+    }
+  },
+  {
+    "code": "cement.report.edit",
+    "name": "Report Definition Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "report",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "generationMode"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_result.list",
+    "name": "Stored Report Result List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "report_result",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": true,
+      "displayFields": [
+        "code",
+        "reportId",
+        "generatedAt"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_result.new",
+    "name": "Stored Report Result New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "report_result",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "reportId",
+        "generatedAt"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_result.view",
+    "name": "Stored Report Result View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "report_result",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "reportId",
+        "generatedAt"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_result.edit",
+    "name": "Stored Report Result Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "report_result",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code",
+        "reportId",
+        "generatedAt"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_delivery.list",
+    "name": "Report Delivery List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "report_delivery",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_delivery.new",
+    "name": "Report Delivery New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "report_delivery",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_delivery.view",
+    "name": "Report Delivery View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "report_delivery",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_delivery.edit",
+    "name": "Report Delivery Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "report_delivery",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_schedule.list",
+    "name": "Report Schedule List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "report_schedule",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_schedule.new",
+    "name": "Report Schedule New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "report_schedule",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_schedule.view",
+    "name": "Report Schedule View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "report_schedule",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.report_schedule.edit",
+    "name": "Report Schedule Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "report_schedule",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_finance",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_branch.list",
+    "name": "Branch List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "cement_branch",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_admin",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_branch.new",
+    "name": "Branch New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "cement_branch",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_admin",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_branch.view",
+    "name": "Branch View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "cement_branch",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_admin",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_branch.edit",
+    "name": "Branch Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "cement_branch",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_admin",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_audit_event.list",
+    "name": "Operational Audit Event List",
+    "mode": "open_layout",
+    "layoutCode": "collection",
+    "targetRecordTypeCode": "cement_audit_event",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_admin",
+      "allowFilters": true,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_audit_event.new",
+    "name": "Operational Audit Event New",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "cement_audit_event",
+    "operation": "insert",
+    "parameters": [],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_admin",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_audit_event.view",
+    "name": "Operational Audit Event View",
+    "mode": "open_layout",
+    "layoutCode": "record_view",
+    "targetRecordTypeCode": "cement_audit_event",
+    "operation": null,
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_admin",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.cement_audit_event.edit",
+    "name": "Operational Audit Event Edit",
+    "mode": "open_layout",
+    "layoutCode": "record_form",
+    "targetRecordTypeCode": "cement_audit_event",
+    "operation": "update",
+    "parameters": [
+      {
+        "name": "recordId",
+        "type": "integer",
+        "required": true
+      }
+    ],
+    "settings": {
+      "recordIdParameter": "recordId",
+      "module": "cement_admin",
+      "allowFilters": false,
+      "displayFields": [
+        "code"
+      ]
+    }
+  },
+  {
+    "code": "cement.dashboard",
+    "name": "Dashboard",
+    "mode": "open_layout",
+    "layoutCode": "dashboard",
+    "targetRecordTypeCode": null,
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.system.importer",
+    "name": "System Importer",
+    "mode": "open_layout",
+    "layoutCode": "importer",
+    "targetRecordTypeCode": null,
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    },
+    "targetPortalCode": "cement_system_admin_portal"
+  },
+  {
+    "code": "cement.reports.dashboard",
+    "name": "Reports Dashboard",
+    "mode": "open_layout",
+    "layoutCode": "reports",
+    "targetRecordTypeCode": "report",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.procurement.dashboard",
+    "name": "Procurement Overview",
+    "mode": "open_layout",
+    "layoutCode": "procurement",
+    "targetRecordTypeCode": "purchase",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.inventory.dashboard",
+    "name": "Inventory Overview",
+    "mode": "open_layout",
+    "layoutCode": "inventory",
+    "targetRecordTypeCode": "inventory_stock",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.sales.dashboard",
+    "name": "Sales Overview",
+    "mode": "open_layout",
+    "layoutCode": "sales",
+    "targetRecordTypeCode": "customer_sales",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.finance.dashboard",
+    "name": "Finance Overview",
+    "mode": "open_layout",
+    "layoutCode": "finance",
+    "targetRecordTypeCode": "report",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.logistics.dashboard",
+    "name": "Fleet Overview",
+    "mode": "open_layout",
+    "layoutCode": "logistics",
+    "targetRecordTypeCode": "trip",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.staff.dashboard",
+    "name": "Staff Overview",
+    "mode": "open_layout",
+    "layoutCode": "people",
+    "targetRecordTypeCode": "staff_employment",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.cement_system_admin.dashboard",
+    "name": "System Admin Dashboard",
+    "mode": "open_layout",
+    "layoutCode": "dashboard",
+    "targetRecordTypeCode": null,
+    "targetPortalCode": "cement_system_admin_portal",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.cement_admin.dashboard",
+    "name": "Administrator Dashboard",
+    "mode": "open_layout",
+    "layoutCode": "dashboard",
+    "targetRecordTypeCode": null,
+    "targetPortalCode": "cement_admin_portal",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.cement_accountant.dashboard",
+    "name": "Accountant Dashboard",
+    "mode": "open_layout",
+    "layoutCode": "dashboard",
+    "targetRecordTypeCode": null,
+    "targetPortalCode": "cement_accountant_portal",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.cement_sales_manager.dashboard",
+    "name": "Sales Manager Dashboard",
+    "mode": "open_layout",
+    "layoutCode": "dashboard",
+    "targetRecordTypeCode": null,
+    "targetPortalCode": "cement_sales_manager_portal",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.cement_store_keeper.dashboard",
+    "name": "Store Keeper Dashboard",
+    "mode": "open_layout",
+    "layoutCode": "dashboard",
+    "targetRecordTypeCode": null,
+    "targetPortalCode": "cement_store_keeper_portal",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.cement_data_entry.dashboard",
+    "name": "Data Entry Dashboard",
+    "mode": "open_layout",
+    "layoutCode": "dashboard",
+    "targetRecordTypeCode": null,
+    "targetPortalCode": "cement_data_entry_portal",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  },
+  {
+    "code": "cement.cement_driver.dashboard",
+    "name": "Driver Dashboard",
+    "mode": "open_layout",
+    "layoutCode": "dashboard",
+    "targetRecordTypeCode": null,
+    "targetPortalCode": "cement_driver_portal",
+    "operation": null,
+    "parameters": [],
+    "settings": {
+      "module": "cement_admin"
+    }
+  }
+]

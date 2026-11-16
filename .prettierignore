@@ -1,0 +1,6 @@
+frontend/src/registry/seeded*
+resources/
+public/assets/
+vendor/
+node_modules/
+reference/

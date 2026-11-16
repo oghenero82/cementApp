@@ -1,0 +1,254 @@
+[
+  {
+    "code": "CementPurchasePostingService",
+    "alias": "Purchase",
+    "stage": "afterSave",
+    "recordTypeCode": "purchase",
+    "trigger": "status == \"paid\"",
+    "description": "Post supplier prepaid entitlement: Dr prepaid, Cr payment GL exactly once",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementPurchaseItemLockService",
+    "alias": "PurchaseItem",
+    "stage": "beforeSave",
+    "recordTypeCode": "purchaseItem",
+    "trigger": "loadedQty > 0",
+    "description": "Reject changes to item product, original qty, price or discount after first load",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementLoadingAllocationService",
+    "alias": "Loading",
+    "stage": "afterSave",
+    "recordTypeCode": "cement_loading",
+    "trigger": "status == \"confirmed\"",
+    "description": "Atomically issue customer sales or inventory movement for each loading destination",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementLoadingClearingService",
+    "alias": "Clearance",
+    "stage": "afterSave",
+    "recordTypeCode": "loading_clearance",
+    "trigger": "status == \"verified\"",
+    "description": "Apply partial clearings to purchaseItem clearedQty",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementPurchaseQuantityRollupService",
+    "alias": "PurchaseQty",
+    "stage": "afterSave",
+    "recordTypeCode": "cement_loading",
+    "trigger": "status == \"confirmed\"",
+    "description": "Safely recompute purchaseItem loadedQty without external client edits",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementSalesPricingService",
+    "alias": "PriceResolver",
+    "stage": "beforeSave",
+    "recordTypeCode": "customer_sale_item",
+    "trigger": "true",
+    "description": "Resolve dated price tiers and snapshot agreed line price",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementSalesPostingService",
+    "alias": "SalesPosting",
+    "stage": "afterSave",
+    "recordTypeCode": "customer_sales",
+    "trigger": "status == \"invoiced\"",
+    "description": "Post sale and tax to receivables / income",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementPaymentPostingService",
+    "alias": "CustomerPayment",
+    "stage": "afterSave",
+    "recordTypeCode": "customer_payment",
+    "trigger": "status == \"completed\"",
+    "description": "Post customer receipts against receivables",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementInventoryMovementService",
+    "alias": "StockMovement",
+    "stage": "afterSave",
+    "recordTypeCode": "inventory_movement",
+    "trigger": "status == \"confirmed\"",
+    "description": "Update inventory_stock only on confirmed/effective movement",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementInventoryValuationService",
+    "alias": "Valuation",
+    "stage": "afterSave",
+    "recordTypeCode": "inventory_movement",
+    "trigger": "status == \"confirmed\"",
+    "description": "Maintain FIFO layers or weighted average per institution policy",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementStocktakePostingService",
+    "alias": "Stocktake",
+    "stage": "afterSave",
+    "recordTypeCode": "inventory_stocktake",
+    "trigger": "status == \"posted\"",
+    "description": "Write approved variance adjustments and update quantities",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementStockAdjustmentService",
+    "alias": "Adjustment",
+    "stage": "afterSave",
+    "recordTypeCode": "stock_adjustment",
+    "trigger": "status == \"confirmed\"",
+    "description": "Create inventory movement only after approval",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementInventoryTransferService",
+    "alias": "Transfer",
+    "stage": "afterSave",
+    "recordTypeCode": "inventory_transfer",
+    "trigger": "status == \"received\"",
+    "description": "Produce balanced inter-location movements",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementSalesReturnService",
+    "alias": "SalesReturn",
+    "stage": "afterSave",
+    "recordTypeCode": "customer_sale_return",
+    "trigger": "status == \"confirmed\"",
+    "description": "Record sales returns, credit/refund and good/bad stock disposition",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementDeliveryAcceptanceService",
+    "alias": "Delivery",
+    "stage": "afterSave",
+    "recordTypeCode": "delivery_proof",
+    "trigger": "status == \"confirmed\"",
+    "description": "Record proof, delivery quantities and ownership transfer",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementTripCostAllocationService",
+    "alias": "TripCost",
+    "stage": "afterSave",
+    "recordTypeCode": "trip",
+    "trigger": "status == \"completed\"",
+    "description": "Allocate actual fuel, maintenance and trip expense to multiple destination sales",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementFuelPostingService",
+    "alias": "Fuel",
+    "stage": "afterSave",
+    "recordTypeCode": "fuel_transaction",
+    "trigger": "status == \"posted\"",
+    "description": "Post fuel payment / expense journal",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementMaintenancePostingService",
+    "alias": "Maintenance",
+    "stage": "afterSave",
+    "recordTypeCode": "vehicle_maintenance",
+    "trigger": "status == \"posted\"",
+    "description": "Post fleet maintenance GL",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementTripExpensePostingService",
+    "alias": "TripExpense",
+    "stage": "afterSave",
+    "recordTypeCode": "trip_expense",
+    "trigger": "status == \"posted\"",
+    "description": "Post trip expense GL",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementIncentiveAccrualService",
+    "alias": "Incentive",
+    "stage": "afterSave",
+    "recordTypeCode": "supplier_incentive",
+    "trigger": "status == \"verified\"",
+    "description": "Accrue supplier incentive or use direct actual benefit",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementIncentiveReceiptService",
+    "alias": "IncentiveReceipt",
+    "stage": "afterSave",
+    "recordTypeCode": "supplier_incentive_receipt",
+    "trigger": "status == \"completed\"",
+    "description": "Settle incentive receivable once",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementPayrollPostingService",
+    "alias": "Payroll",
+    "stage": "afterSave",
+    "recordTypeCode": "payroll",
+    "trigger": "status == \"posted\"",
+    "description": "Post payroll expense and deductions with cooperative savings and loan links",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementPayrollPaymentService",
+    "alias": "Payrun",
+    "stage": "afterSave",
+    "recordTypeCode": "payroll_payment",
+    "trigger": "status == \"completed\"",
+    "description": "Post payroll payment and clear liability",
+    "handlerImplemented": false
+  },
+  {
+    "code": "CementExpensePostingService",
+    "alias": "Expense",
+    "stage": "afterSave",
+    "recordTypeCode": "expense",
+    "trigger": "status == \"posted\"",
+    "description": "Post approved operating expenses",
+    "handlerImplemented": false
+  },
+  {
+    "code": "ReportGenerationService",
+    "alias": "Reports",
+    "stage": "afterCommit",
+    "recordTypeCode": "report_result",
+    "trigger": "true",
+    "description": "Generate server_stored report snapshot (registered MetaForge service)",
+    "handlerImplemented": false
+  },
+  {
+    "code": "ReportExporterService",
+    "alias": "Exports",
+    "stage": "afterCommit",
+    "recordTypeCode": "report_result",
+    "trigger": "true",
+    "description": "Export report output",
+    "handlerImplemented": false
+  },
+  {
+    "code": "ReportEmailService",
+    "alias": "Emails",
+    "stage": "afterCommit",
+    "recordTypeCode": "report_delivery",
+    "trigger": "true",
+    "description": "Deliver generated report email",
+    "handlerImplemented": false
+  },
+  {
+    "code": "ReportScheduleService",
+    "alias": "Schedules",
+    "stage": "afterCommit",
+    "recordTypeCode": "report_schedule",
+    "trigger": "true",
+    "description": "Schedule reports for a server-side job runner",
+    "handlerImplemented": false
+  }
+]
