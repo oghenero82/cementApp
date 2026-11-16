@@ -39,6 +39,10 @@ class CementApplication {
     try {
       const session = await this.api.request('auth/session');
       this.mode = session.backendMode;
+      if (!session.user && session.next) {
+        this.authStep(session);
+        return;
+      }
       if (!session.user) {
         this.login(session.needsSetup);
         return;
@@ -99,7 +103,8 @@ class CementApplication {
               ...(setup ? { institution: institution.value, displayName: name.value } : {}),
             });
             password.value = '';
-            await this.connect(result.user);
+            if (result.user) await this.connect(result.user);
+            else this.authStep(result);
           } catch (ex) {
             error.textContent = ex.message;
             submit.disabled = false;
@@ -138,6 +143,83 @@ class CementApplication {
         form,
       ),
     );
+  }
+  authStep(session) {
+    this.app.className = '';
+    const card = el('form', { class: 'login-card card' }),
+      error = el('p', { role: 'alert', class: 'error-text' });
+    const title =
+      session.next === 'select_role'
+        ? 'Choose your MetaForge role'
+        : session.next === 'change_default_password'
+          ? 'Change your temporary password'
+          : 'Complete MetaForge authentication';
+    card.append(el('h1', {}, title));
+    const finish = async (path, values) => {
+      try {
+        const result = await this.api.request(path, values);
+        if (result.user) await this.connect(result.user);
+        else this.authStep(result);
+      } catch (e) {
+        error.textContent = e.message;
+      }
+    };
+    if (session.next === 'select_role') {
+      const role = el(
+        'select',
+        { 'aria-label': 'MetaForge role', required: true },
+        ...(session.availableRoles || []).map((r) => el('option', { value: r.id }, r.name)),
+      );
+      card.append(
+        role,
+        el('button', { class: 'btn primary', type: 'submit' }, 'Continue with role'),
+      );
+      card.addEventListener('submit', (e) => {
+        e.preventDefault();
+        finish('auth/role', { roleId: Number(role.value) });
+      });
+    } else if (['change_default_password', 'reauthenticate'].includes(session.next)) {
+      const current = el('input', {
+        type: 'password',
+        required: true,
+        autoComplete: 'current-password',
+        'aria-label': 'Current MetaForge password',
+      });
+      const replacement = el('input', {
+        type: 'password',
+        required: true,
+        minLength: 12,
+        autoComplete: 'new-password',
+        'aria-label': 'New MetaForge password',
+      });
+      card.append(el('label', {}, 'Current password', current));
+      if (session.next === 'change_default_password')
+        card.append(el('label', {}, 'New password', replacement));
+      card.append(el('button', { type: 'submit', class: 'btn primary' }, 'Continue'));
+      card.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const values =
+          session.next === 'reauthenticate'
+            ? { password: current.value }
+            : { current: current.value, replacement: replacement.value, initial: true };
+        current.value = '';
+        replacement.value = '';
+        finish(session.next === 'reauthenticate' ? 'auth/reauthenticate' : 'auth/password', values);
+      });
+    } else
+      card.append(el('p', {}, 'Complete email verification in MetaForge, then sign in again.'));
+    card.append(
+      error,
+      button('Back to sign in', async () => {
+        try {
+          await this.api.request('auth/logout', {});
+          this.login();
+        } catch (e) {
+          error.textContent = e.message;
+        }
+      }),
+    );
+    this.app.replaceChildren(el('div', { class: 'login-screen' }, card));
   }
   async connect(user) {
     this.user = user;
@@ -273,7 +355,19 @@ class CementApplication {
       'aria-label': 'Close navigation',
       onClick: () => this.app.classList.remove('sidebar-open'),
     });
-    this.app.replaceChildren(sidebar, shade, el('div', { class: 'main' }, header, this.content));
+    this.app.replaceChildren(
+      sidebar,
+      shade,
+      el(
+        'div',
+        { class: 'main' },
+        header,
+        this.navigation.notice
+          ? el('div', { class: 'card card-pad', role: 'status' }, this.navigation.notice)
+          : null,
+        this.content,
+      ),
+    );
     this.updateSyncBadge();
   }
   navlink(title, href, kind, klass = 'nav-action') {

@@ -31,6 +31,9 @@ final class MetaForge
     }
     public function request(string $method, string $path, ?array $body = null): array
     {
+        if ((getenv('METAFORGE_PROTOCOL') ?: 'gateway') === 'native') {
+            return (new Native\Backend(new Native\Transport($this->http, $this->sessions)))->request($method, $path, $body);
+        }
         $allowed = ['auth/session','auth/login','auth/logout','meta/field-registry','portal/navigation','mutation','sync','dashboard','lookups','reports','reports/result','imports','health','users','settings','ledger','audit','auth/password','permissions','customers/statement'];
         if (!in_array(explode('?', $path)[0], $allowed)) {
             throw new Problem('Unsupported MetaForge contract endpoint', 501);
@@ -67,6 +70,9 @@ final class MetaForge
     }
     public function upload(\CodeIgniter\HTTP\IncomingRequest $request, string $path = 'files/upload'): array
     {
+        if ((getenv('METAFORGE_PROTOCOL') ?: 'gateway') === 'native') {
+            throw new Problem('Native MetaForge attachment/import transport is not installed', 501);
+        }
         $file = $request->getFile('attachment');
         if (!$file || !$file->isValid() || $file->getSize() > 5 * 1024 * 1024) {
             throw new Problem('Choose a valid attachment no larger than 5 MB');
@@ -82,6 +88,9 @@ final class MetaForge
     }
     public function download(string $id): object
     {
+        if ((getenv('METAFORGE_PROTOCOL') ?: 'gateway') === 'native') {
+            throw new Problem('Native MetaForge attachment transport is not installed', 501);
+        }
         if (!preg_match('/^[a-zA-Z0-9_-]{1,128}$/D', $id)) {
             throw new Problem('Invalid attachment ID');
         }

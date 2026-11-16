@@ -20,7 +20,7 @@ The 20 seeded reports compute from persistent records and ledgers. Generated sna
 
 The rendering sweep proves routes/tabs mount, not that every possible combination of business inputs has been exhaustively tested. This is a substantial new application and needs business-owner review with representative institutional data before production use.
 
-Local validation completed: **42 PHP tests / 151 assertions**, **7 JavaScript tests**, the seeder integrity check, install/migration/seeding/route commands, and the browser regression suite. Browser checks cover **65 collections, 10 module dashboards, 78 workspace tabs and 7 role logins**. These are local results; the GitHub Actions workflow has been added but has not been observed running.
+Local validation completed: **47 PHP tests / 181 assertions**, **7 JavaScript tests**, the seeder integrity check, install/migration/seeding/route commands, and the browser regression suite. Browser checks cover **65 collections, 10 module dashboards, 78 workspace tabs and 7 role logins**. These are local results; the GitHub Actions workflow has been added but has not been observed running.
 
 ## Integration and operating limits
 
@@ -30,3 +30,7 @@ Local validation completed: **42 PHP tests / 151 assertions**, **7 JavaScript te
 - Local accounting uses one base currency. Foreign-currency posting requires an explicit conversion adapter.
 - Imports support quoted/multiline CSV and the first XLSX worksheet. XLSX formulas are rejected; supply calculated values. XLSX output and browser PDF printing are supported.
 - The versioned offline queue retains immutable request payloads. Cross-revision migration requires explicit backend-aware mapping/review; the application does not invent a mapping or a parallel authoritative ledger.
+
+## Delivery follow-up
+
+A prebuilt standalone package was assembled from commit `2d863f9`, production Composer dependencies and built assets, with a local PHP launcher and the requested report/import endpoint aliases. Package startup, first-run institution creation, session persistence and an empty SQL-backed dashboard passed. No test database, user session, `.env`, credentials or Git history is included. Native catalog integration progress and remaining posting limitations are documented in `NATIVE_METAFORGE.md`.

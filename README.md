@@ -4,6 +4,8 @@ CodeIgniter 4 and an ES-module frontend for a cement dealer’s purchasing, load
 
 The standalone application uses durable SQLite storage. IndexedDB is an authorized cache and pending-request queue. Setting `CEMENT_DRIVER=metaforge` selects the HTTPS proxy adapter explicitly; an outage never switches posting to SQLite.
 
+See [the folder guide](docs/PROJECT_STRUCTURE.md) for where the application files live. The implementation is on `feat/issue-1-cement-application` pending merge.
+
 ## Requirements
 
 - PHP 8.2+ with intl, mbstring, PDO SQLite, SQLite3, curl, fileinfo and zip; PHPUnit also needs DOM/XML/XMLWriter.
@@ -49,6 +51,8 @@ The System importer previews CSV/XLSX before sending it through the mutation API
 
 Admin users can provision all seven roles and link drivers to person records. Drivers receive only assigned trips, stops, vehicles and proof. Role navigation, lookup labels, report snapshots and API operations are authorized on the server. Use Account in the sidebar footer to change your password.
 
+For the uploaded MetaForge version, see [native integration scope and setup](docs/NATIVE_METAFORGE.md). Native mode currently supports catalogs; transaction posting remains unfinished.
+
 ## Registry and architecture
 
 - `frontend/src/registry/seededFieldRegistry.js`: unchanged initial 51 RecordTypes / 652 aliases, checked against all archived PHP Fields classes.
@@ -71,7 +75,7 @@ npm run test:browser
 php spark routes
 ```
 
-The browser suite provisions a temporary database, signs in all seven roles, creates/edits a supplier through the UI, checks persistence, mounts all 64 collections and 78 workspace tabs, changes field codes and IDs without view changes, exercises nested allocation keys, tests CSRF/attachment access and checks desktop/mobile layouts. Screenshots go to ignored `test-results/`.
+The browser suite provisions a temporary database, signs in all seven roles, creates/edits a supplier through the UI, checks persistence, mounts all 65 collections and 78 workspace tabs, changes field codes and IDs without view changes, exercises nested allocation keys, tests CSRF/attachment access and checks desktop/mobile layouts. Screenshots go to ignored `test-results/`.
 
 See [acceptance evidence and limits](docs/ACCEPTANCE.md). A rendering sweep is distinct from functional business-flow tests. Live MetaForge compatibility and SMTP delivery require the actual deployment configuration; they are not established by the local regression suite.
 

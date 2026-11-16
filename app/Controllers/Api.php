@@ -10,6 +10,9 @@ final class Api extends BaseController
     public function dispatch(string ...$segments)
     {
         $path = implode('/', $segments) ?: 'auth/session';
+        $path = match($path) {
+            'reports/generate' => 'reports','import' => 'imports','import/history' => 'imports',default => $path
+        };
         $session = session();
         if (!$session->get('cement_csrf')) {
             $session->set('cement_csrf', bin2hex(random_bytes(32)));
@@ -25,7 +28,7 @@ final class Api extends BaseController
                 throw new Problem('Expected a JSON object');
             }
             if ((getenv('CEMENT_DRIVER') ?: 'local') === 'metaforge') {
-                if ($path === 'auth/session' && !$session->get('metaforge_token')) {
+                if ($path === 'auth/session' && (getenv('METAFORGE_PROTOCOL') ?: 'gateway') !== 'native' && !$session->get('metaforge_token')) {
                     return $this->response->setJSON(['user' => null,'needsSetup' => false,'backendMode' => 'metaforge','csrfToken' => $session->get('cement_csrf')]);
                 }
                 $proxy = new MetaForge();
@@ -44,7 +47,7 @@ final class Api extends BaseController
                 if ($path === 'reports' && in_array($format, ['csv','xlsx'])) {
                     return $this->response->setHeader('Content-Type', $format === 'csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')->setHeader('Content-Disposition', 'attachment; filename="cement-report.'.$format.'"')->setBody($format === 'csv' ? Reports::csv($remote) : Reports::xlsx($remote));
                 }
-                if ($path === 'auth/login') {
+                if (in_array($path, ['auth/login','auth/role','auth/password'], true)) {
                     $session->regenerate(true);
                     $session->set('cement_csrf', bin2hex(random_bytes(32)));
                 }

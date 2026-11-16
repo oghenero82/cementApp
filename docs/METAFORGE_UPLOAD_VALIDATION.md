@@ -39,3 +39,7 @@ The Cement proxy currently targets a **Cement-compatible gateway contract**, not
 The 51 Cement seeder definitions must be installed into an authorized institution and their registered business services implemented in the MetaForge runtime. Registration metadata alone is not executable posting logic. A gateway must preserve transaction boundaries, exact request identity, dynamic ID resolution, semantic aliases, lifecycle checks, authorization and file ownership. It must not call the standalone ledger as an outage fallback. The uploaded source has not yet passed a complete Cement business journey through the proxy.
 
 These are local source-validation results, not verification of the user's live deployment. A deployed URL, securely configured credentials and email transport are still needed for live verification. No external email was sent.
+
+## Native adapter progress
+
+The repository now contains a native catalog adapter and installable extension. See [current native scope and setup](NATIVE_METAFORGE.md). The compatibility findings above describe the initial upload assessment; native financial and connected transaction workflows are still unfinished.
