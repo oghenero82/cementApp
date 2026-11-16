@@ -15,6 +15,29 @@ export class MutationClient {
     }
     return this.send(envelope);
   }
+  async batch(entries) {
+    const batch = entries.map(({ type, semantic, row, clientRef }) => {
+      const item = this.registry.mutationEnvelope(
+        type,
+        row ? 'update' : 'insert',
+        semantic,
+        crypto.randomUUID(),
+      );
+      delete item.requestId;
+      delete item.registryRevision;
+      if (row) {
+        item.recordId = row.recordId;
+        item.version = row.version;
+      }
+      if (clientRef) item.clientRef = clientRef;
+      return item;
+    });
+    return this.send({
+      requestId: crypto.randomUUID(),
+      registryRevision: this.registry.revision,
+      batch,
+    });
+  }
   async send(envelope) {
     this.registry.validateQueuedMutationRevision(envelope);
     const draft = { ...envelope, createdAt: new Date().toISOString(), queueState: 'pending' };

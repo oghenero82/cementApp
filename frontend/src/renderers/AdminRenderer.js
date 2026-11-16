@@ -88,6 +88,120 @@ export class AdminRenderer {
           {},
           this.plainTable(result.users, ['display_name', 'email', 'role', 'active']),
           form,
+          button('Edit role permissions', () => this.permissions(root), 'secondary'),
+        ),
+      );
+    });
+  }
+  async permissions(root) {
+    return this.load(root, async () => {
+      let policy = await this.context.api.request('permissions');
+      const selector = el(
+        'select',
+        { 'aria-label': 'Permission role' },
+        ...Object.entries(policy.roles).map(([code, role]) =>
+          el('option', { value: code }, role.title),
+        ),
+      );
+      const editor = el('div');
+      const render = () => {
+        const role = policy.roles[selector.value],
+          rights = {},
+          modules = {};
+        const table = el(
+          'table',
+          { class: 'data-table' },
+          el(
+            'thead',
+            {},
+            el('tr', {}, ...['Collection', 'Read', 'Write'].map((t) => el('th', {}, t))),
+          ),
+        );
+        const body = el('tbody');
+        for (const [type, grant] of Object.entries(role.permissions)) {
+          const locked = role.locked || (grant.private && selector.value !== 'cement_accountant');
+          const read = el('input', {
+            type: 'checkbox',
+            checked: grant.read,
+            disabled: locked,
+            'aria-label': grant.title + ' read',
+          });
+          const write = el('input', {
+            type: 'checkbox',
+            checked: grant.write,
+            disabled: locked || grant.computed,
+            'aria-label': grant.title + ' write',
+          });
+          write.addEventListener('change', () => {
+            if (write.checked) read.checked = true;
+          });
+          read.addEventListener('change', () => {
+            if (!read.checked) write.checked = false;
+          });
+          rights[type] = { read, write };
+          body.append(
+            el('tr', {}, el('td', {}, grant.title), el('td', {}, read), el('td', {}, write)),
+          );
+        }
+        table.append(body);
+        const moduleList = el('div', { class: 'actions' });
+        for (const module of policy.modules) {
+          const input = el('input', {
+            type: 'checkbox',
+            checked: role.modules.includes(module.code),
+            disabled: role.locked,
+          });
+          modules[module.code] = input;
+          moduleList.append(el('label', {}, input, module.name));
+        }
+        editor.replaceChildren(
+          el(
+            'p',
+            { class: 'muted' },
+            'Administrator recovery privileges and confidential payroll restrictions are enforced by the server.',
+          ),
+          moduleList,
+          el('div', { class: 'table-scroll' }, table),
+        );
+        if (!role.locked)
+          editor.append(
+            button(
+              'Save role permissions',
+              async () => {
+                try {
+                  policy = await this.context.api.request('permissions', {
+                    revision: policy.revision,
+                    role: selector.value,
+                    permissions: Object.fromEntries(
+                      Object.entries(rights).map(([type, grant]) => [
+                        type,
+                        { read: grant.read.checked, write: grant.write.checked },
+                      ]),
+                    ),
+                    modules: Object.keys(modules).filter((key) => modules[key].checked),
+                  });
+                  notify(
+                    'Role permissions saved; affected sessions reload their authorized scope on refresh.',
+                  );
+                  render();
+                } catch (error) {
+                  notify(error.message, true);
+                }
+              },
+              'primary',
+            ),
+          );
+      };
+      selector.addEventListener('change', render);
+      render();
+      return CardRenderer.panel(
+        'Role permissions',
+        el(
+          'div',
+          {},
+          button('Back to users', () => this.users(root)),
+          selector,
+          editor,
         ),
       );
     });

@@ -1,8 +1,9 @@
+import { SignaturePad } from '../core/SignaturePad.js';
 import { el, button, labelOf, display } from '../core/dom.js';
 import { recordFieldRegistry as registry } from '../registry/RecordFieldRegistry.js';
 export class FormRenderer {
-  constructor(context, type, row, prefill = {}) {
-    Object.assign(this, { context, type, row, prefill });
+  constructor(context, type, row, prefill = {}, options = {}) {
+    Object.assign(this, { context, type, row, prefill, options });
     this.controls = new Map();
   }
   render(onSubmit) {
@@ -37,6 +38,7 @@ export class FormRenderer {
     const fields = el('div', { class: 'form-grid' });
     const readonly = new Set(descriptor.readOnlyAliases || []);
     for (const field of descriptor.fields) {
+      if (this.options.aliases && !this.options.aliases.includes(field.alias)) continue;
       const { alias } = field;
       if (readonly.has(alias)) continue;
       const code = registry.field(this.type, alias);
@@ -50,7 +52,19 @@ export class FormRenderer {
         field.required ? el('span', { class: 'required' }, ' *') : null,
       );
       let control;
-      if (['SIGNATURE', 'PHOTOS', 'PHOTO_EVIDENCE', 'SUPPLIER_DOCUMENT'].includes(alias)) {
+      if (alias === 'SIGNATURE') {
+        const pad = new SignaturePad(this.context.api, this.type, initial);
+        const fallback = this.attachment(initial, false);
+        control = el(
+          'div',
+          {},
+          pad.render(),
+          el('details', {}, el('summary', {}, 'Upload an existing signed document'), fallback),
+        );
+        control.customRead = () =>
+          pad.cleared || pad.dirty || pad.drawn ? pad.value() : fallback.customRead();
+        wrap.classList.add('full');
+      } else if (['SIGNATURE', 'PHOTOS', 'PHOTO_EVIDENCE', 'SUPPLIER_DOCUMENT'].includes(alias)) {
         control = this.attachment(initial, field.type === 'array');
         wrap.classList.add('full');
       } else if (this.type === 'cement_loading' && alias === 'ALLOCATION_ROWS') {
@@ -126,7 +140,11 @@ export class FormRenderer {
       if (!control.customRead) {
         control.id = id;
         control.name = code;
-        control.required = field.required && !control.disabled;
+        control.required =
+          field.required &&
+          field.type !== 'boolean' &&
+          !control.disabled &&
+          !this.options.optional?.includes(alias);
       }
       this.controls.set(alias, { control, field, wrap });
       wrap.append(label, control, el('small', { class: 'field-error', id: id + '-error' }));
@@ -150,6 +168,7 @@ export class FormRenderer {
   states() {
     return (
       {
+        inventory_reservation: ['active', 'released'],
         damaged_goods: ['draft', 'confirmed'],
         purchase_adjustment: ['draft', 'posted'],
         fiscal_year: ['draft', 'active', 'closed'],

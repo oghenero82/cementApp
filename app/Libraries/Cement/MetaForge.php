@@ -31,7 +31,7 @@ final class MetaForge
     }
     public function request(string $method, string $path, ?array $body = null): array
     {
-        $allowed = ['auth/session','auth/login','auth/logout','meta/field-registry','portal/navigation','mutation','sync','dashboard','lookups','reports','reports/result','imports','health','users','settings','ledger','audit','auth/password'];
+        $allowed = ['auth/session','auth/login','auth/logout','meta/field-registry','portal/navigation','mutation','sync','dashboard','lookups','reports','reports/result','imports','health','users','settings','ledger','audit','auth/password','permissions','customers/statement'];
         if (!in_array(explode('?', $path)[0], $allowed)) {
             throw new Problem('Unsupported MetaForge contract endpoint', 501);
         }

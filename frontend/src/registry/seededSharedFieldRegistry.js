@@ -99,5 +99,14 @@ export const seededSharedFieldRegistry = Object.freeze({
     "TRANSACTION_TYPE": "transactionType",
     "SOURCE": "source",
     "STATUS": "status"
+  },
+  "inventory_reservation": {
+    "CODE": "code",
+    "SALE_ID": "saleId",
+    "LOCATION_ID": "locationId",
+    "PRODUCT_ID": "productId",
+    "QUANTITY_BASE": "quantityBase",
+    "REMAINING_QTY": "remainingQty",
+    "STATUS": "status"
   }
 });

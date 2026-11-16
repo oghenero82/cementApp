@@ -9,7 +9,7 @@ final class Scope
     }
     public function key(array $actor): string
     {
-        $key = $actor['institution_id'].':'.$actor['id'].':'.$actor['role'].':'.($actor['person_id'] ?? 0);
+        $key = $this->s->catalog->permissionRevision.':'.$actor['institution_id'].':'.$actor['id'].':'.$actor['role'].':'.($actor['person_id'] ?? 0);
         $reports = [];
         foreach ($this->s->all((int)$actor['institution_id'], 'report') as $r) {
             $d = $this->s->catalog->decode('report', $r['data']);

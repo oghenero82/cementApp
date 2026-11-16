@@ -617,5 +617,60 @@
         "code"
       ]
     ]
+  },
+  {
+    "code": "inventory_reservation",
+    "name": "Stock Reservation",
+    "module": "cement_inventory",
+    "description": "Shared standalone Stock Reservation",
+    "fields": [
+      {
+        "code": "code",
+        "type": "string",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "saleId",
+        "type": "reference",
+        "required": true,
+        "target": "customer_sales"
+      },
+      {
+        "code": "locationId",
+        "type": "reference",
+        "required": true,
+        "target": "inventory_location"
+      },
+      {
+        "code": "productId",
+        "type": "reference",
+        "required": true,
+        "target": "product"
+      },
+      {
+        "code": "quantityBase",
+        "type": "number",
+        "required": true,
+        "target": null
+      },
+      {
+        "code": "remainingQty",
+        "type": "number",
+        "required": false,
+        "target": null
+      },
+      {
+        "code": "status",
+        "type": "string",
+        "required": true,
+        "target": null
+      }
+    ],
+    "uniques": [
+      [
+        "code"
+      ]
+    ]
   }
 ]

@@ -1,3 +1,4 @@
+import { BusinessWorkflows } from './workspaces/BusinessWorkflows.js';
 import { recordFieldRegistry as registry } from './registry/RecordFieldRegistry.js';
 import { ApiClient } from './core/ApiClient.js';
 import { IndexedDbStore } from './core/IndexedDbStore.js';
@@ -18,6 +19,7 @@ class CementApplication {
     this.cache = new IndexedDbStore();
     this.data = new RecordDataProcessor(registry);
     this.admin = new AdminRenderer(this);
+    this.flows = new BusinessWorkflows(this);
     this.app = document.querySelector('#app');
     this.overlay = document.querySelector('#overlay');
     this.drawerFocus = null;

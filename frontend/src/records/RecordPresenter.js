@@ -74,6 +74,8 @@ export class RecordPresenter {
         'partially_invoiced',
         'reconciled',
         'closed',
+        'released',
+        'consumed',
       ].includes(state)
     )
       actions.append(
@@ -88,12 +90,10 @@ export class RecordPresenter {
         button(
           'Record delivery proof',
           () =>
-            this.context
-              .presenter('delivery_proof')
-              .edit(null, {
-                SALE_ID: registry.get(this.type, row.data, 'SALE_ID'),
-                TRIP_DESTINATION_ID: row.recordId,
-              }),
+            this.context.presenter('delivery_proof').edit(null, {
+              SALE_ID: registry.get(this.type, row.data, 'SALE_ID'),
+              TRIP_DESTINATION_ID: row.recordId,
+            }),
           'primary',
         ),
       );

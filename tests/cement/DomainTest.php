@@ -441,6 +441,12 @@ final class DomainTest extends TestCase
         self::assertEquals(6000, $d['AMOUNT_PAID']);
         self::assertEquals(0, $d['BALANCE_DUE']);
         self::assertEquals(600000, $this->s->run('SELECT SUM(amount_minor) FROM payment_allocations')->fetchColumn());
+        $statement = (new \App\Libraries\Cement\CustomerStatement($this->s))->generate($this->actor, ['customerId' => $f['customer']]);
+        self::assertEquals(0, $statement['closingReceivable']);
+        self::assertEquals(0, $statement['closingDeposit']);
+        foreach ($statement['rows'] as $event) {
+            self::assertGreaterThanOrEqual(0, $event['Deposit balance']);
+        }
     }
     public function testXlsxImportReadsValuesAndRejectsFormulas(): void
     {
@@ -537,7 +543,81 @@ final class DomainTest extends TestCase
         $this->insert('customer_sale_return', ['SALE_ID' => $sale['id'],'SALE_ITEM_ID' => $line['id'],'QUANTITY' => 10,'UNIT_ID' => $f['unit'],'RETURN_REASON' => 'Customer return','DISPOSITION' => 'restock','STOCK_MOVEMENT_ID' => $receipt,'STATUS' => 'confirmed']);
         self::assertSame('confirmed', $this->s->semantic(1, 'inventory_movement', $receipt)['STATUS']);
         $stock = $this->s->all(1, 'inventory_stock')[0];
-        self::assertEquals(30,$this->s->catalog->decode('inventory_stock',$stock['data'])['QUANTITY_ON_HAND']);
+        self::assertEquals(30, $this->s->catalog->decode('inventory_stock', $stock['data'])['QUANTITY_ON_HAND']);
+    }
+
+    public function testReservationCompetitionReleaseAndConsumption(): void
+    {
+        $f = $this->fixture();
+        $this->update('purchase', $f['purchase'], ['STATUS' => 'paid']);
+        $this->loading($f);
+        $sale = $this->insert('customer_sales', ['CUSTOMER_ID' => $f['customer'],'SALE_DATE' => '2026-11-03','WAREHOUSE_ID' => $f['warehouse']]);
+        $this->insert('customer_sale_item', ['SALE_ID' => $sale,'PRODUCT_ID' => $f['product'],'UNIT_ID' => $f['unit'],'QUANTITY' => 15,'AGREED_UNIT_PRICE' => 150]);
+        $reservation = $this->insert('inventory_reservation', ['SALE_ID' => $sale,'LOCATION_ID' => $f['warehouse'],'PRODUCT_ID' => $f['product'],'QUANTITY_BASE' => 15,'STATUS' => 'active']);
+        $stock = $this->s->all(1, 'inventory_stock')[0];
+        self::assertEquals(5, $this->s->semantic(1, 'inventory_stock', $stock['id'])['QUANTITY_AVAILABLE']);
+        $journals = $this->s->run('SELECT count(*) FROM journals')->fetchColumn();
+        try {
+            $this->insert('inventory_reservation', ['SALE_ID' => $sale,'LOCATION_ID' => $f['warehouse'],'PRODUCT_ID' => $f['product'],'QUANTITY_BASE' => 6,'STATUS' => 'active']);
+            self::fail('Overbooking accepted');
+        } catch (Problem $e) {
+            self::assertStringContainsString('available stock', $e->getMessage());
+        }
+        self::assertEquals($journals, $this->s->run('SELECT count(*) FROM journals')->fetchColumn());
+        $this->update('customer_sales', $sale, ['STATUS' => 'invoiced']);
+        self::assertSame('consumed', $this->s->semantic(1, 'inventory_reservation', $reservation)['STATUS']);
+        $stock = $this->s->semantic(1, 'inventory_stock', $stock['id']);
+        self::assertEquals(5, $stock['QUANTITY_ON_HAND']);
+        self::assertEquals(0, $stock['QUANTITY_RESERVED']);
+        self::assertEquals(5, $stock['QUANTITY_AVAILABLE']);
+        $other = $this->insert('customer_sales', ['CUSTOMER_ID' => $f['customer'],'SALE_DATE' => '2026-11-03','WAREHOUSE_ID' => $f['warehouse']]);
+        $this->insert('customer_sale_item', ['SALE_ID' => $other,'PRODUCT_ID' => $f['product'],'UNIT_ID' => $f['unit'],'QUANTITY' => 5,'AGREED_UNIT_PRICE' => 150]);
+        $hold = $this->insert('inventory_reservation', ['SALE_ID' => $other,'LOCATION_ID' => $f['warehouse'],'PRODUCT_ID' => $f['product'],'QUANTITY_BASE' => 5,'STATUS' => 'active']);
+        $this->update('inventory_reservation', $hold, ['STATUS' => 'released']);
+        self::assertEquals(0, $this->s->semantic(1, 'inventory_reservation', $hold)['REMAINING_QTY']);
+        self::assertEquals(5, $this->s->catalog->decode('inventory_stock', $this->s->all(1, 'inventory_stock')[0]['data'])['QUANTITY_AVAILABLE']);
+    }
+    public function testPermissionChangesAreRevisionedAndCannotExposePayroll(): void
+    {
+        $permissions = new \App\Libraries\Cement\Permissions($this->s);
+        $this->s->loadPermissions(1);
+        $before = $permissions->read($this->actor);
+        $updated = $permissions->update($this->actor, ['revision' => $before['revision'],'role' => 'cement_data_entry','permissions' => ['supplier' => ['read' => true,'write' => false]]]);
+        self::assertNotSame($before['revision'], $updated['revision']);
+        self::assertTrue($this->s->catalog->allowed('cement_data_entry', 'supplier'));
+        self::assertFalse($this->s->catalog->allowed('cement_data_entry', 'supplier', true));
+        try {
+            $permissions->update($this->actor, ['revision' => $before['revision'],'role' => 'cement_data_entry','permissions' => []]);
+            self::fail('Stale permissions accepted');
+        } catch (Problem $e) {
+            self::assertSame(409, $e->httpStatus);
+        }
+        try {
+            $permissions->update($this->actor, ['revision' => $updated['revision'],'role' => 'cement_driver','permissions' => ['payroll' => ['read' => true,'write' => false]]]);
+            self::fail('Confidential access accepted');
+        } catch (Problem $e) {
+            self::assertStringContainsString('confidential', $e->getMessage());
+        }
+        $this->s->loadPermissions(2);
+        self::assertEmpty($this->s->catalog->permissionOverrides);
+    }
+    public function testStatementReconcilesInvoicesReceiptsAndPeriodOpening(): void
+    {
+        $f = $this->fixture();
+        $this->update('purchase', $f['purchase'], ['STATUS' => 'paid']);
+        $this->loading($f);
+        $sale = $this->s->all(1, 'customer_sales')[0];
+        $this->insert('customer_payment', ['CUSTOMER_ID' => $f['customer'],'SALE_ID' => $sale['id'],'AMOUNT' => 1000,'PAYMENT_DATE' => '2026-11-04T10:00:00Z','PAYMENT_METHOD' => 'bank','STATUS' => 'completed']);
+        $service = new \App\Libraries\Cement\CustomerStatement($this->s);
+        $statement = $service->generate($this->actor, ['customerId' => $f['customer']]);
+        self::assertEquals(5000, $statement['closingReceivable']);
+        self::assertEquals(0, $statement['closingDeposit']);
+        self::assertCount(2, $statement['rows']);
+        $future = $service->generate($this->actor, ['customerId' => $f['customer'],'from' => gmdate('Y-m-d', time() + 86400)]);
+        self::assertEquals(5000, $future['openingReceivable']);
+        self::assertSame([],$future['rows']);
+        $this->expectException(Problem::class);
+        $service->generate($this->actor,['customerId' => $f['customer'],'from' => '2026-02-31']);
     }
 
 }

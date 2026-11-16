@@ -29,7 +29,7 @@ const tabTypes = {
     Returns: ['customer_sale_return'],
   },
   warehouse: {
-    'Stock movement': ['inventory_movement'],
+    'Stock movement': ['inventory_movement', 'inventory_reservation'],
     'Stocktake & counts': ['inventory_stocktake', 'inventory_stocktake_line', 'stock_adjustment'],
     'Quality & damaged': ['damaged_goods'],
     'Valuation / FIFO': ['inventory_cost_layer'],
@@ -164,7 +164,10 @@ export class WorkspacePresenter {
           !this.context.metadata.descriptors[w.root].serviceOwned
           ? button(
               '+ New ' + this.context.metadata.descriptors[w.root].title,
-              () => this.context.presenter(w.root).edit(),
+              () =>
+                this.context.flows.supports(w.root)
+                  ? this.context.flows.create(w.root)
+                  : this.context.presenter(w.root).edit(),
               'primary',
             )
           : null,
@@ -188,7 +191,14 @@ export class WorkspacePresenter {
       select,
     );
     const body = el('div', { class: 'workspace-body' });
-    this.root.replaceChildren(header, hero, this.metrics(row), tabs, body);
+    this.root.replaceChildren(
+      header,
+      hero,
+      this.context.flows.actions(this.key, row),
+      this.metrics(row),
+      tabs,
+      body,
+    );
     if (this.tab === 'Business rules') {
       body.append(
         CardRenderer.panel(

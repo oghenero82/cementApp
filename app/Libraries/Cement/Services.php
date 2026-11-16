@@ -6,6 +6,7 @@ namespace App\Libraries\Cement;
 final class Services
 {
     public const OWNED = [
+        'inventory_reservation' => ['REMAINING_QTY'],
         'purchase' => ['GROSS_AMOUNT','DISCOUNT_AMOUNT','NET_AMOUNT','PAID_AMOUNT'],
         'purchaseItem' => ['LOADED_QTY','CLEARED_QTY','DELIVERED_QTY','FULLY_DELIVERED','FIRST_LOADED_AT','NET_UNIT_COST','AMOUNT','QUANTITY_BASE','UNIT_CONVERSION_SNAPSHOT'],
         'cement_loading' => ['QUANTITY_BASE','UNIT_CONVERSION_SNAPSHOT','CUSTOMER_QUANTITY','WAREHOUSE_QUANTITY','CLEARED_QUANTITY','CONFIRMED_AT','CONFIRMED_BY'],
@@ -45,6 +46,10 @@ final class Services
     }
     public function guard(array $actor, string $type, array $data, array $old, array $patch, string $op): void
     {
+        if ($type === 'inventory_reservation') {
+            (new Reservations($this->s))->guard($data, $old, $patch, $op);
+            return;
+        }
         if ($actor['role'] === 'cement_driver') {
             $scope = new Scope($this->s);
             if (!$scope->allows($actor, $type, $data)) {
@@ -161,6 +166,9 @@ final class Services
     public function prepare(array $actor, string $type, array $d, array $old): array
     {
         $i = (int)$actor['institution_id'];
+        if ($type === 'inventory_reservation') {
+            return (new Reservations($this->s))->prepare($i, $d, $old);
+        }
         $settings = $this->s->settings($i);
         $d['STATUS'] ??= 'draft';
         if (isset($this->s->catalog->fields[$type]['CURRENCY'])) {
@@ -367,6 +375,9 @@ final class Services
                 }
                 $d += ['DELIVERY_STATUS' => 'pending'];
                 break;
+            case 'inventory_stocktake':
+                $d['INVENTORY_KEEPING_METHOD'] ??= $settings['inventoryKeepingMethod'];
+                break;
             case 'inventory_stocktake_line':
                 $take = $this->s->semantic($i, 'inventory_stocktake', (int)($d['STOCKTAKE_ID'] ?? 0));
                 if ($take['STATUS'] === 'posted') {
@@ -411,6 +422,7 @@ final class Services
                 }
 
                 $employment = $this->s->semantic($i, 'staff_employment', (int)($d['EMPLOYMENT_ID'] ?? 0));
+                $d['BASIC_SALARY'] ??= $employment['BASIC_SALARY'];
                 foreach ($this->s->related($i, 'payroll_item', 'EMPLOYMENT_ID', $d['EMPLOYMENT_ID']) as $r) {
                     $existing = $this->d($r);
                     if (($existing['CODE'] ?? null) === ($old['CODE'] ?? $d['CODE'] ?? null)) {
@@ -511,6 +523,10 @@ final class Services
     public function after(array $actor, string $type, int $id, array $d, array $old): void
     {
         $i = (int)$actor['institution_id'];
+        if ($type === 'inventory_reservation') {
+            (new Reservations($this->s))->rollup($i, $d['LOCATION_ID'], $d['PRODUCT_ID']);
+            return;
+        }
         $final = in_array($d['STATUS'] ?? '', self::FINAL);
         if ($type === 'purchaseItem') {
             $this->rollupPurchase($i, $d['PURCHASE_ID']);
@@ -934,6 +950,10 @@ final class Services
         $condition = $d['STOCK_CONDITION'];
         $alloc = [];
         if (!empty($d['SOURCE_LOCATION_ID'])) {
+            if (!empty($d['SALE_ITEM_ID'])) {
+                $line = $this->s->semantic($i, 'customer_sale_item', $d['SALE_ITEM_ID']);
+                (new Reservations($this->s))->consume($i, $line['SALE_ID'], $d['SOURCE_LOCATION_ID'], $d['PRODUCT_ID'], $qty);
+            }
             $stock = $this->stock($i, $d['SOURCE_LOCATION_ID'], $d['PRODUCT_ID'], $condition);
             if ($stock['QUANTITY_AVAILABLE'] + 0.000001 < $qty) {
                 throw new Problem('Insufficient available stock');

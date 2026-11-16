@@ -1354,3 +1354,40 @@ summary:hover {
   flex-wrap: wrap;
   margin-bottom: 10px;
 }
+.operational-actions {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.signature-pad {
+  display: block;
+  width: 100%;
+  height: 180px;
+  border: 1px dashed #91a9cb;
+  border-radius: 10px;
+  touch-action: none;
+  background: #fbfdff;
+}
+.signature-editor .actions {
+  margin: 10px 0;
+}
+.flow-lines {
+  display: grid;
+  gap: 12px;
+}
+.flow-line {
+  box-shadow: none;
+  margin: 0;
+}
+.business-flow > h3 {
+  margin: 25px 0 14px;
+}
+.batch-review {
+  border-top: 1px solid var(--line);
+  margin-top: 22px;
+  padding-top: 18px;
+}
+.business-flow .form-summary:empty {
+  display: none;
+}

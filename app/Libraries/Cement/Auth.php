@@ -48,7 +48,8 @@ final class Auth
         $u = $this->s->run('SELECT id,institution_id,email,role,person_id,display_name FROM users WHERE id=? AND active=1', [$id])->fetch(\PDO::FETCH_ASSOC);
         if (!$u) {
             throw new Problem('Please sign in', 401);
-        }return $u;
+        }$this->s->loadPermissions((int)$u['institution_id']);
+        return $u;
     }
     public function login(string $email, string $password, string $ip): array
     {

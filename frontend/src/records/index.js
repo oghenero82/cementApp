@@ -1,3 +1,4 @@
+import { InventoryReservationPresenter } from './InventoryReservationPresenter.js';
 import { CementAuditEventPresenter } from './CementAuditEventPresenter.js';
 import { CementBranchPresenter } from './CementBranchPresenter.js';
 import { CementLoadingPresenter } from './CementLoadingPresenter.js';
@@ -63,6 +64,7 @@ import { MemberPresenter } from './MemberPresenter.js';
 import { MemberAccountPresenter } from './MemberAccountPresenter.js';
 import { CooperativeTransactionPresenter } from './CooperativeTransactionPresenter.js';
 export const presenters = {
+  inventory_reservation: InventoryReservationPresenter,
   cement_audit_event: CementAuditEventPresenter,
   cement_branch: CementBranchPresenter,
   cement_loading: CementLoadingPresenter,

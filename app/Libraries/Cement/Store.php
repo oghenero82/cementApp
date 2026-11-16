@@ -32,6 +32,8 @@ CREATE TABLE IF NOT EXISTS uploads (id INTEGER PRIMARY KEY AUTOINCREMENT, instit
 CREATE TABLE IF NOT EXISTS sale_recognitions (id INTEGER PRIMARY KEY AUTOINCREMENT, institution_id INTEGER NOT NULL, sale_id INTEGER NOT NULL, source TEXT NOT NULL, amount_minor INTEGER NOT NULL, tax_minor INTEGER NOT NULL, quantity REAL NOT NULL, created_at TEXT NOT NULL, UNIQUE(institution_id,source));
 CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, institution_id INTEGER NOT NULL, actor_id INTEGER NOT NULL, type TEXT NOT NULL, record_id INTEGER, filename TEXT NOT NULL, mime TEXT NOT NULL, extension TEXT NOT NULL, created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS payment_allocations (institution_id INTEGER NOT NULL, payment_id INTEGER NOT NULL, sale_id INTEGER NOT NULL, amount_minor INTEGER NOT NULL CHECK(amount_minor>0), UNIQUE(institution_id,payment_id,sale_id));
+CREATE TABLE IF NOT EXISTS role_permissions (institution_id INTEGER NOT NULL,role TEXT NOT NULL,type TEXT NOT NULL,can_read INTEGER NOT NULL,can_write INTEGER NOT NULL,PRIMARY KEY(institution_id,role,type));
+CREATE TABLE IF NOT EXISTS role_modules (institution_id INTEGER NOT NULL,role TEXT NOT NULL,modules TEXT NOT NULL,PRIMARY KEY(institution_id,role));
 CREATE TABLE IF NOT EXISTS login_attempts (identity TEXT PRIMARY KEY, failures INTEGER NOT NULL DEFAULT 0, attempted_at INTEGER NOT NULL);
 SQL);
         if (!in_array('person_id', array_column($this->run('PRAGMA table_info(users)')->fetchAll(\PDO::FETCH_ASSOC), 'name'))) {
@@ -46,6 +48,19 @@ SQL);
         foreach (array_keys($this->catalog->types) as $code) {
             $this->run('INSERT OR IGNORE INTO record_types(code) VALUES (?)', [$code]);
         }
+    }
+    public function loadPermissions(int $institution): void
+    {
+        $rows = $this->run('SELECT * FROM role_permissions WHERE institution_id=? ORDER BY role,type', [$institution])->fetchAll(\PDO::FETCH_ASSOC);
+        $modules = $this->run('SELECT * FROM role_modules WHERE institution_id=? ORDER BY role', [$institution])->fetchAll(\PDO::FETCH_ASSOC);
+        $this->catalog->permissionOverrides = [];
+        foreach ($rows as $row) {
+            $this->catalog->permissionOverrides[$row['role']][$row['type']] = ['read' => (bool)$row['can_read'],'write' => (bool)$row['can_write']];
+        }
+        $this->catalog->roles = $this->catalog->json('role_templates');
+        foreach ($modules as $row) {
+            $this->catalog->roles[$row['role']]['modules'] = json_decode($row['modules'], true, 512, JSON_THROW_ON_ERROR);
+        }$this->catalog->permissionRevision = hash('sha256', json_encode([$rows,$modules], JSON_THROW_ON_ERROR));
     }
     public function run(string $sql, array $args = []): \PDOStatement
     {

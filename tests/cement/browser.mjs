@@ -1,3 +1,4 @@
+import { businessJourney } from './business-browser.mjs';
 import { chromium, expect } from '@playwright/test';
 import { spawn } from 'node:child_process';
 import { mkdtemp, rm, mkdir } from 'node:fs/promises';
@@ -88,6 +89,7 @@ try {
   await expect(page.locator('#overlay')).toBeEmpty();
   await page.reload();
   await expect(page.locator('main .panel-table')).toContainText('Updated supplier');
+  await businessJourney(page, origin, api);
   // All 51 collections and all 78 workspace tabs mount without JavaScript failures.
   let collections = 0,
     tabs = 0;
@@ -160,7 +162,11 @@ try {
   await page.reload();
   await expect(page.locator('main .panel-table')).toContainText('ORIGINAL-PIN');
   await expect(page.locator('main th[data-field="supplierAccessRef"]')).toHaveText('Supplier Pin');
-  await page.getByRole('button', { name: 'View →' }).click();
+  await page
+    .locator('tr')
+    .filter({ hasText: 'ORIGINAL-PIN' })
+    .getByRole('button', { name: 'View →' })
+    .click();
   await page.getByRole('button', { name: 'Edit record', exact: true }).click();
   await expect(page.getByLabel(/^Supplier Pin/)).toHaveAttribute('name', 'supplierAccessRef');
   await expect(page.getByLabel(/^Supplier Id/)).toHaveAttribute('name', 'supplierAccountRef');
@@ -251,6 +257,17 @@ try {
   const anonymous = await browser.newContext();
   expect((await anonymous.request.get(origin + file.downloadPath)).status()).toBe(401);
   await anonymous.close();
+  await page.goto(origin + '/#users');
+  await page.getByRole('button', { name: 'Edit role permissions', exact: true }).click();
+  await page.getByLabel('Permission role', { exact: true }).selectOption('cement_data_entry');
+  const supplierWrite = page.getByRole('checkbox', { name: 'Supplier write', exact: true });
+  await supplierWrite.setChecked(false);
+  await page.getByRole('button', { name: 'Save role permissions', exact: true }).click();
+  await expect(
+    page.locator('.toast').filter({ hasText: 'Role permissions saved' }),
+  ).toBeVisible();
+  const permissions = await api('permissions');
+  expect(permissions.roles.cement_data_entry.permissions.supplier.write).toBe(false);
   for (const [role, policy] of Object.entries(
     JSON.parse(
       await (

@@ -101,6 +101,9 @@ final class Api extends BaseController
                 'POST imports/preview' => (new \App\Libraries\Cement\ImportPreview($c))->upload($actor, $this->request),
                 'POST files/upload' => (new \App\Libraries\Cement\Files($this->store))->upload($actor, $this->request),
                 'GET lookups' => $this->lookups($actor, $input),
+                'GET permissions' => (new \App\Libraries\Cement\Permissions($this->store))->read($actor),
+                'POST permissions' => (new \App\Libraries\Cement\Permissions($this->store))->update($actor, $input),
+                'GET customers/statement' => (new \App\Libraries\Cement\CustomerStatement($this->store))->generate($actor, $input),
                 'GET health' => ['backendMode' => 'local','database' => 'connected','registryRevision' => Catalog::REVISION,'sharedCooperative' => 'local-shared-recordtypes','reportEmail' => getenv('CEMENT_REPORT_EMAIL_ENABLED') === '1' ? 'configured' : 'pending_configuration'],
                 'GET reports' => $this->report($actor, $input),
                 'GET reports/result' => $this->reportResult($actor, $input),
@@ -115,10 +118,10 @@ final class Api extends BaseController
                 'GET audit' => $this->audit($actor),
                 default => throw new Problem('Endpoint not found', 404),
             };
-            if ($method === 'GET' && in_array($path, ['reports','reports/result']) && ($input['format'] ?? '') === 'xlsx') {
+            if ($method === 'GET' && in_array($path, ['reports','reports/result','customers/statement']) && ($input['format'] ?? '') === 'xlsx') {
                 return $this->response->setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')->setHeader('Content-Disposition', 'attachment; filename="cement-report.xlsx"')->setBody((new Reports($this->store))->xlsx($output));
             }
-            if ($method === 'GET' && in_array($path, ['reports','reports/result']) && ($input['format'] ?? '') === 'csv') {
+            if ($method === 'GET' && in_array($path, ['reports','reports/result','customers/statement']) && ($input['format'] ?? '') === 'csv') {
                 return $this->response->setHeader('Content-Type', 'text/csv; charset=UTF-8')->setHeader('Content-Disposition', 'attachment; filename="cement-report.csv"')->setBody((new Reports($this->store))->csv($output));
             }
             return $this->response->setJSON($output);

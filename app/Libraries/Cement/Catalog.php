@@ -8,6 +8,8 @@ final class Catalog
     public array $fields;
     public array $types = [];
     public array $roles;
+    public array $permissionOverrides = [];
+    public string $permissionRevision = "initial";
 
     public function __construct()
     {
@@ -48,6 +50,10 @@ final class Catalog
         return $result;
     }
 
+    public function isPrivate(string $type): bool
+    {
+        return str_starts_with($type, 'payroll') || in_array($type, ['staff_employment', 'staff_deduction', 'person', 'cement_audit_event','member','member_account','cooperative_transaction','account','account_type','journal','journal_line','account_balance','bank_account','bank_statement','bank_statement_line','bank_reconciliation','fiscal_year']);
+    }
     public function allowed(string $role, string $type, bool $write = false): bool
     {
         $policy = $this->roles[$role] ?? null;
@@ -55,11 +61,17 @@ final class Catalog
             return false;
         }
         // Payroll and credentials are private even when a seed role uses a wildcard read template.
-        $private = str_starts_with($type, 'payroll') || in_array($type, ['staff_employment', 'staff_deduction', 'person', 'cement_audit_event','member','member_account','cooperative_transaction','account','account_type','journal','journal_line','account_balance','bank_account','bank_statement','bank_statement_line','bank_reconciliation','fiscal_year']);
+        $private = $this->isPrivate($type);
         if ($private && !in_array($role, ['cement_admin', 'cement_system_admin', 'cement_accountant'])) {
             return false;
         }
+        if (isset($this->permissionOverrides[$role][$type])) {
+            return $this->permissionOverrides[$role][$type][$write ? 'write' : 'read'];
+        }
         if ($role === 'cement_accountant' && $write && in_array($type, ['account_type','account','fiscal_year','bank_account','bank_statement','bank_statement_line','bank_reconciliation','journal','journal_line','member','member_account','cooperative_transaction'])) {
+            return true;
+        }
+        if ($type === 'inventory_reservation' && in_array($role, ['cement_sales_manager','cement_store_keeper'])) {
             return true;
         }
         $list = $policy[$write ? 'can_write' : 'can_read'];
