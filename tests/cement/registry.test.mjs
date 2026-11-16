@@ -4,6 +4,7 @@ import { readFile, readdir } from 'node:fs/promises';
 import { RecordFieldRegistry } from '../../frontend/src/registry/RecordFieldRegistry.js';
 import { RecordDataProcessor } from '../../frontend/src/core/RecordDataProcessor.js';
 import { MutationClient } from '../../frontend/src/core/MutationClient.js';
+import { SyncClient } from '../../frontend/src/core/SyncClient.js';
 import { parseCSV, convertCSV } from '../../frontend/src/core/Importer.js';
 import { scanFields } from '../../scripts/scan_fields.mjs';
 
@@ -157,4 +158,26 @@ test('all production business modules pass static registry access scan', async (
   for (const file of await walk('frontend/src'))
     errors.push(...scanFields(await readFile(file, 'utf8'), file));
   assert.deepEqual(errors, []);
+});
+
+test('sync rejects unknown data fields, mismatched dynamic IDs and invalid versions', () => {
+  const registry = new RecordFieldRegistry();
+  registry.activateMetadata({
+    revision: 'live',
+    fieldsByRecordType: {},
+    recordTypeIds: { supplier: 81 },
+  });
+  const sync = new SyncClient(null, null, registry);
+  const row = {
+    recordTypeId: 81,
+    recordTypeCode: 'supplier',
+    recordId: 120,
+    mutationId: 3,
+    version: 1,
+    data: registry.encode('supplier', { NAME: 'Supplier' }),
+  };
+  assert.doesNotThrow(() => sync.validateRows([row]));
+  assert.throws(() => sync.validateRows([{ ...row, recordTypeId: 82 }]));
+  assert.throws(() => sync.validateRows([{ ...row, data: { unknownBusinessField: 'value' } }]));
+  assert.throws(() => sync.validateRows([{ ...row, version: 0 }]));
 });

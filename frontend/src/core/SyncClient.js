@@ -13,6 +13,31 @@ export class SyncClient {
       this.busy = null;
     }
   }
+  validateRows(rows) {
+    if (!Array.isArray(rows)) throw new Error('Sync records must be an array');
+    for (const row of rows) {
+      if (
+        !row ||
+        !Number.isSafeInteger(row.recordId) ||
+        row.recordId <= 0 ||
+        !Number.isSafeInteger(row.version) ||
+        row.version <= 0 ||
+        !Number.isSafeInteger(row.mutationId) ||
+        row.mutationId < 0
+      )
+        throw new Error('Invalid sync record identity or version');
+      if (this.registry.recordTypeIds[row.recordTypeCode] !== row.recordTypeId)
+        throw new Error('Sync RecordType ID does not match authorized metadata');
+      const allowed = new Set(Object.values(this.registry.fields(row.recordTypeCode)));
+      if (
+        !row.data ||
+        typeof row.data !== 'object' ||
+        Array.isArray(row.data) ||
+        Object.keys(row.data).some((key) => !allowed.has(key))
+      )
+        throw new Error('Sync data does not match the activated field registry');
+    }
+  }
   async perform() {
     let position = (await this.cache.getMeta('cursor')) || { cursor: 0, afterId: 0 };
     let page;
@@ -25,6 +50,7 @@ export class SyncClient {
       }
       if (page.registryRevision !== this.registry.revision)
         throw new Error('Metadata changed. Reload before syncing records.');
+      this.validateRows(page.records);
       await this.cache.apply(page);
       position = { cursor: page.cursor, afterId: page.afterId };
     } while (page.hasMore);

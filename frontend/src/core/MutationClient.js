@@ -21,6 +21,7 @@ export class MutationClient {
     await this.cache.putDraft(draft);
     try {
       const result = await this.api.request('mutation', envelope);
+      this.sync.validateRows?.(result.changes || []);
       await this.cache.applyChanges(result.changes || []);
       await this.cache.removeDraft(envelope.requestId);
       if (Date.now() - this.sync.lastRun >= 60000) await this.sync.run();
