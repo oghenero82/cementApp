@@ -25,3 +25,7 @@ A browser screen calls the Cement CodeIgniter backend. That backend uses either 
 `MetaForgeApp.zip` contains a separate backend application. Its files are not intended to replace Cement's `app/` directory.
 
 For local use of the prebuilt standalone ZIP, install PHP 8.2+ with the required extensions, then run `php scripts/start.php`. Open http://127.0.0.1:8080 and create the first institution and administrator. The launcher uses local SQLite and binds only to this computer. Production hosting needs the deployment configuration described in `DEPLOYMENT.md`.
+
+## Ready-to-run CI4 distribution
+
+The [CI4 ZIP](../downloads/CementApp-CI4.zip?raw=true) groups the runtime into standard CI4 directories, with production `vendor/`, built `public/assets/cement/` and empty `writable/` folders. See [the package guide](CI4_PACKAGE.md) for the complete layout and launch instructions. Development-only source and tests remain in the repository.

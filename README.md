@@ -6,6 +6,10 @@ The standalone application uses durable SQLite storage. IndexedDB is an authoriz
 
 See [the folder guide](docs/PROJECT_STRUCTURE.md) for where the application files live. The implementation is on `feat/issue-1-cement-application` pending merge.
 
+## Ready-to-run CI4 ZIP
+
+Download [CementApp-CI4.zip](downloads/CementApp-CI4.zip?raw=true), extract the `CementApp-CI4` folder and run `php scripts/start.php`. CI4 dependencies and built frontend assets are included. See [package setup and folder layout](docs/CI4_PACKAGE.md).
+
 ## Requirements
 
 - PHP 8.2+ with intl, mbstring, PDO SQLite, SQLite3, curl, fileinfo and zip; PHPUnit also needs DOM/XML/XMLWriter.
@@ -51,7 +55,7 @@ The System importer previews CSV/XLSX before sending it through the mutation API
 
 Admin users can provision all seven roles and link drivers to person records. Drivers receive only assigned trips, stops, vehicles and proof. Role navigation, lookup labels, report snapshots and API operations are authorized on the server. Use Account in the sidebar footer to change your password.
 
-For the uploaded MetaForge version, see [native integration scope and setup](docs/NATIVE_METAFORGE.md). Native mode currently supports catalogs; transaction posting remains unfinished.
+For the uploaded MetaForge version, see [native integration scope and setup](docs/NATIVE_METAFORGE.md). Native mode supports the verified transaction services listed in that guide; other native modules remain unfinished.
 
 ## Registry and architecture
 
