@@ -16,7 +16,7 @@ if registration not in source and source.count(anchor)!=1:p.error('Unrecognized 
 route="$routes->get('api/cement/capabilities', 'CementCapabilities::index');"
 route_source=routes.read_text()
 writes={path.relative_to(repo/'integrations/metaforge'):path.read_bytes() for path in (repo/'integrations/metaforge').rglob('*.php')}
-for name in ('recordtypes.json','semantic_field_registry.json'):
+for name in ('recordtypes.json','semantic_field_registry.json','shared_recordtypes.json','shared_semantic_field_registry.json'):
     writes[Path('resources/cement')/name]=(repo/'resources/cement'/name).read_bytes()
 # Upgrade only the recognized native executor seam; normal HTTP plans still reject these private keys.
 executor=target/'app/Libraries/MetaForge/Mutation/RecordExecutor.php'

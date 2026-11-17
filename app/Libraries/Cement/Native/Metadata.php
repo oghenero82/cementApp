@@ -114,7 +114,18 @@ final class Metadata
                 }] : ['draft']);
                 $posting = $privateAllowed && $type !== 'inventory_stocktake_line';
             }
-            $descriptors[$type] = ['title' => $definition['name'] ?? $catalog->types[$type]['name'],'module' => $catalog->types[$type]['module'],'fields' => $fields,'canWrite' => $canWrite,'readOnlyAliases' => array_values(array_unique(array_merge($readonly, Services::OWNED[$type] ?? []))),'allowedStates' => $states,'postingAvailable' => $posting,'serviceOwned' => in_array($type, ['inventory_stock','inventory_cost_layer','account_balance','report_result','report_delivery','cement_audit_event'], true)];
+            if (isset($definition['settings']['cementReturns'])) {
+                $states = $privateAllowed ? ['draft','confirmed'] : ['draft'];
+                $posting = $privateAllowed;
+            }
+            $readonly = array_merge($readonly, match($type) {
+                'customer_payment' => ['POSTED_JOURNAL_ID'],'customer_sale_return' => ['REFUND_AMOUNT','APPROVED_BY'],'stock_adjustment' => ['AMOUNT','STOCKTAKE_LINE_ID','SOURCE_MOVEMENT_ID','APPROVED_BY','APPROVAL_DATE'],'inventory_transfer' => ['DISPATCHED_AT','RECEIVED_AT','OUT_MOVEMENT_ID','IN_MOVEMENT_ID','APPROVED_BY'],'damaged_goods' => ['RELATED_MOVEMENT_ID','WRITE_OFF_ADJUSTMENT_ID','APPROVED_BY'],'inventory_stocktake' => ['POSTED_BY','VERIFIED_BY'],default => []
+            });
+            if (isset($definition['settings']['cementReservations'])) {
+                $states = ['active','released'];
+                $posting = true;
+            }
+            $descriptors[$type] = ['title' => $definition['name'] ?? $catalog->types[$type]['name'],'module' => $catalog->types[$type]['module'],'fields' => $fields,'canWrite' => $canWrite,'canDelete' => $canWrite && in_array('delete', $definition['settings']['cementOperations'] ?? [], true),'readOnlyAliases' => array_values(array_unique(array_merge($readonly, Services::OWNED[$type] ?? []))),'allowedStates' => $states,'postingAvailable' => $posting,'serviceOwned' => in_array($type, ['inventory_stock','inventory_cost_layer','account_balance','report_result','report_delivery','cement_audit_event'], true)];
         }
         if (!$maps) {
             throw new Problem('No authorized Cement schemas are installed in MetaForge', 502);

@@ -1,28 +1,30 @@
-# Native MetaForge integration: current scope
+# Native MetaForge integration
 
-The `native` protocol now supports server-held cookies, rotating CSRF, context checks, login/logout, password/role continuation, explicit semantic metadata, grouped incremental sync, lookups and version-checked atomic catalog batches and linked purchase/item drafts through a registered native service. TLS verification stays enabled; `METAFORGE_CA_BUNDLE` can trust a private CA. It never posts through local SQLite as a fallback.
+The native protocol connects Cement CI4 to MetaForge using server-held cookies, rotating CSRF, context checks, HTTPS, explicit semantic aliases, dynamic RecordType IDs and grouped incremental sync. Verified native services implement purchase funding, warehouse/customer loading, sales, receipts/advances, delivery recognition, returns/refunds, inventory valuation, stock controls and reservations. Remaining native capabilities are listed below. Standalone SQL workflows are independently implemented and tested.
 
-**This is a catalog integration, not a complete native Cement transaction runtime.** Native funding/loading/sales/stock/payroll/ledger posting, shared Accounting/Cooperative schema translation, driver assignment scoping, native attachments/imports and reports remain unfinished. The interface displays this limitation and transaction writes remain disabled. The standalone SQL implementation continues to provide its tested workflows.
+## Installation
 
-## Install into a separate MetaForge checkout
-
-Back up the target source and database first. Run from the Cement repository:
+Use a separate MetaForge checkout and back up its source/database. From the Cement repository:
 
 ```sh
 python3 scripts/install_native_extension.py /path/to/MetaForgeApp
 ```
 
-Review the copied extension classes, registry registration and capabilities route. The script does not read `.env`, configure credentials or change a database. A differing extension file is rejected unless `--update` is explicitly supplied; updates retain content-addressed backups.
+A differing extension file requires review and `--update`; replacements retain content-addressed backups. The script does not read `.env` or change a database. It installs extension classes, schema resources and authenticated routes, registers services, and patches two recognized native executor seams: trusted child-plan identity binding/result maps and subscription operation bindings. An unrecognized executor is rejected. Native cycle detection and HTTP private-plan validation remain enforced.
 
-In that MetaForge checkout, install the schemas explicitly:
+From that MetaForge checkout, explicitly enable the required services:
 
 ```sh
-php spark cement:install-native
+php spark cement:install-native --native-returns --native-reservations --native-stock-controls
+# Optional, explicitly reviewed grant to one existing role:
+php spark cement:install-native --grant-role ROLE_CODE
 ```
 
-This preserves matching definitions and rejects schema drift. It does not replace shared Accounting/Cooperative definitions or enable their disabled financial services. To grant the new module/types to a specific existing role, use `--grant-role ROLE_CODE`; this also adds the module to that role's portal and institution grants. Review the selected role carefully. No default role grant is performed. Existing checked capability metadata can be migrated with `--upgrade`.
+PHP BCMath is required for native posting. Individual flags are `--purchase-drafts`, `--purchase-funding`, `--native-inventory`, `--native-loading`, `--native-sales`, `--native-returns`, `--native-reservations` and `--native-stock-controls`. Each enables its prerequisites. Rerunning preserves activated handlers. Existing definitions are compared with the expected prior definitions; custom schema drift fails explicitly. No role is granted automatically. The grant option adds broad installed-type permissions to the selected role: use only a reviewed administrator/development role; configure operational role grants separately.
 
-Configure the Cement server securely:
+The original 51 Cement definitions retain their aliases. The reservation flag adds only the explicitly defined `inventory_reservation` addon and performs a checked module-ID migration. Existing shared Accounting and Cooperative RecordTypes are reused; duplicate financial engines are not installed.
+
+Configure Cement securely:
 
 ```ini
 CEMENT_DRIVER = metaforge
@@ -32,58 +34,46 @@ METAFORGE_BASE_URL = 'https://your-metaforge-host'
 # METAFORGE_CA_BUNDLE = '/absolute/path/to/ca-bundle.pem'
 ```
 
-`gateway` remains the separate compatibility-gateway protocol. Native mode requires the extension's authenticated `/api/cement/capabilities` endpoint; it does not infer write permissions from redacted role metadata.
+`gateway` is a separate compatibility protocol. Native mode requires the authenticated capabilities endpoint. Authoritative write permission is resolved from native grants, not inferred from redacted bootstrap metadata. Remote failures never start local SQL posting.
 
-## Evidence
+## Business behavior
 
-Five additional unit tests verify cookie/CSRF isolation and rotation, HTTPS enforcement, explicit field aliases/dynamic IDs, grouped sync normalization and exact native service-request identity. A local HTTPS reverse proxy with a trusted test certificate was used to exercise the actual uploaded MetaForge installation: login, 51-schema metadata, navigation, sync, persisted supplier creation, exact request replay and logout passed. This did not test the user's live deployment or native transaction posting.
+- Atomic linked batches use real native IDs, versions, registry revisions and the original UUID. Late failures roll back all children, stock projections and journals; exact replay returns the original result. Queued payload keys are never silently rewritten after metadata changes.
+- Purchase drafts calculate discounted entitlement and unit snapshots. Funding posts once to existing shared journals and annual account balances. The native lifecycle remains `DRAFT` → `WAIT_POSTING` → `POSTED`; posted lines are immutable. Configure active posting accounts in institution currency and exactly one open fiscal year for the posting date.
+- Confirmed movement history drives FIFO/weighted-average stock and cost layers. Effective confirmation order is preserved. Transfers conserve cost; future effects remain drafts. Catalog guards preserve a transacted product's base unit and require active transaction products/locations/suppliers.
+- Confirmed loading consumes funded entitlement, splits quantities/costs between warehouses/customers, snapshots purchase ownership policy and creates linked sales. Warehouse receipt credits purchase prepaid. Partial clearance refreshes supplier counters without reposting stock.
+- Dated quantity tiers, selected/customer price lists and override policy determine sale prices. Ownership events post revenue, tax, receivables and COGS. Delivery-based ownership supports partial accepted/rejected proofs and rechecks credit limits. Tax recognition follows recognised gross cents.
+- Receipts identify a sale or allocate across existing invoices in date order. Excess remains a deposit; later invoices apply only its unallocated balance. Historical allocations cannot move to later invoices. Mixed receivable/deposit receipts apply deposits only against remaining recognised receivables. Journals link through authoritative source IDs; optional receipt-side journal backlinks are not fabricated by recursive parent mutations.
+- Partial returns cannot exceed transferred quantity/value. They reverse tax, credit outstanding receivables, refund excess cash and optionally receive good/damaged stock at original transferred cost. All financial and inventory effects share the outer native transaction.
+- Stocktakes snapshot quantity and value, reject intervening changes and post approved variances. Atomic transfers, quarantine and write-offs use the same verified movement/ledger services.
+- Reservations hold available good stock against unfulfilled warehouse orders. They block unrelated issues and order resizing, are consumed by their own fulfilment, and can be released while retaining history. Holds do not change on-hand quantity or post journals.
+- Customer statements project posted shared recognition, receipts, deposit applications and return/refund journals into period opening/closing balances, CSV and XLSX. This scoped projection does not grant sales roles general ledger access. Dashboard sales totals follow recognised ownership value.
 
-## Verified native batches and purchase drafts
+## Attachments
 
-The extension now resolves explicitly declared earlier-record references inside one MetaForge mutation transaction. Native database-assigned IDs populate the result map. A failed child aborts the complete batch, and exact request replay returns the original result. HTTP record plans cannot submit the private binding keys; only the trusted service can produce them.
+Signatures/documents upload through Cement CI4 into immutable private MetaForge storage. Manifests include institution, uploader, RecordType, MIME and digest. Mutation validates references; download requires native type permission and ownership or an authorized persisted record reference. Supported files are PNG/JPEG/WebP/PDF, up to 5 MB. Signature references require an image. Back up MetaForge's `writable/cement-attachments` with its database. The Cement server creates no local attachment or accounting fallback. Driver access remains blocked until assignment scoping is installed.
 
-This requires a checked update to MetaForge's `RecordExecutor::serviceChildren` seam. The installer recognizes the original implementation, backs it up, adds the trusted binding executor and propagates its result map. An unrecognized implementation is rejected for review. It does not remove financial guards.
+## Verification
 
-To activate purchase drafts in an existing isolated installation:
+The real integration journeys use the uploaded MetaForge runtime, isolated MariaDB, HTTPS with a verified test CA and actual shared journals/balances. They create uniquely named test records and configure test institution policies/accounts: **run only against an isolated deployment**.
+
+Supply `CEMENT_NATIVE_TEST_URL`, `CEMENT_NATIVE_TEST_EMAIL`, `CEMENT_NATIVE_TEST_PASSWORD`, `CEMENT_NATIVE_DIRECT_URL` and optional `CEMENT_NATIVE_TEST_CA` securely. Run:
 
 ```sh
-python3 scripts/install_native_extension.py /path/to/MetaForgeApp --update
-# From that MetaForge checkout:
-php spark cement:install-native --purchase-drafts
+python3 tests/cement/native-workflows.py
+python3 tests/cement/native-funding.py
+CEMENT_NATIVE_TEST_POLICY=fifo python3 tests/cement/native-inventory.py
+CEMENT_NATIVE_TEST_POLICY=weighted_average python3 tests/cement/native-inventory.py
+python3 tests/cement/native-loading.py
+python3 tests/cement/native-sales.py
+python3 tests/cement/native-returns.py
+python3 tests/cement/native-stock-controls.py
+python3 tests/cement/native-reservations.py
+node tests/cement/native-browser.mjs
 ```
 
-The migration compares the previous definition before changing its hooks. Existing customizations fail explicitly. Rerunning installation preserves activated draft handlers. Purchase items calculate discounted cost, base quantity and conversion snapshots; native child hooks recompute parent totals. Currency follows institution settings. Native decimal values are serialized according to MetaForge's number contract and normalized for the Cement frontend. Funding is disabled in forms/actions and rejected server-side.
+Returns/reservation journeys reuse the asserted sales/loading setup. Tests cover actual postings, bank mappings, real signature upload/download, deferred ownership, mixed receipts, advances, tax, statements, returns, reservations, replay, permissions/invariants and late-batch rollback. The normal suite currently has 69 PHP tests/448 assertions, eight JavaScript tests and seeder integrity checks. The standalone browser regression exercises 65 collections, 78 tabs, seven roles and connected business transactions.
 
-The repeatable integration journey writes uniquely named test records and must target an isolated test deployment. Supply `CEMENT_NATIVE_TEST_URL` (the Cement server), `CEMENT_NATIVE_TEST_EMAIL` and `CEMENT_NATIVE_TEST_PASSWORD` through secure settings, then run `python3 tests/cement/native-workflows.py`. It verifies purchase draft calculations, linked IDs, replay, late-failure rollback, synchronization, logout and refusal to fabricate funding.
+## Remaining work
 
-Latest checks: 51 PHP tests / 188 assertions; seven JavaScript tests; seeder integrity; standalone browser business journeys plus 65 collections, 78 tabs and seven roles; actual native integration journey. These results do not establish production deployment, native financial posting or email delivery.
-
-## Verified shared Accounting funding
-
-The native extension now implements purchase funding using the existing shared `journal`, `journal_line` and `account_balance` types. No parallel remote ledger types are created. The checked migration replaces the shipped disabled journal/balance guards with verified hooks while preserving other domain guards and the native journal lifecycle (`DRAFT` → `WAIT_POSTING` → `POSTED`).
-
-To opt in after source review, run `php spark cement:install-native --purchase-funding --grant-role ROLE_CODE` in MetaForge. PHP BCMath is required. Configure active posting accounts in the institution currency and exactly one open fiscal year containing the posting date. Purchase forms select existing authorized GL accounts through label-only lookups.
-
-Verified against the real isolated MetaForge database: balanced funding, shared GL balance updates, exact replay without duplicate postings, posted-line immutability, rejection of an unbalanced journal, and rollback of the purchase, journal, lines and balance changes when a later batch child fails. Run `tests/cement/native-funding.py` with the existing native test settings plus `CEMENT_NATIVE_DIRECT_URL` and optional `CEMENT_NATIVE_TEST_CA`; it configures uniquely named GL test records and is for isolated test installations only.
-
-The installer also adds operation bindings to the recognized native subscription-execution seam; the original runtime exposed the operation to conditions but omitted it from service parameter bindings. Source changes are checked and backed up. Native payroll posting remains in development; see the subsequent verified inventory/sales section for newer capabilities.
-
-## Native inventory, loading, sales and physical controls
-
-The extension now has verified handlers for `--native-inventory`, `--native-loading`, `--native-sales`, and `--native-stock-controls`. Later flags enable their prerequisites, and rerunning installation preserves already enabled handlers. Run the installer in the MetaForge checkout, after reviewing source changes. Each schema migration verifies the shipped prior definition and rejects custom drift.
-
-Confirmed movement history drives stock and cost layers, with FIFO or weighted-average costing, conserved transfer costs, immutable confirmation, reservation-aware availability and future-date guards. Warehouse loading consumes funded supplier entitlement and moves shared GL prepaid value into inventory. Mixed customer/warehouse allocations create linked native sales with purchase ownership and cost snapshots. Partial clearance updates supplier counters without reposting stock.
-
-Native invoices use dated quantity tiers and customer price lists. Price overrides follow institution settings. Warehouse sales consume native stock; direct loading sales consume prepaid cost. Shared journals post revenue, tax, receivables and COGS at the snapshotted ownership event. Partial payments received before recognition stay in customer deposits; accepted delivery applies those deposits to receivables. Posted payments, invoice terms and proofs are immutable. Receipts may identify a sale or allocate across outstanding customer invoices in date order. Excess receipts remain deposits; later invoices apply only the unallocated balance, preserving every historical allocation. Journals link to receipts through authoritative source RecordType/record IDs; the optional receipt-side journal field is not fabricated or populated by an unsafe recursive mutation.
-
-Signature images and other attachments now upload through Cement CI4 into private storage on MetaForge. Immutable blob/manifests record institution, uploader, type, digest and MIME. References are validated before mutation; download requires native type permission plus ownership or an authorized persisted record reference. Back up MetaForge's `writable/cement-attachments` with its database. No attachment or ledger fallback is created on the Cement server. Native driver access remains blocked until assignment-scoped reads are installed.
-
-Customer statements derive recognition, receipts and deposit applications from posted shared journals, with date-period opening/closing balances and CSV/XLSX export. The narrowly scoped statement service does not give sales roles access to general ledger records. Dashboard sales totals follow recognised ownership value.
-
-Stock controls post physical counts and approved adjustments, atomic transfers, quarantine and write-off decisions. Count lines snapshot both quantity and value; posting rejects intervening stock changes. All effects use the same native movement/ledger transaction, so later failures roll back projections and journals together.
-
-Run `tests/cement/native-inventory.py` separately with `CEMENT_NATIVE_TEST_POLICY=fifo` or `weighted_average`; `native-loading.py`, `native-sales.py` and `native-stock-controls.py` exercise the additional journeys. They write uniquely named records and configure test institution accounts/policies: **use an isolated test deployment only**. Tests use actual HTTPS transport with verified certificates and actual shared Accounting records, not a local SQL accounting substitute. Native sales includes real signature upload/download, partial delivery recognition, deposit application, statement periods, exact replay and late-batch rollback.
-
-Remaining native work includes returns, reservations, fleet/driver scopes, payroll/Cooperative operations, financial administration/reconciliation, all reporting schedules/imports and delegated posting permissions for operational roles. Current automated native posting approval is restricted to administrators/accountants; do not grant storekeepers general financial reads as a workaround. Production deployment and live email transport verification still require the user's deployment configuration. The standalone SQL workflows remain independently tested.
-
-Native catalog guards also preserve a transacted product’s base unit, reject negative credit limits and invalid dated price tiers, and require active transaction products/locations/suppliers. Delivery proof rejects quantities already accepted or rejected, validates destination links, supports rejection-only proofs, and rechecks customer credit at recognition. Tax allocation follows recognised gross cents, preventing tax from advancing without gross revenue.
+Native fleet/driver scopes, payroll/Cooperative operations, financial administration/reconciliation, all reporting schedules/imports and delegated posting permissions for operational roles remain unfinished. Native automatic posting approval currently requires administrator/accountant authority; do not grant storekeepers general financial reads as a workaround. Shared finance/Cooperative frontend schema translation is also pending. Production deployment and live email verification require the user's deployment configuration. These limits do not disable the independently tested standalone workflows.

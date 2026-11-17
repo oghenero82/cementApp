@@ -77,11 +77,11 @@ export class RecordPresenter {
         'released',
         'consumed',
       ].includes(state)
-    )
-      actions.append(
-        button('Edit record', () => this.edit(row), 'primary'),
-        button('Delete draft', () => this.remove(row)),
-      );
+    ) {
+      actions.append(button('Edit record', () => this.edit(row), 'primary'));
+      if (descriptor.canDelete !== false)
+        actions.append(button('Delete draft', () => this.remove(row)));
+    }
     if (
       this.type === 'trip_destination' &&
       this.context.metadata.descriptors.delivery_proof?.canWrite

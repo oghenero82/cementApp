@@ -28,6 +28,7 @@ final class NativeStatement
         }$customer = $r->find('customer', (int)$query['customerId']);
         $sales = [];
         $payments = [];
+        $returns = [];
         foreach ($r->rows('customer_sales') as $sale) {
             if ($sale['CUSTOMER_ID'] === $customer['_ID']) {
                 $sales[$sale['_ID']] = $sale;
@@ -38,12 +39,20 @@ final class NativeStatement
                 $payments[$payment['_ID']] = $payment;
             }
         }
+        if (isset(M::properties($ctx->catalog->metadata('customer_sale_return'))['settings']['cementReturns'])) {
+            foreach ($r->rows('customer_sale_return') as $ret) {
+                if (isset($sales[$ret['SALE_ID']]) && $ret['STATUS'] === 'confirmed') {
+                    $returns[$ret['_ID']] = $ret;
+                }
+            }
+        }
         // This narrowly scoped read is authorized by the business records above. General ledger
         // grants are not added to sales roles, and no journal/account data leaves this projection.
         $repo = new RecordRepository(\Config\Database::connect());
         $jm = $ctx->catalog->metadata('journal');
         $lm = $ctx->catalog->metadata('journal_line');
         $saleType = M::id($ctx->catalog->metadata('customer_sales'));
+        $returnType = M::id($ctx->catalog->metadata('customer_sale_return'));
         $paymentType = M::id($ctx->catalog->metadata('customer_payment'));
         $journals = [];
         foreach ($repo->query($repo->table($ctx, $jm), M::id($jm)) as $row) {
@@ -65,8 +74,12 @@ final class NativeStatement
                 $kind = 'Receipt';
                 $ref = $payments[$source]['CODE'];
             }
+            if (($j['sourceRecordTypeId'] ?? null) === $returnType && isset($returns[$source]) && $j['code'] === 'CEMENT-RETURN-'.$source) {
+                $kind = 'Return / credit / refund';
+                $ref = $returns[$source]['CODE'];
+            }
             if ($kind !== null) {
-                $journals[M::id($row)] = ['date' => $j['transactionDate'],'reference' => $ref,'kind' => $kind,'payment' => $kind === 'Receipt' ? $payments[$source] : null,'debit' => 0,'credit' => 0];
+                $journals[M::id($row)] = ['date' => $j['transactionDate'],'reference' => $ref,'kind' => $kind,'payment' => $kind === 'Receipt' ? $payments[$source] : null,'return' => $kind === 'Return / credit / refund' ? $returns[$source] : null,'debit' => 0,'credit' => 0];
             }
         }
         foreach ($repo->query($repo->table($ctx, $lm), M::id($lm)) as $row) {
@@ -93,6 +106,7 @@ final class NativeStatement
             $cr = 0;
             $dp = 0;
             $cash = 0;
+            $refund = 0;
             if ($j['kind'] === 'Receipt') {
                 $p = $j['payment'];
                 if ($amount !== NativeLedger::minor($p['AMOUNT'])) {
@@ -100,6 +114,12 @@ final class NativeStatement
                 }$dp = (int)($p['_PRIVATE']['depositMinor'] ?? 0);
                 $cr = $amount - $dp;
                 $cash = $amount;
+            } elseif ($j['kind'] === 'Return / credit / refund') {
+                $v = $j['return']['_PRIVATE'];
+                if ($amount !== $v['creditMinor']) {
+                    throw new \RuntimeException('Return and journal disagree');
+                }$cr = $v['receivableMinor'];
+                $refund = $v['refundMinor'];
             } elseif ($j['kind'] === 'Customer deposit applied') {
                 $cr = $amount;
                 $dp = -$amount;
@@ -113,7 +133,7 @@ final class NativeStatement
                 $openingDeposit = $deposit;
                 continue;
             }
-            $rows[] = ['Posting date' => $date,'Reference' => $j['reference'],'Description' => $j['kind'],'Debit' => $dr / 100,'Credit' => $cr / 100,'Balance' => $balance / 100,'Deposit change' => $dp / 100,'Deposit balance' => $deposit / 100,'Cash received' => $cash / 100,'Cash refunded' => 0];
+            $rows[] = ['Posting date' => $date,'Reference' => $j['reference'],'Description' => $j['kind'],'Debit' => $dr / 100,'Credit' => $cr / 100,'Balance' => $balance / 100,'Deposit change' => $dp / 100,'Deposit balance' => $deposit / 100,'Cash received' => $cash / 100,'Cash refunded' => $refund / 100];
         }
         return ['title' => 'Customer statement · '.($customer['COMPANY_NAME'] ?? $customer['CODE']),'openingReceivable' => $opening / 100,'closingReceivable' => $balance / 100,'openingDeposit' => $openingDeposit / 100,'closingDeposit' => $deposit / 100,'rows' => $rows,'rowCount' => count($rows),'columns' => ['Posting date','Reference','Description','Debit','Credit','Balance','Deposit change','Deposit balance','Cash received','Cash refunded']];
     }

@@ -19,6 +19,8 @@ final class CatalogService
         NativeLoading::register($registry);
         NativeSales::register($registry);
         NativeStockControls::register($registry);
+        NativeReturns::register($registry);
+        NativeReservations::register($registry);
         $handler = new self();
         $registry->register('cement.catalog.guard', $handler, 'validate', [
             ['name' => 'recordTypeCode','type' => 'string'],['name' => 'record','type' => 'object'],['name' => 'previous','type' => 'object']]);
@@ -40,7 +42,7 @@ final class CatalogService
     }
     public function validate(string $recordTypeCode, array $record, array $previous, MutationContext $context): array
     {
-        if (!in_array($recordTypeCode, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES], true)) {
+        if (!in_array($recordTypeCode, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES,...NativeReturns::TYPES,...NativeReservations::TYPES], true)) {
             return [K::SERVICE_VALIDATION_ERRORS => [['fieldPath' => 'status','code' => 'cement_posting_unavailable','message' => 'This Cement transaction requires its verified native business runtime; no stock or ledger effect was posted.']]];
         }
         if (in_array($recordTypeCode, NativeInventory::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementInventory'])) {
@@ -55,6 +57,12 @@ final class CatalogService
         if (in_array($recordTypeCode, NativeStockControls::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementStockControls'])) {
             throw new \RuntimeException('Native stock controls are not activated');
         }
+        if (in_array($recordTypeCode, NativeReturns::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementReturns'])) {
+            throw new \RuntimeException('Native returns are not activated');
+        }
+        if ($recordTypeCode === 'inventory_reservation' && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementReservations'])) {
+            throw new \RuntimeException('Native reservations are not activated');
+        }
         $private = $record['settings']['cement'] ?? [];
         $oldPrivate = $previous['settings']['cement'] ?? [];
         if ($private !== $oldPrivate) {
@@ -63,7 +71,8 @@ final class CatalogService
             $f = $nativeSettings['cementFieldAliases'];
             $computedSales = isset($nativeSettings['cementSales']) && (($recordTypeCode === 'customer_sales' && ($record[$f['STATUS']] ?? null) === 'invoiced') || ($recordTypeCode === 'customer_payment' && ($record[$f['STATUS']] ?? null) === 'completed'));
             $computedControls = isset($nativeSettings['cementStockControls']) && ($recordTypeCode === 'inventory_transfer' || $recordTypeCode === 'inventory_stocktake_line' || ($recordTypeCode === 'damaged_goods' && ($record[$f['STATUS']] ?? null) === 'confirmed'));
-            if (!$computedLoading && !$computedSales && !$computedControls && !in_array(TrustedPlans::origin(), ['cement.loading','cement.sales','cement.sales.balance','cement.advance','cement.payment','cement.delivery','cement.stocktake','cement.transfer','cement.damage','cement.return'], true)) {
+            $computedReturns = isset($nativeSettings['cementReturns']) && ($record[$f['STATUS']] ?? null) === 'confirmed';
+            if (!$computedLoading && !$computedSales && !$computedControls && !$computedReturns && !in_array(TrustedPlans::origin(), ['cement.loading','cement.sales','cement.sales.balance','cement.advance','cement.payment','cement.delivery','cement.stocktake','cement.transfer','cement.damage','cement.return'], true)) {
                 throw new \RuntimeException('Cement processing snapshots are server-owned');
             }
         }
@@ -79,12 +88,12 @@ final class CatalogService
                 return [K::SERVICE_VALIDATION_ERRORS => [['fieldPath' => $aliases['STATUS'],'code' => 'cement_posting_unavailable','message' => 'This purchase transition requires its verified native handler']]];
             }
         }
-        $source = json_decode(file_get_contents(ROOTPATH.'resources/cement/recordtypes.json'), true, 64, JSON_THROW_ON_ERROR);
+        $source = NativeSchemas::types();
         $source = array_column($source, null, 'code');
         $repo = new RecordRepository(\Config\Database::connect());
         foreach ($source[$recordTypeCode]['fields'] as $field) {
             if ($field['target'] !== null) {
-                $alias = array_search($field['code'], json_decode(file_get_contents(ROOTPATH.'resources/cement/semantic_field_registry.json'), true, 64, JSON_THROW_ON_ERROR)[$recordTypeCode], true);
+                $alias = array_search($field['code'], NativeSchemas::maps()[$recordTypeCode], true);
                 $value = $record[$aliases[$alias]] ?? null;
                 if ($value === null) {
                     continue;
@@ -108,7 +117,7 @@ final class CatalogService
         }
         $maps = [];
         $ids = [];
-        $known = json_decode(file_get_contents(ROOTPATH.'resources/cement/semantic_field_registry.json'), true, 64, JSON_THROW_ON_ERROR);
+        $known = NativeSchemas::maps();
         $read = [];
         foreach ($context->auth['permissions'] as $grant) {
             if (($grant['allowed'] ?? false) === true && ($grant['action'] ?? null) === 'read' && isset($grant['rtid'])) {
@@ -159,8 +168,8 @@ final class CatalogService
                 }$plan['_cementClientRef'] = $ref;
             }
             $type = $entry['recordTypeCode'];
-            $source = array_column(json_decode(file_get_contents(ROOTPATH.'resources/cement/recordtypes.json'), true, 64, JSON_THROW_ON_ERROR), null, 'code');
-            $initial = json_decode(file_get_contents(ROOTPATH.'resources/cement/semantic_field_registry.json'), true, 64, JSON_THROW_ON_ERROR);
+            $source = array_column(NativeSchemas::types(), null, 'code');
+            $initial = NativeSchemas::maps();
             $current = M::properties($context->catalog->metadata($type))['settings']['cementFieldAliases'];
             $targets = [];
             foreach ($source[$type]['fields'] as $field) {
@@ -189,7 +198,7 @@ final class CatalogService
     private function plan(array $entry, MutationContext $context): array
     {
         $type = $entry['recordTypeCode'] ?? '';
-        if (!in_array($type, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES], true)) {
+        if (!in_array($type, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES,...NativeReturns::TYPES,...NativeReservations::TYPES], true)) {
             throw new \RuntimeException('Native Cement posting runtime is not installed');
         }
         $meta = $context->catalog->metadata($type);
@@ -210,6 +219,12 @@ final class CatalogService
         }
         if (in_array($type, NativeStockControls::TYPES, true) && !isset(M::properties($meta)['settings']['cementStockControls'])) {
             throw new \RuntimeException('Native stock controls are not activated');
+        }
+        if (in_array($type, NativeReturns::TYPES, true) && !isset(M::properties($meta)['settings']['cementReturns'])) {
+            throw new \RuntimeException('Native returns are not activated');
+        }
+        if ($type === 'inventory_reservation' && !isset(M::properties($meta)['settings']['cementReservations'])) {
+            throw new \RuntimeException('Native reservations are not activated');
         }
         $id = M::id($meta);
         $op = $entry['operation'] ?? null;
@@ -232,14 +247,17 @@ final class CatalogService
         }
         if ($op === 'delete') {
             $repo = new RecordRepository(\Config\Database::connect());
-            $specs = json_decode(file_get_contents(ROOTPATH.'resources/cement/recordtypes.json'), true, 64, JSON_THROW_ON_ERROR);
+            $specs = NativeSchemas::types();
             foreach ($specs as $spec) {
+                if (!isset($context->catalog->all()['recordTypes']['meta'][$spec['code']])) {
+                    continue;
+                }
                 foreach ($spec['fields'] as $field) {
                     if ($field['target'] === $type) {
                         $other = $context->catalog->metadata($spec['code']);
                         // Referential integrity is checked in the institution's native table, independent of UI visibility.
                         foreach ($repo->query($repo->table($context, $other), M::id($other)) as $r) {
-                            $initial = json_decode(file_get_contents(ROOTPATH.'resources/cement/semantic_field_registry.json'), true, 64, JSON_THROW_ON_ERROR);
+                            $initial = NativeSchemas::maps();
                             $alias = array_search($field['code'], $initial[$spec['code']], true);
                             $actual = M::properties($other)['settings']['cementFieldAliases'][$alias] ?? null;
                             if (!$actual) {

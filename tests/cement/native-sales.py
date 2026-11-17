@@ -34,6 +34,7 @@ request=urllib.request.Request(base+'/api/files/upload',data=multipart,headers={
 signature=json.load(client.open(request))['reference'];assert client.open(base+'/api/files/'+signature['attachmentId']).read()==png
 proof=entry('delivery_proof',{'CODE':code+'-POD','SALE_ID':saleid,'DELIVERED_DATE':today_text+'T00:00:00Z','ACCEPTED_QUANTITY':4,'RECEIVER_NAME':'Test receiver','SIGNATURE':signature,'STATUS':'confirmed'})
 pod=call('mutation',batch([proof]));assert next(x['data'][sf['DELIVERY_STATUS']] for x in pod['changes'] if x['recordTypeCode']=='customer_sales')=='partial'
+rejected=call('mutation',batch([entry('delivery_proof',{'CODE':code+'-REJECTED-POD','SALE_ID':saleid,'DELIVERED_DATE':today_text+'T00:00:00Z','ACCEPTED_QUANTITY':0,'REJECTED_QUANTITY':6,'RECEIVER_NAME':'Test receiver','SIGNATURE':signature,'STATUS':'confirmed'})]));assert next(x['data'][sf['DELIVERY_STATUS']] for x in rejected['changes'] if x['recordTypeCode']=='customer_sales')=='completed_with_rejection'
 # A later failure in the same outer mutation rolls back all sales, COGS and warehouse effects.
 failed=entry('cement_loading',{'CODE':code+'-FAIL-LOAD','PURCHASE_ITEM_ID':item_id,'SUPPLIER_DEPOT_ID':more['depot'],'LOADING_DATE':today_text+'T00:00:00Z','UNIT_ID':masters['unit'],'QUANTITY':20,'ALLOCATION_ROWS':[{lf['QUANTITY']:10,cf['CUSTOMER_ID']:ids['customer']},{lf['QUANTITY']:10,cf['WAREHOUSE_ID']:more['other']}],'STATUS':'confirmed'},'loading')
 call('mutation',batch([failed,entry('supplier',{'CODE':code,'NAME':'Duplicate','STATUS':'active'})]),422)
@@ -59,15 +60,16 @@ def deliver(qty,suffix):
  return call('mutation',batch([entry('delivery_proof',{'CODE':code+'-DELIVERY-'+suffix,'SALE_ID':dsid,'DELIVERED_DATE':today_text+'T00:00:00Z','ACCEPTED_QUANTITY':qty,'RECEIVER_NAME':'Receiver','SIGNATURE':signature,'STATUS':'confirmed'})]))
 first=deliver(4,'PART');assert bal(accounts['CustomerDeposits'])['closingCredit']=='0.00';assert float(bal(accounts['SalesRevenue'])['closingCredit'])==float(before_revenue)+800;assert float(bal(accounts['CostOfSales'])['closingDebit'])==float(before_cogs)+400
 call('mutation',batch([entry('customer_payment',{'CODE':code+'-PREPAY-2','CUSTOMER_ID':ids['customer'],'SALE_ID':dsid,'AMOUNT':1000,'PAYMENT_DATE':today_text+'T00:00:00Z','PAYMENT_METHOD':'bank','STATUS':'completed'})]));assert bal(accounts['CustomerDeposits'])['closingCredit']=='700.00'
+middle=deliver(1,'MIDDLE');assert bal(accounts['CustomerDeposits'])['closingCredit']=='500.00';assert float(bal(accounts['CostOfSales'])['closingDebit'])==float(before_cogs)+500
 def update_guard(t,record_id,alias,value,expected=200):
  raw=next(x for x in direct('records?recordTypeId='+str(types[t]))['records'] if x['recordId']==record_id)
  request={'requestId':str(uuid.uuid4()),'registryRevision':meta['revision'],'recordTypeCode':t,'recordTypeId':meta['recordTypeIds'][t],'recordId':record_id,'version':max(1,raw['mutationId']),'operation':'update','data':{meta['fieldsByRecordType'][t][alias]:value}}
  return call('mutation',request,expected)
 update_guard('customer',ids['customer'],'CREDIT_LIMIT',1000)
-blocked=entry('delivery_proof',{'CODE':code+'-CREDIT-BLOCK','SALE_ID':dsid,'DELIVERED_DATE':today_text+'T00:00:00Z','ACCEPTED_QUANTITY':6,'RECEIVER_NAME':'Receiver','SIGNATURE':signature,'STATUS':'confirmed'})
-call('mutation',batch([blocked]),422);assert float(bal(accounts['CostOfSales'])['closingDebit'])==float(before_cogs)+400
+blocked=entry('delivery_proof',{'CODE':code+'-CREDIT-BLOCK','SALE_ID':dsid,'DELIVERED_DATE':today_text+'T00:00:00Z','ACCEPTED_QUANTITY':5,'RECEIVER_NAME':'Receiver','SIGNATURE':signature,'STATUS':'confirmed'})
+call('mutation',batch([blocked]),422);assert float(bal(accounts['CostOfSales'])['closingDebit'])==float(before_cogs)+500
 update_guard('customer',ids['customer'],'CREDIT_LIMIT',100000)
-last=deliver(6,'FINAL');assert bal(accounts['CustomerDeposits'])['closingCredit']=='0.00';assert float(bal(accounts['SalesRevenue'])['closingCredit'])==float(before_revenue)+2000;assert float(bal(accounts['CostOfSales'])['closingDebit'])==float(before_cogs)+1000;assert next(x['data'][sf['DELIVERY_STATUS']] for x in last['changes'] if x['recordTypeCode']=='customer_sales')=='delivered'
+last=deliver(5,'FINAL');assert bal(accounts['CustomerDeposits'])['closingCredit']=='0.00';assert float(bal(accounts['SalesRevenue'])['closingCredit'])==float(before_revenue)+2000;assert float(bal(accounts['CostOfSales'])['closingDebit'])==float(before_cogs)+1000;assert next(x['data'][sf['DELIVERY_STATUS']] for x in last['changes'] if x['recordTypeCode']=='customer_sales')=='delivered'
 statement=call('customers/statement?'+urllib.parse.urlencode({'customerId':ids['customer']}));assert statement['closingReceivable']==4000 and statement['closingDeposit']==0
 future=(today+datetime.timedelta(days=1)).isoformat();period=call('customers/statement?'+urllib.parse.urlencode({'customerId':ids['customer'],'from':future}));assert period['openingReceivable']==4000 and period['rows']==[]
 call('customers/statement?'+urllib.parse.urlencode({'customerId':ids['customer'],'from':'2026-02-31'}),expected=422)

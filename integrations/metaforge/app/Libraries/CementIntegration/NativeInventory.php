@@ -96,7 +96,7 @@ final class NativeInventory
             if (!empty($d['SOURCE_LOCATION_ID'])) {
                 $existing = InventoryMath::project($history);
                 $key = InventoryMath::key($d['SOURCE_LOCATION_ID'], $d['PRODUCT_ID'], $d['STOCK_CONDITION']);
-                $available = ($existing['stocks'][$key]['qty'] ?? 0) - $this->reserved($r, $d['SOURCE_LOCATION_ID'], $d['PRODUCT_ID']);
+                $available = ($existing['stocks'][$key]['qty'] ?? 0) - ($d['STOCK_CONDITION'] === 'good' ? $this->reserved($r, $d['SOURCE_LOCATION_ID'], $d['PRODUCT_ID']) : 0);
                 if ((float)$d['QTY_BASE'] > $available + 0.000001) {
                     throw ValidationException::field($r->aliases($recordTypeCode)['QTY_BASE'], 'Insufficient unreserved stock');
                 }

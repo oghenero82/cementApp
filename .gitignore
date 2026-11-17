@@ -131,3 +131,5 @@ _modules/*
 /.phpunit.cache/
 
 /writable/attachments/
+
+__pycache__/

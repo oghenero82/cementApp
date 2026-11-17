@@ -7,6 +7,12 @@ use App\Libraries\MetaForge\Mutation\{MutationContext,ValidationException};
 /** Immutable receipt allocation history, customer advances and FIFO application to new invoices. */
 final class NativePayments
 {
+    public static function depositApplication(int $deposits, int $recognized, int $receivableCredits, int $returnCredits): int
+    {
+        if (min($deposits, $recognized, $receivableCredits, $returnCredits) < 0) {
+            throw new \InvalidArgumentException('Invalid deposit application');
+        }return min($deposits, max(0, $recognized - $receivableCredits - $returnCredits));
+    }
     public static function allocations(array $p): array
     {
         if (isset($p['_PRIVATE']['allocations'])) {
@@ -30,6 +36,19 @@ final class NativePayments
             }
         }return $sum;
     }
+    public static function receivables(NativeRecords $r, int $sale): int
+    {
+        $sum = 0;
+        foreach ($r->rows('customer_payment') as $p) {
+            if ($p['STATUS'] === 'completed') {
+                foreach (self::allocations($p) as $a) {
+                    if ($a['saleId'] === $sale) {
+                        $sum += $a['receivableMinor'];
+                    }
+                }
+            }
+        }return $sum;
+    }
     public static function deposits(NativeRecords $r, int $sale): int
     {
         $sum = 0;
@@ -45,7 +64,7 @@ final class NativePayments
     }
     public static function invoiceAdvances(NativeRecords $r, int $sale, int $customer, int $total): array
     {
-        $remaining = max(0, $total - self::paid($r, $sale));
+        $remaining = NativeReturns::balance($r, $r->find('customer_sales', $sale), $total);
         $payments = array_values(array_filter($r->rows('customer_payment'), fn ($p) => $p['STATUS'] === 'completed' && $p['CUSTOMER_ID'] === $customer && ($p['_PRIVATE']['unallocatedMinor'] ?? 0) > 0));
         usort($payments, fn ($a, $b) => [$a['PAYMENT_DATE'],$a['_ID']] <=> [$b['PAYMENT_DATE'],$b['_ID']]);
         $result = [];
@@ -95,7 +114,7 @@ final class NativePayments
             }$last = end($entries);
             $amount = $last['amountMinor'] ?? 0;
             $sale = $r->find('customer_sales', (int)($last['saleId'] ?? 0));
-            if (!is_int($amount) || $amount <= 0 || $amount > ($before['unallocatedMinor'] ?? 0) || $sale['CUSTOMER_ID'] !== $d['CUSTOMER_ID'] || $sale['STATUS'] !== 'invoiced' || $amount > NativeLedger::minor($sale['NET_AMOUNT']) - self::paid($r, $sale['_ID']) || $last !== ['saleId' => $sale['_ID'],'amountMinor' => $amount,'receivableMinor' => 0,'depositMinor' => $amount]) {
+            if (!is_int($amount) || $amount <= 0 || $amount > ($before['unallocatedMinor'] ?? 0) || $sale['CUSTOMER_ID'] !== $d['CUSTOMER_ID'] || $sale['STATUS'] !== 'invoiced' || $amount > NativeReturns::balance($r, $sale) || $last !== ['saleId' => $sale['_ID'],'amountMinor' => $amount,'receivableMinor' => 0,'depositMinor' => $amount]) {
                 throw ValidationException::field('allocation', 'Invalid customer advance application');
             }
             $expected['allocations'][] = $last;
@@ -122,7 +141,7 @@ final class NativePayments
             $sale = $r->find('customer_sales', $d['SALE_ID']);
             if ($sale['CUSTOMER_ID'] !== $d['CUSTOMER_ID']) {
                 throw ValidationException::field($f['SALE_ID'], 'Payment customer must match its sale');
-            }if ($amount > NativeLedger::minor($sale['NET_AMOUNT']) - self::paid($r, $sale['_ID'])) {
+            }if ($amount > NativeReturns::balance($r, $sale)) {
                 throw ValidationException::field($f['AMOUNT'], 'Payment exceeds remaining sale amount');
             }$candidates = [$sale];
         } else {
@@ -138,11 +157,10 @@ final class NativePayments
         $receivable = 0;
         $allocations = [];
         foreach ($candidates as $sale) {
-            $paid = self::paid($r, $sale['_ID']);
-            $used = min($remaining, max(0, NativeLedger::minor($sale['NET_AMOUNT']) - $paid));
+            $used = min($remaining, NativeReturns::balance($r, $sale));
             if (!$used) {
                 continue;
-            }$ar = min($used, max(0, (int)($sale['_PRIVATE']['recognizedMinor'] ?? 0) - $paid));
+            }$ar = min($used, NativeReturns::balance($r, $sale, (int)($sale['_PRIVATE']['recognizedMinor'] ?? 0)));
             $allocations[] = ['saleId' => $sale['_ID'],'amountMinor' => $used,'receivableMinor' => $ar,'depositMinor' => $used - $ar];
             $receivable += $ar;
             $remaining -= $used;

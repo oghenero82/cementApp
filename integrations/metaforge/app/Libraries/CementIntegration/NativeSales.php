@@ -63,7 +63,7 @@ final class NativeSales
         $old = $r->decode($t, $previous);
         $f = $r->aliases($t);
         $origin = TrustedPlans::origin();
-        $internal = in_array($origin, ['cement.sales.balance','cement.payment','cement.delivery'], true);
+        $internal = in_array($origin, ['cement.sales.balance','cement.payment','cement.delivery','cement.return'], true);
         if ($t === 'customer_payment') {
             return NativePayments::prepare($record, $previous, $recordId, $operation, $context);
         }
@@ -76,7 +76,10 @@ final class NativeSales
                     throw ValidationException::field($f['STATUS'], 'Posted sale terms are immutable');
                 }
             }
-            return ['proposedData' => $r->encode($t, ['AMOUNT_PAID' => NativeLedger::decimal(self::paid($r, $recordId)),'BALANCE_DUE' => NativeLedger::decimal(max(0, NativeLedger::minor($old['NET_AMOUNT']) - self::paid($r, $recordId)))])];
+            return ['proposedData' => $r->encode($t, ['AMOUNT_PAID' => NativeLedger::decimal(self::paid($r, $recordId)),'BALANCE_DUE' => NativeLedger::decimal(NativeReturns::balance($r, $old + ['_ID' => $recordId]))])];
+        }
+        if ($t === 'customer_sale_item') {
+            NativeReservations::guardLine($r, $old, $d, $operation);
         }
         if ($operation === 'delete') {
             if ($t === 'customer_sale_item') {
@@ -132,6 +135,13 @@ final class NativeSales
             if (isset($d['SOURCE_LOADING_ID']) && $origin !== 'cement.loading' && !$internal) {
                 throw ValidationException::field($f['SOURCE_LOADING_ID'], 'Loading provenance is server-owned');
             }
+            if ($old && ($old['WAREHOUSE_ID'] ?? null) !== ($d['WAREHOUSE_ID'] ?? null) && NativeReservations::enabled($r)) {
+                foreach ($r->rows('inventory_reservation') as $hold) {
+                    if ($hold['SALE_ID'] === $recordId && $hold['STATUS'] === 'active') {
+                        throw ValidationException::field($f['WAREHOUSE_ID'], 'Release reservations before changing the warehouse');
+                    }
+                }
+            }
             $settings = $r->settings();
             $currency = $settings['defaultCurrency'] ?? 'NGN';
             if (($d['CURRENCY'] ?? $currency) !== $currency) {
@@ -169,7 +179,7 @@ final class NativeSales
                 $due = max(0, $net - $paid);
                 foreach ($r->rows('customer_sales') as $sale) {
                     if ($sale['_ID'] !== $recordId && $sale['CUSTOMER_ID'] === $d['CUSTOMER_ID'] && $sale['STATUS'] === 'invoiced') {
-                        $due += max(0, NativeLedger::minor($sale['NET_AMOUNT']) - self::paid($r, $sale['_ID']));
+                        $due += NativeReturns::balance($r, $sale);
                     }
                 }
                 if ((($settings['allowCreditSales'] ?? true) === false && $due > 0) || (($customer['CREDIT_LIMIT'] ?? 0) > 0 && $due > NativeLedger::minor($customer['CREDIT_LIMIT']))) {
@@ -255,10 +265,10 @@ final class NativeSales
             throw ValidationException::field('quantity', 'Recognized sale value cannot decrease');
         }
         $customer = $r->find('customer', $sale['CUSTOMER_ID']);
-        $due = max(0, $net - self::paid($r, $sale['_ID']) - $virtualDeposits);
+        $due = max(0, NativeReturns::balance($r, $sale, $net) - $virtualDeposits);
         foreach ($r->rows('customer_sales') as $other) {
             if ($other['_ID'] !== $sale['_ID'] && $other['CUSTOMER_ID'] === $sale['CUSTOMER_ID']) {
-                $due += max(0, (int)($other['_PRIVATE']['recognizedMinor'] ?? 0) - self::paid($r, $other['_ID']));
+                $due += NativeReturns::balance($r, $other, (int)($other['_PRIVATE']['recognizedMinor'] ?? 0));
             }
         }
         if ((($r->settings()['allowCreditSales'] ?? true) === false && $due > 0) || (($customer['CREDIT_LIMIT'] ?? 0) > 0 && $due > NativeLedger::minor($customer['CREDIT_LIMIT']))) {
@@ -278,6 +288,7 @@ final class NativeSales
                 $entries[] = [$taxGL,0,$taxDelta];
             }$plans = (new NativeLedger())->postingPlans($r->context, 'customer_sales', $sale['_ID'], 'CEMENT-SALE-'.$sale['_ID'].'-'.$event.'-'.$eventId, 'Sale '.$sale['CODE'], $entries);
         }
+        $reservationDemand = [];
         foreach ($items as $n => $line) {
             $before = (float)($previous['fulfilled'][$line['_ID']] ?? 0);
             $fulfilled = $accepted + 0.000001 >= $total ? (float)$line['QUANTITY'] : (float)$line['QUANTITY'] * $accepted / $total;
@@ -295,17 +306,25 @@ final class NativeSales
                     $plans = [...$plans,...(new NativeLedger())->postingPlans($r->context, 'customer_sale_item', $line['_ID'], 'CEMENT-COGS-'.$line['_ID'].'-'.$event.'-'.$eventId, 'Direct loading cost', [[$costGL,$amount,0],[$purchase['PREPAID_ACCOUNT_ID'],0,$amount]])];
                 }
             } else {
+                $reservationDemand[$line['PRODUCT_ID']] = ($reservationDemand[$line['PRODUCT_ID']] ?? 0) + $qty * (float)$line['UNIT_CONVERSION_SNAPSHOT']['factor'];
                 $p = $r->plan('inventory_movement', ['CODE' => 'SALE-'.$sale['_ID'].'-'.$event.'-'.$eventId.'-'.$n,'MOVEMENT_DATE' => gmdate('Y-m-d H:i:s'),'MOVEMENT_TYPE' => 'sale_issue','PRODUCT_ID' => $line['PRODUCT_ID'],'SOURCE_LOCATION_ID' => $sale['WAREHOUSE_ID'],'STOCK_CONDITION' => 'good','QTY_BASE' => $qty * (float)$line['UNIT_CONVERSION_SNAPSHOT']['factor'],'COST_POLICY' => $settings['inventoryValuationMethod'] ?? 'weighted_average','UNIT_COST' => 0,'SOURCE_RECORD_TYPE_CODE' => 'customer_sale_item','SOURCE_RECORD_ID' => $line['_ID'],'SALE_ITEM_ID' => $line['_ID'],'STATUS' => 'confirmed']);
                 $p['_cementGeneratedBy'] = 'cement.sales';
                 $plans[] = $p;
             }$previous['fulfilled'][$line['_ID']] = $fulfilled;
         }
+        $consumption = [];
+        foreach ($reservationDemand as $product => $demand) {
+            $consumption = [...$consumption,...NativeReservations::consumePlans($r, $sale['_ID'], $sale['WAREHOUSE_ID'], $product, $demand)];
+        }$plans = [...$consumption,...$plans];
         $previous['recognizedMinor'] = $net;
         $previous['recognizedTaxMinor'] = $tax;
         // Payments received before recognition remain deposits until the ownership event.
         $depositPaid = NativePayments::deposits($r, $sale['_ID']) + $virtualDeposits;
-        $apply = min($depositPaid, $net);
+        $apply = NativePayments::depositApplication($depositPaid, $net, NativePayments::receivables($r, $sale['_ID']), NativeReturns::totals($r, $sale['_ID'])['receivableMinor']);
         $reclass = $apply - ($previous['appliedDepositsMinor'] ?? 0);
+        if ($reclass < 0) {
+            throw ValidationException::field('deposit', 'Deposit application cannot reverse a posted allocation');
+        }
         if ($reclass > 0) {
             $deposits = (int)($settings['cementCustomerDepositsAccountId'] ?? 0);
             $plans = [...$plans,...(new NativeLedger())->postingPlans($r->context, 'customer_sales', $sale['_ID'], 'CEMENT-DEPOSIT-'.$sale['_ID'].'-'.$event.'-'.$eventId, 'Apply customer deposits', [[$deposits,$reclass,0],[$receivable,0,$reclass]])];
@@ -329,7 +348,7 @@ final class NativeSales
             $sale = $r->find('customer_sales', $d['SALE_ID']);
             return ['mutationPlans' => [$this->refresh($r, $sale, 'cement.sales.balance')]];
         }
-        if ($operation === 'delete' || in_array($origin, ['cement.sales.balance','cement.payment','cement.delivery'], true)) {
+        if ($operation === 'delete' || in_array($origin, ['cement.sales.balance','cement.payment','cement.delivery','cement.return'], true)) {
             return [];
         }
         if ($t === 'customer_sales') {
