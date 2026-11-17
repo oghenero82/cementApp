@@ -134,6 +134,11 @@ final class Metadata
                     'trip' => ['DEPARTURE_AT','ARRIVAL_AT'],'trip_destination' => ['PROOF_ID','DELIVERY_STATUS','DELIVERED_AT'],default => array_values(array_intersect(['JOURNAL_ID','POSTED_JOURNAL_ID'], array_keys($aliases)))
                 });
             }
+            if (isset($definition['settings']['cementSupplierPayments'])) {
+                $states = $privateAllowed ? ['draft','completed'] : ['draft'];
+                $posting = $privateAllowed;
+                $readonly[] = 'JOURNAL_ID';
+            }
             $descriptors[$type] = ['title' => $definition['name'] ?? $catalog->types[$type]['name'],'module' => $catalog->types[$type]['module'],'fields' => $fields,'canWrite' => $canWrite,'canDelete' => $canWrite && in_array('delete', $definition['settings']['cementOperations'] ?? [], true),'readOnlyAliases' => array_values(array_unique(array_merge($readonly, Services::OWNED[$type] ?? []))),'allowedStates' => $states,'postingAvailable' => $posting,'serviceOwned' => in_array($type, ['inventory_stock','inventory_cost_layer','account_balance','report_result','report_delivery','cement_audit_event'], true)];
         }
         if (!$maps) {

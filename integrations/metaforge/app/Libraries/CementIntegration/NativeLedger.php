@@ -291,9 +291,17 @@ final class NativeLedger
             throw ValidationException::field($aliases['STATUS'], 'Only an existing draft purchase can be funded');
         }
         $this->approver($context);
-        $amount = self::minor($d['NET_AMOUNT'] ?? 0);
-        if ($amount <= 0) {
-            throw ValidationException::field($aliases['STATUS'], 'Purchase requires positive item amounts');
+        $gross = self::minor($d['NET_AMOUNT'] ?? 0);
+        $partialEnabled = NativeSupplierPayments::enabled(new NativeRecords($context));
+        $priorPaid = $partialEnabled ? self::minor($d['PAID_AMOUNT'] ?? 0) : 0;
+        $amount = $gross - $priorPaid;
+        if ($gross <= 0 || $amount < 0) {
+            throw ValidationException::field($aliases['STATUS'], 'Purchase requires positive unfunded item amounts');
+        }
+        if ($amount === 0) {
+            if (!$partialEnabled || TrustedPlans::origin() !== 'cement.supplier_payment') {
+                throw ValidationException::field($aliases['STATUS'], 'Purchase funding already settled');
+            }return ['proposedData' => [$aliases['PAID_AMOUNT'] => self::decimal($gross)]];
         }
         $payment = (int)($d['PAYMENT_ACCOUNT_ID'] ?? 0);
         $prepaid = (int)($d['PREPAID_ACCOUNT_ID'] ?? 0);
@@ -332,6 +340,9 @@ final class NativeLedger
         }
         $plans[] = ['recordTypeId' => M::id($journal),'operation' => 'update','data' => ['status' => 'WAIT_POSTING'],'_cementRecordRef' => 'fundingJournal'];
         $plans[] = ['recordTypeId' => M::id($journal),'operation' => 'update','data' => ['status' => 'POSTED'],'_cementRecordRef' => 'fundingJournal'];
-        return ['proposedData' => [$aliases['PAID_AMOUNT'] => self::decimal($amount)],'mutationPlans' => $plans];
+        $proposed = [$aliases['PAID_AMOUNT'] => self::decimal($gross)];
+        if ($partialEnabled) {
+            $proposed['settings'] = ['cement' => array_replace($record['settings']['cement'] ?? [], ['fundingMinor' => (int)($record['settings']['cement']['fundingMinor'] ?? 0) + $amount])];
+        }return ['proposedData' => $proposed,'mutationPlans' => $plans];
     }
 }

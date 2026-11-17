@@ -22,6 +22,7 @@ final class CatalogService
         NativeReturns::register($registry);
         NativeReservations::register($registry);
         NativeFleet::register($registry);
+        NativeSupplierPayments::register($registry);
         $handler = new self();
         $registry->register('cement.catalog.guard', $handler, 'validate', [
             ['name' => 'recordTypeCode','type' => 'string'],['name' => 'record','type' => 'object'],['name' => 'previous','type' => 'object']]);
@@ -43,7 +44,7 @@ final class CatalogService
     }
     public function validate(string $recordTypeCode, array $record, array $previous, MutationContext $context): array
     {
-        if (!in_array($recordTypeCode, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES,...NativeReturns::TYPES,...NativeReservations::TYPES,...NativeFleet::TYPES], true)) {
+        if (!in_array($recordTypeCode, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES,...NativeReturns::TYPES,...NativeReservations::TYPES,...NativeFleet::TYPES,...NativeSupplierPayments::TYPES], true)) {
             return [K::SERVICE_VALIDATION_ERRORS => [['fieldPath' => 'status','code' => 'cement_posting_unavailable','message' => 'This Cement transaction requires its verified native business runtime; no stock or ledger effect was posted.']]];
         }
         if (in_array($recordTypeCode, NativeInventory::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementInventory'])) {
@@ -67,6 +68,9 @@ final class CatalogService
         if (in_array($recordTypeCode, NativeFleet::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementFleet'])) {
             throw new \RuntimeException('Native fleet services are not activated');
         }
+        if (in_array($recordTypeCode, NativeSupplierPayments::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementSupplierPayments'])) {
+            throw new \RuntimeException('Native supplier payments are not activated');
+        }
         $private = $record['settings']['cement'] ?? [];
         $oldPrivate = $previous['settings']['cement'] ?? [];
         if ($private !== $oldPrivate) {
@@ -76,7 +80,8 @@ final class CatalogService
             $computedSales = isset($nativeSettings['cementSales']) && (($recordTypeCode === 'customer_sales' && ($record[$f['STATUS']] ?? null) === 'invoiced') || ($recordTypeCode === 'customer_payment' && ($record[$f['STATUS']] ?? null) === 'completed'));
             $computedControls = isset($nativeSettings['cementStockControls']) && ($recordTypeCode === 'inventory_transfer' || $recordTypeCode === 'inventory_stocktake_line' || ($recordTypeCode === 'damaged_goods' && ($record[$f['STATUS']] ?? null) === 'confirmed'));
             $computedReturns = isset($nativeSettings['cementReturns']) && ($record[$f['STATUS']] ?? null) === 'confirmed';
-            if (!$computedLoading && !$computedSales && !$computedControls && !$computedReturns && !in_array(TrustedPlans::origin(), ['cement.loading','cement.sales','cement.sales.balance','cement.advance','cement.payment','cement.delivery','cement.stocktake','cement.transfer','cement.damage','cement.return'], true)) {
+            $computedPurchase = $recordTypeCode === 'purchase' && NativeSupplierPayments::enabled(new NativeRecords($context));
+            if (!$computedPurchase && !$computedLoading && !$computedSales && !$computedControls && !$computedReturns && !in_array(TrustedPlans::origin(), ['cement.loading','cement.sales','cement.sales.balance','cement.advance','cement.supplier_payment','cement.payment','cement.delivery','cement.stocktake','cement.transfer','cement.damage','cement.return'], true)) {
                 throw new \RuntimeException('Cement processing snapshots are server-owned');
             }
         }
@@ -202,7 +207,7 @@ final class CatalogService
     private function plan(array $entry, MutationContext $context): array
     {
         $type = $entry['recordTypeCode'] ?? '';
-        if (!in_array($type, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES,...NativeReturns::TYPES,...NativeReservations::TYPES,...NativeFleet::TYPES], true)) {
+        if (!in_array($type, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES,...NativeReturns::TYPES,...NativeReservations::TYPES,...NativeFleet::TYPES,...NativeSupplierPayments::TYPES], true)) {
             throw new \RuntimeException('Native Cement posting runtime is not installed');
         }
         $meta = $context->catalog->metadata($type);
@@ -232,6 +237,9 @@ final class CatalogService
         }
         if (in_array($type, NativeFleet::TYPES, true) && !isset(M::properties($meta)['settings']['cementFleet'])) {
             throw new \RuntimeException('Native fleet services are not activated');
+        }
+        if (in_array($type, NativeSupplierPayments::TYPES, true) && !isset(M::properties($meta)['settings']['cementSupplierPayments'])) {
+            throw new \RuntimeException('Native supplier payments are not activated');
         }
         $id = M::id($meta);
         $op = $entry['operation'] ?? null;

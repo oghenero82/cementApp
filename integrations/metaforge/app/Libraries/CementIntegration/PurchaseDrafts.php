@@ -101,15 +101,38 @@ final class PurchaseDrafts
                     $totals['NET_AMOUNT'] += $line['AMOUNT'];
                 }
             }
+            $nativeRecords = new NativeRecords($context);
+            $partialEnabled = NativeSupplierPayments::enabled($nativeRecords);
+            $cash = ['fundingMinor' => 0,'paidMinor' => 0];
+            if ($partialEnabled && $parent) {
+                $cash = NativeSupplierPayments::funding($nativeRecords, $nativeRecords->find('purchase', $parent));
+                if ($cash['paidMinor'] > 0) {
+                    foreach (['SUPPLIER_ID','PREPAID_ACCOUNT_ID','CURRENCY'] as $a) {
+                        if (($old[$a] ?? null) != ($d[$a] ?? null)) {
+                            throw ValidationException::field('purchase', 'Funded purchase identity is immutable');
+                        }
+                    }
+                }$totals['PAID_AMOUNT'] = $cash['paidMinor'] / 100;
+            }
             $totals['GROSS_AMOUNT'] = round($totals['GROSS_AMOUNT'], 2);
             $totals['NET_AMOUNT'] = round($totals['NET_AMOUNT'], 2);
             $totals['DISCOUNT_AMOUNT'] = round($totals['GROSS_AMOUNT'] - $totals['NET_AMOUNT'], 2);
-            return ['proposedData' => $this->encode($context, 'purchase', $totals + ['STATUS' => $funding ? 'paid' : 'draft','CURRENCY' => $currency,'OWNERSHIP_TRANSFER_POLICY' => $old['OWNERSHIP_TRANSFER_POLICY'] ?? $policy])];
+            if ($partialEnabled && $cash['paidMinor'] > NativeLedger::minor(\App\Libraries\MetaForge\Catalog\FieldType::numericString($totals['NET_AMOUNT']))) {
+                throw ValidationException::field('amount', 'Purchase value cannot fall below paid funding');
+            }
+            $paid = $funding || ($partialEnabled && $cash['paidMinor'] > 0 && $cash['paidMinor'] === NativeLedger::minor(\App\Libraries\MetaForge\Catalog\FieldType::numericString($totals['NET_AMOUNT'])));
+            $encoded = $this->encode($context, 'purchase', $totals + ['STATUS' => $paid ? 'paid' : 'draft','CURRENCY' => $currency,'OWNERSHIP_TRANSFER_POLICY' => $old['OWNERSHIP_TRANSFER_POLICY'] ?? $policy]);
+            if ($partialEnabled) {
+                $encoded['settings'] = ['cement' => array_replace($previous['settings']['cement'] ?? [], ['fundingMinor' => $cash['fundingMinor']])];
+            }return ['proposedData' => $encoded];
         }
         if ($old && ($old['PURCHASE_ID'] ?? null) !== ($d['PURCHASE_ID'] ?? null)) {
             throw ValidationException::field('purchaseId', 'Purchase line parent is immutable');
         }
         $parent = $this->find($context, 'purchase', (int)($d['PURCHASE_ID'] ?? 0));
+        if ($parent['STATUS'] === 'draft' && ($parent['PAID_AMOUNT'] ?? 0) > 0) {
+            throw ValidationException::field('purchase', 'Partially funded purchase terms are immutable');
+        }
         if (($parent['STATUS'] ?? null) !== 'draft') {
             if (!$old || !in_array(TrustedPlans::origin(), ['cement.loading','cement.clearance','cement.delivery','cement.adjustment'], true)) {
                 throw ValidationException::field('purchaseId', 'Funded purchase terms are immutable');
