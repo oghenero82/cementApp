@@ -166,6 +166,8 @@ export class FormRenderer {
     return this.form;
   }
   states() {
+    const allowed = this.context.metadata.descriptors[this.type]?.allowedStates;
+    if (allowed) return allowed;
     return (
       {
         inventory_reservation: ['active', 'released'],

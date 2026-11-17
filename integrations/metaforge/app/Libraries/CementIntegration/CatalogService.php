@@ -13,6 +13,7 @@ final class CatalogService
     public const MASTERS = ['cement_branch','supplier','supplier_depot','supplier_product','customer','product_category','product','unit_of_measure','price_list','price_list_item','inventory_location','person','vehicle','staff_employment'];
     public static function register(\App\Libraries\MetaForge\Mutation\Services\ServiceRegistry $registry): void
     {
+        PurchaseDrafts::register($registry);
         $handler = new self();
         $registry->register('cement.catalog.guard', $handler, 'validate', [
             ['name' => 'recordTypeCode','type' => 'string'],['name' => 'record','type' => 'object'],['name' => 'previous','type' => 'object']]);
@@ -34,13 +35,16 @@ final class CatalogService
     }
     public function validate(string $recordTypeCode, array $record, array $previous, MutationContext $context): array
     {
-        if (!in_array($recordTypeCode, self::MASTERS, true)) {
+        if (!in_array($recordTypeCode, [...self::MASTERS,'purchase','purchaseItem'], true)) {
             return [K::SERVICE_VALIDATION_ERRORS => [['fieldPath' => 'status','code' => 'cement_posting_unavailable','message' => 'This Cement transaction requires its verified native business runtime; no stock or ledger effect was posted.']]];
         }
         $catalog = $context->catalog;
         $meta = $catalog->metadata($recordTypeCode);
         $definition = M::properties($meta);
         $aliases = $definition['settings']['cementFieldAliases'];
+        if (in_array($recordTypeCode, ['purchase','purchaseItem'], true) && (!isset($definition['settings']['cementPurchaseDrafts']) || ($record[$aliases['STATUS']] ?? 'draft') !== 'draft' || ($previous && ($previous[$aliases['STATUS']] ?? 'draft') !== 'draft'))) {
+            return [K::SERVICE_VALIDATION_ERRORS => [['fieldPath' => $aliases['STATUS'],'code' => 'cement_posting_unavailable','message' => 'Native purchase funding is not available; no ledger effect was posted']]];
+        }
         $source = json_decode(file_get_contents(ROOTPATH.'resources/cement/recordtypes.json'), true, 64, JSON_THROW_ON_ERROR);
         $source = array_column($source, null, 'code');
         $repo = new RecordRepository(\Config\Database::connect());
@@ -96,16 +100,66 @@ final class CatalogService
             throw new \App\Libraries\MetaForge\Mutation\ValidationException([['fieldPath' => 'registryRevision','code' => 'conflict','message' => 'Cement field registry changed; reload before retrying']]);
         }
         $entries = $envelope['batch'] ?? [$envelope];
-        // Until dependent plans have explicit identity bindings, refuse rather than split atomic requests.
-        if (!is_array($entries) || count($entries) !== 1) {
-            throw new \InvalidArgumentException('Native connected-batch runtime is not installed');
+        if (!is_array($entries) || !array_is_list($entries) || !$entries || count($entries) > 100) {
+            throw new \InvalidArgumentException('Batch must contain 1–100 entries');
         }
-        $entry = $entries[0];
+        $plans = [];
+        $seen = [];
+        $bindings = [];
+        foreach ($entries as $entry) {
+            if (!is_array($entry)) {
+                throw new \InvalidArgumentException('Invalid batch entry');
+            }
+            $identity = ($entry['recordTypeCode'] ?? '').':'.($entry['recordId'] ?? '');
+            if (($entry['operation'] ?? 'insert') !== 'insert' && isset($seen[$identity])) {
+                throw new \InvalidArgumentException('A record may only be changed once in a batch');
+            }
+            $seen[$identity] = true;
+            $plan = $this->plan($entry, $context);
+            $ref = $entry['clientRef'] ?? null;
+            if ($ref !== null) {
+                if (!is_string($ref) || !preg_match('/^[A-Za-z][A-Za-z0-9_-]{0,63}$/D', $ref) || isset($bindings[$ref])) {
+                    throw new \InvalidArgumentException('Invalid or duplicate batch identity');
+                }$plan['_cementClientRef'] = $ref;
+            }
+            $type = $entry['recordTypeCode'];
+            $source = array_column(json_decode(file_get_contents(ROOTPATH.'resources/cement/recordtypes.json'), true, 64, JSON_THROW_ON_ERROR), null, 'code');
+            $initial = json_decode(file_get_contents(ROOTPATH.'resources/cement/semantic_field_registry.json'), true, 64, JSON_THROW_ON_ERROR);
+            $current = M::properties($context->catalog->metadata($type))['settings']['cementFieldAliases'];
+            $targets = [];
+            foreach ($source[$type]['fields'] as $field) {
+                if ($field['target'] !== null) {
+                    $alias = array_search($field['code'], $initial[$type], true);
+                    $targets[$current[$alias]] = $field['target'];
+                }
+            }
+            foreach ($plan['data'] as $field => $value) {
+                if (is_array($value) && array_keys($value) === ['$ref']) {
+                    $target = $value['$ref'];
+                    if (!is_string($target) || !isset($bindings[$target]) || !isset($targets[$field]) || $bindings[$target] !== $targets[$field]) {
+                        throw new \InvalidArgumentException('Batch reference must match an earlier declared relationship');
+                    }
+                    $plan['_cementReferences'][$field] = $target;
+                    unset($plan['data'][$field]);
+                }
+            }
+            if ($ref !== null) {
+                $bindings[$ref] = $type;
+            }
+            $plans[] = $plan;
+        }
+        return [K::SERVICE_MUTATION_PLANS => $plans,'results' => ['resultMap' => []]];
+    }
+    private function plan(array $entry, MutationContext $context): array
+    {
         $type = $entry['recordTypeCode'] ?? '';
-        if (!in_array($type, self::MASTERS, true)) {
+        if (!in_array($type, [...self::MASTERS,'purchase','purchaseItem'], true)) {
             throw new \RuntimeException('Native Cement posting runtime is not installed');
         }
         $meta = $context->catalog->metadata($type);
+        if (in_array($type, ['purchase','purchaseItem'], true) && !isset(M::properties($meta)['settings']['cementPurchaseDrafts'])) {
+            throw new \RuntimeException('Native purchase draft handlers are not activated');
+        }
         $id = M::id($meta);
         $op = $entry['operation'] ?? null;
         if (!in_array($op, ['insert','update','delete'], true) || ($entry['recordTypeId'] ?? null) !== $id) {
@@ -134,7 +188,13 @@ final class CatalogService
                         $other = $context->catalog->metadata($spec['code']);
                         // Referential integrity is checked in the institution's native table, independent of UI visibility.
                         foreach ($repo->query($repo->table($context, $other), M::id($other)) as $r) {
-                            if (M::property($r, $field['code']) === $recordId) {
+                            $initial = json_decode(file_get_contents(ROOTPATH.'resources/cement/semantic_field_registry.json'), true, 64, JSON_THROW_ON_ERROR);
+                            $alias = array_search($field['code'], $initial[$spec['code']], true);
+                            $actual = M::properties($other)['settings']['cementFieldAliases'][$alias] ?? null;
+                            if (!$actual) {
+                                throw new \RuntimeException('Reference schema is not mapped');
+                            }
+                            if (M::property($r, $actual) === $recordId) {
                                 throw new \RuntimeException('Referenced native records cannot be deleted');
                             }
                         }
@@ -142,13 +202,20 @@ final class CatalogService
                 }
             }
         }
-        if (isset($entry['clientRef'])) {
-            throw new \InvalidArgumentException('Connected native mutation bindings are unavailable');
+        if (!is_array($entry['data'] ?? []) || (($entry['data'] ?? []) !== [] && array_is_list($entry['data']))) {
+            throw new \InvalidArgumentException('Mutation data must be an object');
         }
         $plan = ['recordTypeId' => $id,'operation' => $op,'data' => $entry['data'] ?? []];
+        foreach (M::properties($meta)['fields'] as $field) {
+            if (in_array($field['type'], ['number','decimal'], true) && isset($plan['data'][$field['code']]) && is_float($plan['data'][$field['code']])) {
+                if (!is_finite($plan['data'][$field['code']])) {
+                    throw new \InvalidArgumentException('Number must be finite');
+                }$plan['data'][$field['code']] = \App\Libraries\MetaForge\Catalog\FieldType::numericString($plan['data'][$field['code']]);
+            }
+        }
         if ($op !== 'insert') {
             $plan['recordId'] = $recordId;
         }
-        return [K::SERVICE_MUTATION_PLANS => [$plan],'results' => ['resultMap' => []]];
+        return $plan;
     }
 }

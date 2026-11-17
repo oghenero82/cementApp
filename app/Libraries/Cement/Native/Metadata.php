@@ -82,7 +82,7 @@ final class Metadata
                 }
             }
             $canWrite = $canWrite && in_array('insert', $definition['settings']['cementOperations'] ?? [], true);
-            $descriptors[$type] = ['title' => $definition['name'] ?? $catalog->types[$type]['name'],'module' => $catalog->types[$type]['module'],'fields' => $fields,'canWrite' => $canWrite,'readOnlyAliases' => array_values(array_unique(array_merge($readonly, Services::OWNED[$type] ?? []))),'serviceOwned' => in_array($type, ['inventory_stock','inventory_cost_layer','account_balance','report_result','report_delivery','cement_audit_event'], true)];
+            $descriptors[$type] = ['title' => $definition['name'] ?? $catalog->types[$type]['name'],'module' => $catalog->types[$type]['module'],'fields' => $fields,'canWrite' => $canWrite,'readOnlyAliases' => array_values(array_unique(array_merge($readonly, Services::OWNED[$type] ?? []))),'allowedStates' => isset($definition['settings']['cementPurchaseDrafts']) ? ['draft'] : null,'postingAvailable' => false,'serviceOwned' => in_array($type, ['inventory_stock','inventory_cost_layer','account_balance','report_result','report_delivery','cement_audit_event'], true)];
         }
         if (!$maps) {
             throw new Problem('No authorized Cement schemas are installed in MetaForge', 502);
@@ -110,6 +110,15 @@ final class Metadata
                 $data = $row['jsonData'] ?? null;
                 if (is_array($data)) {
                     $data = array_intersect_key($data, array_flip($metadata['fieldsByRecordType'][$type]));
+                    foreach ($metadata['descriptors'][$type]['fields'] as $field) {
+                        $code = $metadata['fieldsByRecordType'][$type][$field['alias']];
+                        if ($field['type'] === 'number' && isset($data[$code]) && is_string($data[$code])) {
+                            if (!preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $data[$code]) || !is_finite((float)$data[$code])) {
+                                throw new Problem('Native numeric field is incompatible', 502);
+                            }
+                            $data[$code] = (float)$data[$code];
+                        }
+                    }
                 }
                 if (!is_int($id) || $id <= 0 || !is_int($mutation) || $mutation < 0 || !is_array($data) || array_diff(array_keys($data), array_values($metadata['fieldsByRecordType'][$type]))) {
                     throw new Problem('Native sync row violates the active schema', 502);

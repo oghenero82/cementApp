@@ -262,6 +262,7 @@ export class BusinessWorkflows {
     }[key];
     if (
       transition &&
+      this.context.metadata.descriptors[root].postingAvailable !== false &&
       this.context.metadata.descriptors[root].canWrite &&
       registry.get(root, row.data, 'STATUS') === 'draft'
     )

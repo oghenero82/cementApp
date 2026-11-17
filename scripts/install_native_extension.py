@@ -18,11 +18,22 @@ route_source=routes.read_text()
 writes={path.relative_to(repo/'integrations/metaforge'):path.read_bytes() for path in (repo/'integrations/metaforge').rglob('*.php')}
 for name in ('recordtypes.json','semantic_field_registry.json'):
     writes[Path('resources/cement')/name]=(repo/'resources/cement'/name).read_bytes()
+# Upgrade only the recognized native executor seam; normal HTTP plans still reject these private keys.
+executor=target/'app/Libraries/MetaForge/Mutation/RecordExecutor.php'
+executor_source=executor.read_text()
+old="""        foreach ($response[MutationKeys::SERVICE_MUTATION_PLANS] as $plan) {
+            $this->execute($plan, $context, $depth + 1, $lineage);
+        }"""
+new=r"""        \App\Libraries\CementIntegration\TrustedPlans::apply($response,
+            fn(array $plan): array => $this->execute($plan, $context, $depth + 1, $lineage));"""
+if new not in executor_source:
+    if executor_source.count(old)!=1 or executor_source.count('        array $response,')!=1:p.error('Unrecognized native plan executor; no files changed')
+    writes[executor.relative_to(target)]=executor_source.replace(old,new).replace('        array $response,','        array &$response,').encode()
 # Preflight every extension/resource before modifying any file.
 for relative,data in writes.items():
     dest=target/relative
     if dest.is_symlink():p.error('Refusing a symlink target: '+str(relative))
-    if dest.exists() and dest.read_bytes()!=data and not a.update:p.error('Existing file differs; review it or use --update for a backed-up replacement: '+str(relative))
+    if dest.exists() and dest.read_bytes()!=data and relative!=executor.relative_to(target) and not a.update:p.error('Existing file differs; review it or use --update for a backed-up replacement: '+str(relative))
 if registration not in source:writes[config.relative_to(target)]=source.replace(anchor,registration+anchor).encode()
 if route not in route_source:writes[routes.relative_to(target)]=(route_source+'\n'+route+'\n').encode()
 for relative,data in writes.items():

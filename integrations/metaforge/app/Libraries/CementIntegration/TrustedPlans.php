@@ -1,0 +1,44 @@
+<?php
+
+namespace App\Libraries\CementIntegration;
+
+/** Identity bindings for trusted server-generated plans, inside the existing outer transaction. */
+final class TrustedPlans
+{
+    public static function apply(array &$response, callable $execute): void
+    {
+        $declared = [];
+        foreach ($response['mutationPlans'] as $plan) {
+            $ref = $plan['_cementClientRef'] ?? null;
+            if ($ref !== null) {
+                if (!is_string($ref) || !preg_match('/^[A-Za-z][A-Za-z0-9_-]{0,63}$/D', $ref) || isset($declared[$ref])) {
+                    throw new \InvalidArgumentException('Invalid or duplicate batch identity');
+                }$declared[$ref] = true;
+            }
+        }
+        $bindings = [];
+        $results = [];
+        foreach ($response['mutationPlans'] as $plan) {
+            $ref = $plan['_cementClientRef'] ?? null;
+            $references = $plan['_cementReferences'] ?? [];
+            unset($plan['_cementClientRef'],$plan['_cementReferences']);
+            foreach ($references as $field => $target) {
+                if (!isset($bindings[$target])) {
+                    throw new \InvalidArgumentException('Batch references must point to an earlier record');
+                }$plan['data'][$field] = $bindings[$target];
+            }
+            $row = $execute($plan);
+            if (!is_int($row['recordId'] ?? null) || $row['recordId'] <= 0) {
+                throw new \RuntimeException('Native plan did not return its physical identity');
+            }
+            if ($ref !== null) {
+                $bindings[$ref] = $row['recordId'];
+            }
+            $results[] = ['recordTypeId' => $row['recordTypeId'],'recordId' => $row['recordId']];
+        }
+        if ($bindings) {
+            $response['results']['resultMap'] = $bindings;
+            $response['results']['results'] = $results;
+        }
+    }
+}

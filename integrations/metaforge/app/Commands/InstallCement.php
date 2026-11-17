@@ -13,7 +13,7 @@ final class InstallCement extends BaseCommand
     protected $group = 'Cement';
     protected $name = 'cement:install-native';
     protected $description = 'Install Cement definitions and guarded catalog services into the native MetaForge catalog.';
-    protected $options = ['--upgrade' => 'Apply the checked capability metadata migration.', '--grant-role' => 'Explicitly grant the installed types to this existing role code (optional).'];
+    protected $options = ['--purchase-drafts' => 'Install checked native purchase draft handlers.','--upgrade' => 'Apply the checked capability metadata migration.', '--grant-role' => 'Explicitly grant the installed types to this existing role code (optional).'];
     public function run(array $params)
     {
         $db = Database::connect();
@@ -64,6 +64,22 @@ final class InstallCement extends BaseCommand
                             $changed = true;
                             $stored['settings']['cementOperations'] = $definition['settings']['cementOperations'];
                             $db->table(B::TABLE_SYSTEM)->where('recordId', $existing['recordId'])->update(['jsonData' => json_encode((object)$stored, JSON_THROW_ON_ERROR)]);
+                        }
+                    }
+                }
+                $current=$db->table(B::TABLE_SYSTEM)->where('recordCode',$type['code'])->get()->getRowArray();
+                $draftsEnabled=$current?(json_decode($current['jsonData'],true,64,JSON_THROW_ON_ERROR)['settings']['cementPurchaseDrafts']??false):false;
+                if ((CLI::getOption('purchase-drafts') || $draftsEnabled) && in_array($type['code'], ['purchase','purchaseItem'], true)) {
+                    $oldDefinition = $definition;
+                    $definition = \App\Libraries\CementIntegration\PurchaseDrafts::definition($definition);
+                    $existing = $db->table(B::TABLE_SYSTEM)->where('recordCode', $type['code'])->get()->getRowArray();
+                    if ($existing) {
+                        $stored = json_decode($existing['jsonData'], true, 64, JSON_THROW_ON_ERROR);
+                        if (!isset($stored['settings']['cementPurchaseDrafts'])) {
+                            $store->ensure($type['code'], $root, $oldDefinition);
+                            $new = \App\Libraries\MetaForge\Catalog\CatalogContract::normalize(S::BASE_RECORD_TYPES, $definition, $catalog);
+                            $db->table(B::TABLE_SYSTEM)->where('recordId', $existing['recordId'])->update(['jsonData' => json_encode((object)$new, JSON_THROW_ON_ERROR)]);
+                            $changed = true;
                         }
                     }
                 }
