@@ -107,8 +107,27 @@ final class PurchaseDrafts
             throw ValidationException::field('purchaseId', 'Purchase line parent is immutable');
         }
         $parent = $this->find($context, 'purchase', (int)($d['PURCHASE_ID'] ?? 0));
-        if (($parent['STATUS'] ?? null) !== 'draft' || ($old['LOADED_QTY'] ?? 0) > 0) {
-            throw ValidationException::field('purchaseId', 'Funded or loaded purchase terms are immutable');
+        if (($parent['STATUS'] ?? null) !== 'draft') {
+            if (!$old || !in_array(TrustedPlans::origin(), ['cement.loading','cement.clearance','cement.delivery','cement.adjustment'], true)) {
+                throw ValidationException::field('purchaseId', 'Funded purchase terms are immutable');
+            }
+            foreach (['CODE','PURCHASE_ID','PRODUCT_ID','UNIT_ID','ORIGINAL_QUANTITY','UNIT_PRICE','DISCOUNT_TYPE','DISCOUNT_VALUE','NET_UNIT_COST','AMOUNT','QUANTITY_BASE','UNIT_CONVERSION_SNAPSHOT'] as $field) {
+                if (($old[$field] ?? null) != ($d[$field] ?? null)) {
+                    throw ValidationException::field('purchaseId', 'Funded purchase terms are immutable');
+                }
+            }
+            $item = $old + ['_ID' => 0];
+            $records = new NativeRecords($context);
+            foreach ($records->rows('purchaseItem') as $candidate) {
+                if ($candidate['CODE'] === $old['CODE']) {
+                    $item = $candidate;
+                    break;
+                }
+            }
+            return ['proposedData' => $this->encode($context, 'purchaseItem', NativeLoading::counters(new NativeRecords($context), $item))];
+        }
+        if (($old['LOADED_QTY'] ?? 0) > 0) {
+            throw ValidationException::field('purchaseId', 'Loaded purchase terms are immutable');
         }
         $qty = $d['ORIGINAL_QUANTITY'] ?? 0;
         $price = $d['UNIT_PRICE'] ?? 0;
@@ -133,6 +152,9 @@ final class PurchaseDrafts
         $line = $this->decode($context, 'purchaseItem', $record);
         $id = $line['PURCHASE_ID'];
         $parent = $this->find($context, 'purchase', $id);
+        if ($parent['STATUS'] !== 'draft') {
+            return [];
+        }
         $meta = $context->type(M::id($context->catalog->metadata('purchase')), 'update');
         return ['mutationPlans' => [['recordTypeId' => M::id($meta),'recordId' => $id,'operation' => 'update','data' => [$this->aliases($context, 'purchase')['CODE'] => $parent['CODE']]]]];
     }

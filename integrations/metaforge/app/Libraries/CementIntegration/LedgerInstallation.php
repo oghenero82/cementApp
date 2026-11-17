@@ -13,11 +13,11 @@ final class LedgerInstallation
         $source = (new DomainCatalog())->definitions($physical);
         $root = M::id($catalog->definition('record_type'));
         $changed = false;
-        foreach (['journal','journal_line','account_balance','account'] as $type) {
+        foreach (['journal','journal_line','account_balance','account','bank_account'] as $type) {
             $old = $source[$type];
             $new = $old;
             $new['settings']['cementVerifiedLedger'] = 1;
-            if ($type === 'account') {
+            if (in_array($type, ['account','bank_account'], true)) {
                 $new['settings']['cementLookupLabel'] = 'name';
             } else {
                 $new['services'] = array_values(array_filter($new['services'], static fn ($hook) => !in_array($hook['code'], ['financial_effect_guard','balance_recalculation'], true)));

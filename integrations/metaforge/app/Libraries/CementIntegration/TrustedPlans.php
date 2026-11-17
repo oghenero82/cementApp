@@ -5,6 +5,11 @@ namespace App\Libraries\CementIntegration;
 /** Identity bindings for trusted server-generated plans, inside the existing outer transaction. */
 final class TrustedPlans
 {
+    private static array $origins = [];
+    public static function origin(): ?string
+    {
+        return self::$origins ? self::$origins[array_key_last(self::$origins)] : null;
+    }
     public static function apply(array &$response, callable $execute): void
     {
         $declared = [];
@@ -33,7 +38,14 @@ final class TrustedPlans
                     throw new \InvalidArgumentException('Batch references must point to an earlier record');
                 }$plan['data'][$field] = $bindings[$target];
             }
-            $row = $execute($plan);
+            $origin = $plan['_cementGeneratedBy'] ?? self::origin();
+            unset($plan['_cementGeneratedBy']);
+            self::$origins[] = $origin;
+            try {
+                $row = $execute($plan);
+            } finally {
+                array_pop(self::$origins);
+            }
             if (!is_int($row['recordId'] ?? null) || $row['recordId'] <= 0) {
                 throw new \RuntimeException('Native plan did not return its physical identity');
             }

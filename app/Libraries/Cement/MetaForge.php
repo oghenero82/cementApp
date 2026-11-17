@@ -71,7 +71,15 @@ final class MetaForge
     public function upload(\CodeIgniter\HTTP\IncomingRequest $request, string $path = 'files/upload'): array
     {
         if ((getenv('METAFORGE_PROTOCOL') ?: 'gateway') === 'native') {
-            throw new Problem('Native MetaForge attachment/import transport is not installed', 501);
+            if ($path !== 'files/upload') {
+                throw new Problem('Native import preview is not installed', 501);
+            }
+            $file = $request->getFile('attachment');
+            $type = $request->getPost('recordTypeCode');
+            if (!$file || !$file->isValid() || $file->getSize() > 5 * 1024 * 1024 || !is_string($type)) {
+                throw new Problem('Choose an attachment no larger than 5 MB and a record type');
+            }
+            return (new Native\Transport($this->http, $this->sessions))->request('POST', 'cement/files', ['recordTypeCode' => $type,'filename' => basename($file->getClientName()),'content' => base64_encode(file_get_contents($file->getTempName()))]);
         }
         $file = $request->getFile('attachment');
         if (!$file || !$file->isValid() || $file->getSize() > 5 * 1024 * 1024) {
@@ -89,7 +97,15 @@ final class MetaForge
     public function download(string $id): object
     {
         if ((getenv('METAFORGE_PROTOCOL') ?: 'gateway') === 'native') {
-            throw new Problem('Native MetaForge attachment transport is not installed', 501);
+            if (!preg_match('/^[a-f0-9]{32}$/D', $id)) {
+                throw new Problem('Invalid attachment identity');
+            }
+            $file = (new Native\Transport($this->http, $this->sessions))->request('GET', 'cement/files/'.$id);
+            $content = base64_decode($file['content'] ?? '', true);
+            if ($content === false || strlen($content) > 5242880) {
+                throw new Problem('Invalid native attachment response', 502);
+            }
+            return (new \CodeIgniter\HTTP\Response(config('App')))->setBody($content);
         }
         if (!preg_match('/^[a-zA-Z0-9_-]{1,128}$/D', $id)) {
             throw new Problem('Invalid attachment ID');

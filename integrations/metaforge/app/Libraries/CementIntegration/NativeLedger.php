@@ -216,6 +216,62 @@ final class NativeLedger
             }$plans[] = $p;
         }return ['mutationPlans' => $plans];
     }
+    public function authorizePosting(MutationContext $context): void
+    {
+        $this->approver($context);
+    }
+    public static function postingRef(string $code): string
+    {
+        return 'j'.substr(hash('sha256', $code), 0, 32);
+    }
+    public function postingPlans(MutationContext $context, string $sourceType, int $sourceId, string $code, string $description, array $entries): array
+    {
+        $this->approver($context);
+        $date = gmdate('Y-m-d');
+        $currency = (new NativeRecords($context))->settings()['defaultCurrency'] ?? 'NGN';
+        $dr = 0;
+        $cr = 0;
+        foreach ($entries as $entry) {
+            [$id,$debit,$credit] = $entry;
+            if (!is_int($debit) || !is_int($credit) || $debit < 0 || $credit < 0 || ($debit > 0) == ($credit > 0)) {
+                throw ValidationException::field('amount', 'Invalid balanced posting entry');
+            }$account = $this->account($context, $id);
+            if (($account['currencyCode'] ?? null) !== $currency) {
+                throw ValidationException::field('currency', 'Posting accounts must match institution currency');
+            }$dr += $debit;
+            $cr += $credit;
+        }
+        if (count($entries) < 2 || $dr <= 0 || $dr !== $cr) {
+            throw ValidationException::field('amount', 'Posting entries must balance');
+        }
+        $years = [];
+        foreach ($this->rows($context, 'fiscal_year') as $row) {
+            $y = M::properties($row);
+            if (strtoupper($y['status'] ?? '') === 'OPEN' && $date >= $y['startDate'] && $date <= $y['endDate']) {
+                $years[] = M::id($row);
+            }
+        }if (count($years) !== 1) {
+            throw ValidationException::field('transactionDate', 'Configure exactly one open fiscal year for posting');
+        }$year = $years[0];
+        $this->year($context, $year, $date);
+        foreach ($this->rows($context, 'journal') as $row) {
+            if (M::property($row, 'code') === $code) {
+                throw ValidationException::field('reference', 'This business effect already has a journal');
+            }
+        }
+        $journal = $this->type($context, 'journal', 'insert');
+        $this->type($context, 'journal', 'update');
+        $line = $this->type($context, 'journal_line', 'insert');
+        $ref = self::postingRef($code);
+        $plans = [['recordTypeId' => M::id($journal),'operation' => 'insert','data' => ['code' => $code,'transactionDate' => $date,'fiscalYearId' => $year,'description' => $description,'sourceRecordTypeId' => M::id($context->catalog->metadata($sourceType)),'sourceRecordId' => $sourceId,'status' => 'DRAFT'],'_cementClientRef' => $ref]];
+        foreach ($entries as $n => [$account,$debit,$credit]) {
+            $plans[] = ['recordTypeId' => M::id($line),'operation' => 'insert','data' => ['lineNumber' => $n + 1,'accountId' => $account,'debit' => self::decimal($debit),'credit' => self::decimal($credit)],'_cementReferences' => ['journalId' => $ref]];
+        }
+        foreach (['WAIT_POSTING','POSTED'] as $state) {
+            $plans[] = ['recordTypeId' => M::id($journal),'operation' => 'update','data' => ['status' => $state],'_cementRecordRef' => $ref];
+        }
+        return $plans;
+    }
     public function fund(array $record, array $previous, int $recordId, string $operation, MutationContext $context): array
     {
         $aliases = M::properties($context->catalog->metadata('purchase'))['settings']['cementFieldAliases'];

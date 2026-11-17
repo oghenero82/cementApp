@@ -15,6 +15,10 @@ final class CatalogService
     {
         PurchaseDrafts::register($registry);
         NativeLedger::register($registry);
+        NativeInventory::register($registry);
+        NativeLoading::register($registry);
+        NativeSales::register($registry);
+        NativeStockControls::register($registry);
         $handler = new self();
         $registry->register('cement.catalog.guard', $handler, 'validate', [
             ['name' => 'recordTypeCode','type' => 'string'],['name' => 'record','type' => 'object'],['name' => 'previous','type' => 'object']]);
@@ -36,8 +40,32 @@ final class CatalogService
     }
     public function validate(string $recordTypeCode, array $record, array $previous, MutationContext $context): array
     {
-        if (!in_array($recordTypeCode, [...self::MASTERS,'purchase','purchaseItem'], true)) {
+        if (!in_array($recordTypeCode, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES], true)) {
             return [K::SERVICE_VALIDATION_ERRORS => [['fieldPath' => 'status','code' => 'cement_posting_unavailable','message' => 'This Cement transaction requires its verified native business runtime; no stock or ledger effect was posted.']]];
+        }
+        if (in_array($recordTypeCode, NativeInventory::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementInventory'])) {
+            throw new \RuntimeException('Native inventory handlers are not activated');
+        }
+        if (in_array($recordTypeCode, NativeLoading::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementLoading'])) {
+            throw new \RuntimeException('Native loading handlers are not activated');
+        }
+        if (in_array($recordTypeCode, NativeSales::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementSales'])) {
+            throw new \RuntimeException('Native sales handlers are not activated');
+        }
+        if (in_array($recordTypeCode, NativeStockControls::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementStockControls'])) {
+            throw new \RuntimeException('Native stock controls are not activated');
+        }
+        $private = $record['settings']['cement'] ?? [];
+        $oldPrivate = $previous['settings']['cement'] ?? [];
+        if ($private !== $oldPrivate) {
+            $computedLoading = $recordTypeCode === 'cement_loading' && ($record[$context->catalog->metadata('cement_loading')['jsonData']['settings']['cementFieldAliases']['STATUS']] ?? null) === 'confirmed' && isset($context->catalog->metadata('cement_loading')['jsonData']['settings']['cementLoading']);
+            $nativeSettings = M::properties($context->catalog->metadata($recordTypeCode))['settings'];
+            $f = $nativeSettings['cementFieldAliases'];
+            $computedSales = isset($nativeSettings['cementSales']) && (($recordTypeCode === 'customer_sales' && ($record[$f['STATUS']] ?? null) === 'invoiced') || ($recordTypeCode === 'customer_payment' && ($record[$f['STATUS']] ?? null) === 'completed'));
+            $computedControls = isset($nativeSettings['cementStockControls']) && ($recordTypeCode === 'inventory_transfer' || $recordTypeCode === 'inventory_stocktake_line' || ($recordTypeCode === 'damaged_goods' && ($record[$f['STATUS']] ?? null) === 'confirmed'));
+            if (!$computedLoading && !$computedSales && !$computedControls && !in_array(TrustedPlans::origin(), ['cement.loading','cement.sales','cement.sales.balance','cement.payment','cement.delivery','cement.stocktake','cement.transfer','cement.damage','cement.return'], true)) {
+                throw new \RuntimeException('Cement processing snapshots are server-owned');
+            }
         }
         $catalog = $context->catalog;
         $meta = $catalog->metadata($recordTypeCode);
@@ -69,6 +97,7 @@ final class CatalogService
                 }
             }
         }
+        NativeFiles::validate($context, $recordTypeCode, (new NativeRecords($context))->decode($recordTypeCode, $record));
         return [];
     }
     public function execute(array $envelope, MutationContext $context): array
@@ -159,12 +188,27 @@ final class CatalogService
     private function plan(array $entry, MutationContext $context): array
     {
         $type = $entry['recordTypeCode'] ?? '';
-        if (!in_array($type, [...self::MASTERS,'purchase','purchaseItem'], true)) {
+        if (!in_array($type, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES], true)) {
             throw new \RuntimeException('Native Cement posting runtime is not installed');
         }
         $meta = $context->catalog->metadata($type);
         if (in_array($type, ['purchase','purchaseItem'], true) && !isset(M::properties($meta)['settings']['cementPurchaseDrafts'])) {
             throw new \RuntimeException('Native purchase draft handlers are not activated');
+        }
+        if (in_array($type, ['inventory_stock','inventory_cost_layer'], true)) {
+            throw new \RuntimeException('Stock projections are service-owned');
+        }
+        if ($type === 'inventory_movement' && !isset(M::properties($meta)['settings']['cementInventory'])) {
+            throw new \RuntimeException('Native inventory handlers are not activated');
+        }
+        if (in_array($type, NativeLoading::TYPES, true) && !isset(M::properties($meta)['settings']['cementLoading'])) {
+            throw new \RuntimeException('Native loading handlers are not activated');
+        }
+        if (in_array($type, NativeSales::TYPES, true) && !isset(M::properties($meta)['settings']['cementSales'])) {
+            throw new \RuntimeException('Native sales handlers are not activated');
+        }
+        if (in_array($type, NativeStockControls::TYPES, true) && !isset(M::properties($meta)['settings']['cementStockControls'])) {
+            throw new \RuntimeException('Native stock controls are not activated');
         }
         $id = M::id($meta);
         $op = $entry['operation'] ?? null;
@@ -221,6 +265,11 @@ final class CatalogService
         }
         if ($op !== 'insert') {
             $plan['recordId'] = $recordId;
+        }
+        foreach (M::properties($meta)['fields'] as $field) {
+            if ($field['type'] === 'datetime' && isset($plan['data'][$field['code']]) && is_string($plan['data'][$field['code']])) {
+                $plan['data'][$field['code']] = NativeDates::canonical($plan['data'][$field['code']]);
+            }
         }
         return $plan;
     }

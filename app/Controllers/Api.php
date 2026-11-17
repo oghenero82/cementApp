@@ -40,11 +40,11 @@ final class Api extends BaseController
                     return $this->response->setHeader('Content-Type', 'application/octet-stream')->setHeader('Content-Disposition', 'attachment; filename="cement-attachment"')->setBody($remoteFile->getBody());
                 }
                 $format = $input['format'] ?? null;
-                if ($path === 'reports') {
+                if (in_array($path,['reports','customers/statement'],true)) {
                     unset($input['format']);
                 }
                 $remote = $proxy->request($method, $path.($method === 'GET' && $input ? '?'.http_build_query($input) : ''), $method === 'POST' ? $input : null);
-                if ($path === 'reports' && in_array($format, ['csv','xlsx'])) {
+                if (in_array($path,['reports','customers/statement'],true) && in_array($format, ['csv','xlsx'])) {
                     return $this->response->setHeader('Content-Type', $format === 'csv' ? 'text/csv' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')->setHeader('Content-Disposition', 'attachment; filename="cement-report.'.$format.'"')->setBody($format === 'csv' ? Reports::csv($remote) : Reports::xlsx($remote));
                 }
                 if (in_array($path, ['auth/login','auth/role','auth/password'], true)) {

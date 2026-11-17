@@ -61,6 +61,7 @@ final class Backend
                 'portal/navigation' => $this->navigation($bootstrap, $metadata),
                 'sync' => $this->sync($query, $metadata),
                 'lookups' => $this->lookups($query, $metadata),
+                'customers/statement' => $this->transport->request('GET', 'cement/customer-statement?'.http_build_query($query)),
                 'dashboard' => $this->dashboard($query, $metadata),
                 'health' => ['backendMode' => 'metaforge-native','database' => 'remote','registryRevision' => $metadata['revision'],'businessRuntime' => $bootstrap['institution']['jsonData']['settings']['cementRuntime'] ?? 'not_installed'],
                 default => throw new Problem('Native MetaForge capability is not installed: '.$path, 501),
@@ -117,7 +118,7 @@ final class Backend
                 $workspaces[$key] = $w;
             }
         }
-        return ['modules' => $modules,'workspaces' => $workspaces,'roleTitle' => $b['role']['jsonData']['name'] ?? 'MetaForge','canAdmin' => false,'canFinance' => false,'reports' => [],'notice' => isset($m['descriptors']['purchase']) && $m['descriptors']['purchase']['postingAvailable'] ? 'MetaForge purchase drafts and shared Accounting funding are connected. Native loading, stock and payroll are still being implemented.' : 'MetaForge catalogs and purchase drafts are connected. Enable verified shared Accounting to fund purchases.'];
+        return ['modules' => $modules,'workspaces' => $workspaces,'roleTitle' => $b['role']['jsonData']['name'] ?? 'MetaForge','canAdmin' => false,'canFinance' => false,'reports' => [],'notice' => 'Connected to MetaForge. Available actions reflect your permissions and enabled services.'];
     }
     private function sync(array $query, array $metadata): array
     {
@@ -169,6 +170,9 @@ final class Backend
                 }
                 if ($type === 'customer_sales' && ($semantic['STATUS'] ?? null) !== 'invoiced') {
                     continue;
+                }
+                if ($type === 'customer_sales') {
+                    $semantic['NET_AMOUNT'] = ($data['settings']['cement']['recognizedMinor'] ?? 0) / 100;
                 }
                 $aliases = match($type) {
                     'customer_sales' => ['NET_AMOUNT','BALANCE_DUE'],'purchase' => ['NET_AMOUNT','PAID_AMOUNT'],'purchaseItem' => ['ORIGINAL_QUANTITY','LOADED_QTY','CLEARED_QTY'],'inventory_stock' => ['QUANTITY_ON_HAND','TOTAL_VALUE'],default => ['TOTAL_TRIP_COST']

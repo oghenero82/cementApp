@@ -1,3 +1,4 @@
+import { datetimeInput, datetimeInstant } from '../core/datetime.js';
 import { SignaturePad } from '../core/SignaturePad.js';
 import { el, button, labelOf, display } from '../core/dom.js';
 import { recordFieldRegistry as registry } from '../registry/RecordFieldRegistry.js';
@@ -42,7 +43,7 @@ export class FormRenderer {
       const { alias } = field;
       if (readonly.has(alias)) continue;
       const code = registry.field(this.type, alias);
-      const initial = this.row?.data[code] ?? this.prefill[alias];
+      const initial = this.row?.data[code] ?? this.prefill[alias] ?? field.default;
       const wrap = el('div', { class: 'form-field' });
       const id = 'field-' + this.type + '-' + alias;
       const label = el(
@@ -133,7 +134,7 @@ export class FormRenderer {
             initial === undefined
               ? ''
               : field.type === 'datetime'
-                ? String(initial).slice(0, 16)
+                ? datetimeInput(initial)
                 : display(initial),
         });
       }
@@ -217,6 +218,7 @@ export class FormRenderer {
       else if (control.value === '') continue;
       else if (['number', 'integer', 'reference'].includes(field.type))
         value = Number(control.value);
+      else if (field.type === 'datetime') value = datetimeInstant(control.value);
       else if (['array', 'object'].includes(field.type)) value = JSON.parse(control.value);
       else value = control.value;
       values[alias] = value;

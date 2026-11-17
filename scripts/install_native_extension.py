@@ -48,6 +48,11 @@ for relative,data in writes.items():
     if dest.exists() and dest.read_bytes()!=data and relative!=executor.relative_to(target) and not a.update:p.error('Existing file differs; review it or use --update for a backed-up replacement: '+str(relative))
 if registration not in source:writes[config.relative_to(target)]=source.replace(anchor,registration+anchor).encode()
 if route not in route_source:writes[routes.relative_to(target)]=(route_source+'\n'+route+'\n').encode()
+file_routes=["$routes->get('api/cement/customer-statement', 'CementQueries::statement');","$routes->post('api/cement/files', 'CementFiles::handle', ['filter' => 'csrf']);","$routes->get('api/cement/files/(:segment)', 'CementFiles::handle/$1');"]
+prepared_routes=writes.get(routes.relative_to(target),route_source.encode()).decode()
+for file_route in file_routes:
+    if file_route not in prepared_routes:prepared_routes+='\n'+file_route+'\n'
+if prepared_routes!=route_source:writes[routes.relative_to(target)]=prepared_routes.encode()
 for relative,data in writes.items():
     dest=target/relative
     if dest.is_symlink():p.error('Refusing a symlink target: '+str(relative))

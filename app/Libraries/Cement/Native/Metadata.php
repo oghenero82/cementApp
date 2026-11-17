@@ -64,6 +64,9 @@ final class Metadata
                     throw new Problem('Native field type is incompatible for '.$type.'.'.$field['alias'], 502);
                 }
                 $field['required'] = ($properties['required'] ?? false) === true;
+                if ($type === 'inventory_movement' && $field['alias'] === 'COST_POLICY') {
+                    $field['default'] = $bootstrap['institution']['jsonData']['settings']['inventoryValuationMethod'] ?? 'weighted_average';
+                }
                 $fields[] = $field;
                 if (($properties['readOnly'] ?? false) === true) {
                     $readonly[] = $field['alias'];
@@ -82,7 +85,36 @@ final class Metadata
                 }
             }
             $canWrite = $canWrite && in_array('insert', $definition['settings']['cementOperations'] ?? [], true);
-            $descriptors[$type] = ['title' => $definition['name'] ?? $catalog->types[$type]['name'],'module' => $catalog->types[$type]['module'],'fields' => $fields,'canWrite' => $canWrite,'readOnlyAliases' => array_values(array_unique(array_merge($readonly, Services::OWNED[$type] ?? []))),'allowedStates' => (isset($definition['settings']['cementPurchaseFunding']) && $privateAllowed) ? ['draft','paid'] : (isset($definition['settings']['cementPurchaseDrafts']) ? ['draft'] : null),'postingAvailable' => isset($definition['settings']['cementPurchaseFunding']) && $privateAllowed,'serviceOwned' => in_array($type, ['inventory_stock','inventory_cost_layer','account_balance','report_result','report_delivery','cement_audit_event'], true)];
+            $states = null;
+            $posting = false;
+            if (isset($definition['settings']['cementPurchaseDrafts'])) {
+                $states = ['draft'];
+            }
+            if (isset($definition['settings']['cementPurchaseFunding']) && $privateAllowed) {
+                $states = ['draft','paid'];
+                $posting = true;
+            }
+            if (isset($definition['settings']['cementInventory']) && $type === 'inventory_movement') {
+                $states = $privateAllowed ? ['draft','confirmed'] : ['draft'];
+                $posting = $privateAllowed;
+            }
+            if (isset($definition['settings']['cementLoading'])) {
+                $states = $type === 'loading_clearance' ? ($privateAllowed ? ['draft','verified'] : ['draft']) : ($privateAllowed ? ['draft','pending','confirmed'] : ['draft','pending']);
+                $posting = $privateAllowed;
+            }
+            if (isset($definition['settings']['cementSales'])) {
+                $states = match($type) {
+                    'customer_sales' => $privateAllowed ? ['draft','invoiced'] : ['draft'],'customer_payment' => $privateAllowed ? ['draft','completed'] : ['draft'],'delivery_proof' => $privateAllowed ? ['draft','confirmed'] : ['draft'],default => ['draft']
+                };
+                $posting = $privateAllowed && $type !== 'customer_sale_item';
+            }
+            if (isset($definition['settings']['cementStockControls'])) {
+                $states = $type === 'inventory_stocktake_line' ? ['draft'] : ($privateAllowed ? ['draft',match($type) {
+                    'inventory_stocktake' => 'posted','inventory_transfer' => 'received',default => 'confirmed'
+                }] : ['draft']);
+                $posting = $privateAllowed && $type !== 'inventory_stocktake_line';
+            }
+            $descriptors[$type] = ['title' => $definition['name'] ?? $catalog->types[$type]['name'],'module' => $catalog->types[$type]['module'],'fields' => $fields,'canWrite' => $canWrite,'readOnlyAliases' => array_values(array_unique(array_merge($readonly, Services::OWNED[$type] ?? []))),'allowedStates' => $states,'postingAvailable' => $posting,'serviceOwned' => in_array($type, ['inventory_stock','inventory_cost_layer','account_balance','report_result','report_delivery','cement_audit_event'], true)];
         }
         if (!$maps) {
             throw new Problem('No authorized Cement schemas are installed in MetaForge', 502);
@@ -112,6 +144,9 @@ final class Metadata
                     $data = array_intersect_key($data, array_flip($metadata['fieldsByRecordType'][$type]));
                     foreach ($metadata['descriptors'][$type]['fields'] as $field) {
                         $code = $metadata['fieldsByRecordType'][$type][$field['alias']];
+                        if ($field['type'] === 'datetime' && isset($data[$code]) && is_string($data[$code]) && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/D', $data[$code])) {
+                            $data[$code] = str_replace(' ', 'T', $data[$code]).'Z';
+                        }
                         if ($field['type'] === 'number' && isset($data[$code]) && is_string($data[$code])) {
                             if (!preg_match('/^[+-]?\d+(?:\.\d+)?$/D', $data[$code]) || !is_finite((float)$data[$code])) {
                                 throw new Problem('Native numeric field is incompatible', 502);
