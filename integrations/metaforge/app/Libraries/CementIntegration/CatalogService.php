@@ -14,6 +14,7 @@ final class CatalogService
     public static function register(\App\Libraries\MetaForge\Mutation\Services\ServiceRegistry $registry): void
     {
         PurchaseDrafts::register($registry);
+        NativeLedger::register($registry);
         $handler = new self();
         $registry->register('cement.catalog.guard', $handler, 'validate', [
             ['name' => 'recordTypeCode','type' => 'string'],['name' => 'record','type' => 'object'],['name' => 'previous','type' => 'object']]);
@@ -42,8 +43,13 @@ final class CatalogService
         $meta = $catalog->metadata($recordTypeCode);
         $definition = M::properties($meta);
         $aliases = $definition['settings']['cementFieldAliases'];
-        if (in_array($recordTypeCode, ['purchase','purchaseItem'], true) && (!isset($definition['settings']['cementPurchaseDrafts']) || ($record[$aliases['STATUS']] ?? 'draft') !== 'draft' || ($previous && ($previous[$aliases['STATUS']] ?? 'draft') !== 'draft'))) {
-            return [K::SERVICE_VALIDATION_ERRORS => [['fieldPath' => $aliases['STATUS'],'code' => 'cement_posting_unavailable','message' => 'Native purchase funding is not available; no ledger effect was posted']]];
+        if (in_array($recordTypeCode, ['purchase','purchaseItem'], true)) {
+            $state = $record[$aliases['STATUS']] ?? 'draft';
+            $oldState = $previous[$aliases['STATUS']] ?? 'draft';
+            $permitted = $state === 'draft' || ($recordTypeCode === 'purchase' && $state === 'paid' && isset($definition['settings']['cementPurchaseFunding']));
+            if (!isset($definition['settings']['cementPurchaseDrafts']) || !$permitted || ($previous && $oldState !== 'draft')) {
+                return [K::SERVICE_VALIDATION_ERRORS => [['fieldPath' => $aliases['STATUS'],'code' => 'cement_posting_unavailable','message' => 'This purchase transition requires its verified native handler']]];
+            }
         }
         $source = json_decode(file_get_contents(ROOTPATH.'resources/cement/recordtypes.json'), true, 64, JSON_THROW_ON_ERROR);
         $source = array_column($source, null, 'code');

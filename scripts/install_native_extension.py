@@ -29,6 +29,18 @@ new=r"""        \App\Libraries\CementIntegration\TrustedPlans::apply($response,
 if new not in executor_source:
     if executor_source.count(old)!=1 or executor_source.count('        array $response,')!=1:p.error('Unrecognized native plan executor; no files changed')
     writes[executor.relative_to(target)]=executor_source.replace(old,new).replace('        array $response,','        array &$response,').encode()
+# Native subscription bindings must publish the operation already supplied to trigger evaluation.
+prepared=writes.get(executor.relative_to(target),executor_source.encode()).decode()
+binding_anchor="""                    DatabaseKeys::RECORD_STORE => [DatabaseKeys::RECORD_ID => $id],
+                ],
+            );"""
+binding_new="""                    DatabaseKeys::RECORD_STORE => [DatabaseKeys::RECORD_ID => $id],
+                    DefinitionKeys::RT_RELATED_OPERATION => $operation,
+                ],
+            );"""
+if binding_new not in prepared:
+    if prepared.count(binding_anchor)!=1:p.error('Unrecognized native subscription bindings; no files changed')
+    writes[executor.relative_to(target)]=prepared.replace(binding_anchor,binding_new).encode()
 # Preflight every extension/resource before modifying any file.
 for relative,data in writes.items():
     dest=target/relative

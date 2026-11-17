@@ -117,7 +117,7 @@ final class Backend
                 $workspaces[$key] = $w;
             }
         }
-        return ['modules' => $modules,'workspaces' => $workspaces,'roleTitle' => $b['role']['jsonData']['name'] ?? 'MetaForge','canAdmin' => false,'canFinance' => false,'reports' => [],'notice' => 'MetaForge catalogs are connected. Native purchase, stock, payroll and ledger posting are not yet available.'];
+        return ['modules' => $modules,'workspaces' => $workspaces,'roleTitle' => $b['role']['jsonData']['name'] ?? 'MetaForge','canAdmin' => false,'canFinance' => false,'reports' => [],'notice' => isset($m['descriptors']['purchase']) && $m['descriptors']['purchase']['postingAvailable'] ? 'MetaForge purchase drafts and shared Accounting funding are connected. Native loading, stock and payroll are still being implemented.' : 'MetaForge catalogs and purchase drafts are connected. Enable verified shared Accounting to fund purchases.'];
     }
     private function sync(array $query, array $metadata): array
     {
@@ -146,6 +146,7 @@ final class Backend
     {
         $counts = [];
         $totals = [];
+        $trend = [];
         foreach (['customer_sales','purchase','purchaseItem','inventory_stock','trip'] as $type) {
             if (!isset($metadata['recordTypeIds'][$type])) {
                 continue;
@@ -153,9 +154,35 @@ final class Backend
             $response = $this->transport->request('GET', 'records?'.http_build_query(['recordTypeId' => $metadata['recordTypeIds'][$type]]));
             $rows = $response['records'] ?? [];
             $counts[$type] = count($rows);
-            // Native posting is not certified yet; show counts without manufacturing monetary aggregates.
+            $map = $metadata['fieldsByRecordType'][$type];
+            foreach ($rows as $row) {
+                $data = $row['jsonData'];
+                $semantic = [];
+                foreach ($map as $alias => $field) {
+                    if (isset($data[$field])) {
+                        $semantic[$alias] = $data[$field];
+                    }
+                }
+                $date = $semantic['PURCHASE_DATE'] ?? $semantic['SALE_DATE'] ?? null;
+                if ($date && ((!empty($query['from']) && $date < $query['from']) || (!empty($query['to']) && $date > $query['to']))) {
+                    continue;
+                }
+                if ($type === 'customer_sales' && ($semantic['STATUS'] ?? null) !== 'invoiced') {
+                    continue;
+                }
+                $aliases = match($type) {
+                    'customer_sales' => ['NET_AMOUNT','BALANCE_DUE'],'purchase' => ['NET_AMOUNT','PAID_AMOUNT'],'purchaseItem' => ['ORIGINAL_QUANTITY','LOADED_QTY','CLEARED_QTY'],'inventory_stock' => ['QUANTITY_ON_HAND','TOTAL_VALUE'],default => ['TOTAL_TRIP_COST']
+                };
+                foreach ($aliases as $alias) {
+                    $totals[$type.'.'.$alias] = ($totals[$type.'.'.$alias] ?? 0) + (float)($semantic[$alias] ?? 0);
+                }
+                if ($type === 'customer_sales' && $date) {
+                    $trend[$date] = ($trend[$date] ?? 0) + (float)($semantic['NET_AMOUNT'] ?? 0);
+                }
+            }
         }
-        return ['counts' => $counts,'totals' => $totals,'trend' => [],'financialPostingAvailable' => false];
+        ksort($trend);
+        return ['counts' => $counts,'totals' => $totals,'trend' => array_map(fn ($day, $value) => ['day' => $day,'value' => $value], array_keys($trend), array_values($trend)),'financialPostingAvailable' => $metadata['descriptors']['purchase']['postingAvailable'] ?? false];
     }
     private function lookups(array $q, array $metadata): array
     {
@@ -171,22 +198,51 @@ final class Backend
                 $target = $f['target'] ?? null;
             }
         }
-        if (!$target || !isset($metadata['recordTypeIds'][$target])) {
+        if (!$target) {
+            throw new Problem('No reference target is declared', 422);
+        }
+        $id = $metadata['recordTypeIds'][$target] ?? null;
+        $labelField = null;
+        if ($id === null) {
+            $b = $this->bootstrap();
+            $read = [];
+            foreach ($b['cementPermissions'] as $grant) {
+                if (($grant['action'] ?? null) === 'read') {
+                    $read[$grant['rtid']] = true;
+                }
+            }
+            foreach ($b['recordTypes'] as $row) {
+                if (($row['recordCode'] ?? null) === $target && isset($read[$row['recordId']])) {
+                    $candidate = $row['jsonData']['settings']['cementLookupLabel'] ?? null;
+                    if (!is_string($candidate)) {
+                        continue;
+                    }
+                    foreach ($row['jsonData']['fields'] as $field) {
+                        if ($field['code'] === $candidate && $field['type'] === 'string') {
+                            $id = $row['recordId'];
+                            $labelField = $candidate;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        if ($id === null) {
             throw new Problem('The referenced native schema is not authorized or mapped', 403);
         }
-        $native = $this->transport->request('GET', 'records?'.http_build_query(['recordTypeId' => $metadata['recordTypeIds'][$target]]));
+        $native = $this->transport->request('GET', 'records?'.http_build_query(['recordTypeId' => $id]));
         $items = [];
-        $map = $metadata['fieldsByRecordType'][$target];
-        foreach ($native['records'] ?? [] as $r) {
-            $d = $r['jsonData'];
-            $label = '';
-            foreach (['NAME','COMPANY_NAME','REGISTRATION_NUMBER','CODE'] as $key) {
-                if (isset($map[$key]) && !empty($d[$map[$key]])) {
-                    $label = (string)$d[$map[$key]];
-                    break;
+        $map = $metadata['fieldsByRecordType'][$target] ?? [];
+        foreach ($native['records'] ?? [] as $row) {
+            $data = $row['jsonData'];
+            $label = $labelField ? ($data[$labelField] ?? '') : '';
+            foreach (['NAME','COMPANY_NAME','REGISTRATION_NUMBER','CODE'] as $alias) {
+                if (!$label && isset($map[$alias])) {
+                    $label = $data[$map[$alias]] ?? '';
                 }
-            }$items[] = ['id' => $r['recordId'],'label' => $label ?: '#'.$r['recordId']];
-        }return ['items' => $items];
+            }$items[] = ['id' => $row['recordId'],'label' => $label ?: '#'.$row['recordId']];
+        }
+        return ['items' => $items];
     }
     private function mutate(array $envelope, array $metadata): array
     {

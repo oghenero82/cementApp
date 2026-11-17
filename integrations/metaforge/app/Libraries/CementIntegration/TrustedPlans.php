@@ -21,7 +21,13 @@ final class TrustedPlans
         foreach ($response['mutationPlans'] as $plan) {
             $ref = $plan['_cementClientRef'] ?? null;
             $references = $plan['_cementReferences'] ?? [];
-            unset($plan['_cementClientRef'],$plan['_cementReferences']);
+            $recordRef = $plan['_cementRecordRef'] ?? null;
+            unset($plan['_cementClientRef'],$plan['_cementReferences'],$plan['_cementRecordRef']);
+            if ($recordRef !== null) {
+                if (!isset($bindings[$recordRef])) {
+                    throw new \InvalidArgumentException('Unknown native record binding');
+                }$plan['recordId'] = $bindings[$recordRef];
+            }
             foreach ($references as $field => $target) {
                 if (!isset($bindings[$target])) {
                     throw new \InvalidArgumentException('Batch references must point to an earlier record');

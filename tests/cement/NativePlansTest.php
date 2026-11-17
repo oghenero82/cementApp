@@ -56,4 +56,16 @@ final class NativePlansTest extends TestCase
             self::assertSame([], $response['results']);
         }
     }
+    public function testLaterPlansCanUpdateAnEarlierNativeIdentity(): void
+    {
+        $response = ['mutationPlans' => [['recordTypeId' => 1,'operation' => 'insert','data' => [],'_cementClientRef' => 'journal'],['recordTypeId' => 1,'operation' => 'update','data' => ['status' => 'WAIT_POSTING'],'_cementRecordRef' => 'journal']],'results' => []];
+        $seen = [];
+        TrustedPlans::apply($response, function ($plan) use (&$seen) {
+            $seen[] = $plan;
+            return ['recordId' => 100,'recordTypeId' => 1];
+        });
+        self::assertSame(100, $seen[1]['recordId']);
+        self::assertArrayNotHasKey('_cementRecordRef', $seen[1]);
+    }
+
 }

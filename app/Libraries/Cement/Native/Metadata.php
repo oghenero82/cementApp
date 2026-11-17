@@ -82,7 +82,7 @@ final class Metadata
                 }
             }
             $canWrite = $canWrite && in_array('insert', $definition['settings']['cementOperations'] ?? [], true);
-            $descriptors[$type] = ['title' => $definition['name'] ?? $catalog->types[$type]['name'],'module' => $catalog->types[$type]['module'],'fields' => $fields,'canWrite' => $canWrite,'readOnlyAliases' => array_values(array_unique(array_merge($readonly, Services::OWNED[$type] ?? []))),'allowedStates' => isset($definition['settings']['cementPurchaseDrafts']) ? ['draft'] : null,'postingAvailable' => false,'serviceOwned' => in_array($type, ['inventory_stock','inventory_cost_layer','account_balance','report_result','report_delivery','cement_audit_event'], true)];
+            $descriptors[$type] = ['title' => $definition['name'] ?? $catalog->types[$type]['name'],'module' => $catalog->types[$type]['module'],'fields' => $fields,'canWrite' => $canWrite,'readOnlyAliases' => array_values(array_unique(array_merge($readonly, Services::OWNED[$type] ?? []))),'allowedStates' => (isset($definition['settings']['cementPurchaseFunding']) && $privateAllowed) ? ['draft','paid'] : (isset($definition['settings']['cementPurchaseDrafts']) ? ['draft'] : null),'postingAvailable' => isset($definition['settings']['cementPurchaseFunding']) && $privateAllowed,'serviceOwned' => in_array($type, ['inventory_stock','inventory_cost_layer','account_balance','report_result','report_delivery','cement_audit_event'], true)];
         }
         if (!$maps) {
             throw new Problem('No authorized Cement schemas are installed in MetaForge', 502);

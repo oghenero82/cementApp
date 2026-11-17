@@ -57,3 +57,13 @@ The migration compares the previous definition before changing its hooks. Existi
 The repeatable integration journey writes uniquely named test records and must target an isolated test deployment. Supply `CEMENT_NATIVE_TEST_URL` (the Cement server), `CEMENT_NATIVE_TEST_EMAIL` and `CEMENT_NATIVE_TEST_PASSWORD` through secure settings, then run `python3 tests/cement/native-workflows.py`. It verifies purchase draft calculations, linked IDs, replay, late-failure rollback, synchronization, logout and refusal to fabricate funding.
 
 Latest checks: 51 PHP tests / 188 assertions; seven JavaScript tests; seeder integrity; standalone browser business journeys plus 65 collections, 78 tabs and seven roles; actual native integration journey. These results do not establish production deployment, native financial posting or email delivery.
+
+## Verified shared Accounting funding
+
+The native extension now implements purchase funding using the existing shared `journal`, `journal_line` and `account_balance` types. No parallel remote ledger types are created. The checked migration replaces the shipped disabled journal/balance guards with verified hooks while preserving other domain guards and the native journal lifecycle (`DRAFT` → `WAIT_POSTING` → `POSTED`).
+
+To opt in after source review, run `php spark cement:install-native --purchase-funding --grant-role ROLE_CODE` in MetaForge. PHP BCMath is required. Configure active posting accounts in the institution currency and exactly one open fiscal year containing the posting date. Purchase forms select existing authorized GL accounts through label-only lookups.
+
+Verified against the real isolated MetaForge database: balanced funding, shared GL balance updates, exact replay without duplicate postings, posted-line immutability, rejection of an unbalanced journal, and rollback of the purchase, journal, lines and balance changes when a later batch child fails. Run `tests/cement/native-funding.py` with the existing native test settings plus `CEMENT_NATIVE_DIRECT_URL` and optional `CEMENT_NATIVE_TEST_CA`; it configures uniquely named GL test records and is for isolated test installations only.
+
+The installer also adds operation bindings to the recognized native subscription-execution seam; the original runtime exposed the operation to conditions but omitted it from service parameter bindings. Source changes are checked and backed up. Native loading, sales, stock and payroll posting are still in development.

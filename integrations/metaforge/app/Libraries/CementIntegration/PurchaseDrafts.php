@@ -62,7 +62,8 @@ final class PurchaseDrafts
     {
         $d = $this->decode($context, $recordTypeCode, $record);
         $old = $this->decode($context, $recordTypeCode, $previous);
-        if (($d['STATUS'] ?? 'draft') !== 'draft' || ($old && ($old['STATUS'] ?? 'draft') !== 'draft')) {
+        $funding = $recordTypeCode === 'purchase' && ($d['STATUS'] ?? 'draft') === 'paid' && isset(M::properties($context->catalog->metadata('purchase'))['settings']['cementPurchaseFunding']);
+        if ((!$funding && ($d['STATUS'] ?? 'draft') !== 'draft') || ($old && ($old['STATUS'] ?? 'draft') !== 'draft')) {
             throw ValidationException::field('status', 'Only purchase drafts are supported by this native handler; funding is not available');
         }
         if ($recordTypeCode === 'purchase') {
@@ -100,7 +101,7 @@ final class PurchaseDrafts
             $totals['GROSS_AMOUNT'] = round($totals['GROSS_AMOUNT'], 2);
             $totals['NET_AMOUNT'] = round($totals['NET_AMOUNT'], 2);
             $totals['DISCOUNT_AMOUNT'] = round($totals['GROSS_AMOUNT'] - $totals['NET_AMOUNT'], 2);
-            return ['proposedData' => $this->encode($context, 'purchase', $totals + ['STATUS' => 'draft','CURRENCY' => $currency,'OWNERSHIP_TRANSFER_POLICY' => $old['OWNERSHIP_TRANSFER_POLICY'] ?? $policy])];
+            return ['proposedData' => $this->encode($context, 'purchase', $totals + ['STATUS' => $funding ? 'paid' : 'draft','CURRENCY' => $currency,'OWNERSHIP_TRANSFER_POLICY' => $old['OWNERSHIP_TRANSFER_POLICY'] ?? $policy])];
         }
         if ($old && ($old['PURCHASE_ID'] ?? null) !== ($d['PURCHASE_ID'] ?? null)) {
             throw ValidationException::field('purchaseId', 'Purchase line parent is immutable');

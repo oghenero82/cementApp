@@ -13,7 +13,7 @@ final class InstallCement extends BaseCommand
     protected $group = 'Cement';
     protected $name = 'cement:install-native';
     protected $description = 'Install Cement definitions and guarded catalog services into the native MetaForge catalog.';
-    protected $options = ['--purchase-drafts' => 'Install checked native purchase draft handlers.','--upgrade' => 'Apply the checked capability metadata migration.', '--grant-role' => 'Explicitly grant the installed types to this existing role code (optional).'];
+    protected $options = ['--purchase-funding' => 'Enable verified shared Accounting and purchase funding.','--purchase-drafts' => 'Install checked native purchase draft handlers.','--upgrade' => 'Apply the checked capability metadata migration.', '--grant-role' => 'Explicitly grant the installed types to this existing role code (optional).'];
     public function run(array $params)
     {
         $db = Database::connect();
@@ -37,6 +37,14 @@ final class InstallCement extends BaseCommand
             $db->transBegin();
             $begun = true;
             $ids = [];
+            $purchaseRow = $db->table(B::TABLE_SYSTEM)->where('recordCode', 'purchase')->get()->getRowArray();
+            $fundingEnabled = CLI::getOption('purchase-funding') || ($purchaseRow && (json_decode($purchaseRow['jsonData'], true, 64, JSON_THROW_ON_ERROR)['settings']['cementPurchaseFunding'] ?? false));
+            if ($fundingEnabled && !extension_loaded('bcmath')) {
+                throw new \RuntimeException('Native accounting posting requires the PHP BCMath extension');
+            }
+            if ($fundingEnabled) {
+                $changed = \App\Libraries\CementIntegration\LedgerInstallation::install($db, $store, $catalog, $physical) || $changed;
+            }
             foreach ($types as $type) {
                 $fields = [];
                 foreach ($type['fields'] as $field) {
@@ -67,9 +75,9 @@ final class InstallCement extends BaseCommand
                         }
                     }
                 }
-                $current=$db->table(B::TABLE_SYSTEM)->where('recordCode',$type['code'])->get()->getRowArray();
-                $draftsEnabled=$current?(json_decode($current['jsonData'],true,64,JSON_THROW_ON_ERROR)['settings']['cementPurchaseDrafts']??false):false;
-                if ((CLI::getOption('purchase-drafts') || $draftsEnabled) && in_array($type['code'], ['purchase','purchaseItem'], true)) {
+                $current = $db->table(B::TABLE_SYSTEM)->where('recordCode', $type['code'])->get()->getRowArray();
+                $draftsEnabled = $current ? (json_decode($current['jsonData'], true, 64, JSON_THROW_ON_ERROR)['settings']['cementPurchaseDrafts'] ?? false) : false;
+                if ((CLI::getOption('purchase-drafts') || $draftsEnabled || $fundingEnabled) && in_array($type['code'], ['purchase','purchaseItem'], true)) {
                     $oldDefinition = $definition;
                     $definition = \App\Libraries\CementIntegration\PurchaseDrafts::definition($definition);
                     $existing = $db->table(B::TABLE_SYSTEM)->where('recordCode', $type['code'])->get()->getRowArray();
@@ -77,6 +85,20 @@ final class InstallCement extends BaseCommand
                         $stored = json_decode($existing['jsonData'], true, 64, JSON_THROW_ON_ERROR);
                         if (!isset($stored['settings']['cementPurchaseDrafts'])) {
                             $store->ensure($type['code'], $root, $oldDefinition);
+                            $new = \App\Libraries\MetaForge\Catalog\CatalogContract::normalize(S::BASE_RECORD_TYPES, $definition, $catalog);
+                            $db->table(B::TABLE_SYSTEM)->where('recordId', $existing['recordId'])->update(['jsonData' => json_encode((object)$new, JSON_THROW_ON_ERROR)]);
+                            $changed = true;
+                        }
+                    }
+                }
+                if ($fundingEnabled && $type['code'] === 'purchase') {
+                    $oldDefinition = $definition;
+                    $definition = \App\Libraries\CementIntegration\LedgerInstallation::purchase($definition);
+                    $existing = $db->table(B::TABLE_SYSTEM)->where('recordCode', 'purchase')->get()->getRowArray();
+                    if ($existing) {
+                        $stored = json_decode($existing['jsonData'], true, 64, JSON_THROW_ON_ERROR);
+                        if (!isset($stored['settings']['cementPurchaseFunding'])) {
+                            $store->ensure('purchase', $root, $oldDefinition);
                             $new = \App\Libraries\MetaForge\Catalog\CatalogContract::normalize(S::BASE_RECORD_TYPES, $definition, $catalog);
                             $db->table(B::TABLE_SYSTEM)->where('recordId', $existing['recordId'])->update(['jsonData' => json_encode((object)$new, JSON_THROW_ON_ERROR)]);
                             $changed = true;
@@ -95,8 +117,15 @@ final class InstallCement extends BaseCommand
                 $role = M::normalize($roleRows[0]);
                 $data = M::properties($role);
                 $permissions = $data['permissions'] ?? [];
-                foreach ($ids as $id) {
-                    foreach (['read','insert','update','delete'] as $action) {
+                $grantIds = $ids;
+                if ($fundingEnabled) {
+                    foreach (['account','fiscal_year','journal','journal_line','account_balance'] as $type) {
+                        $grantIds[$type] = M::id($catalog->metadata($type));
+                    }
+                }
+                foreach ($grantIds as $type => $id) {
+                    $actions = isset($ids[$type]) ? ['read','insert','update','delete'] : (in_array($type, ['account','fiscal_year'], true) ? ['read'] : ['read','insert','update']);
+                    foreach ($actions as $action) {
                         $grant = ['rtid' => $id,'action' => $action,'allowed' => true];
                         if (!in_array($grant, $permissions, true)) {
                             $permissions[] = $grant;
