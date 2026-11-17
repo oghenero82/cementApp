@@ -25,7 +25,7 @@ final class Transport
         if (!$url || ($url['scheme'] ?? '') !== 'https' || empty($url['host']) || isset($url['user']) || isset($url['pass']) || isset($url['query']) || isset($url['fragment'])) {
             throw new Problem('Configure an HTTPS MetaForge base URL without credentials or query parameters', 503);
         }
-        if (!preg_match('#^(bootstrap|cement/capabilities|cement/customer-statement(?:\?.*)?|cement/files(?:/[a-f0-9]{32})?|auth/(login|role|password|logout|reauthenticate)|sync(?:\?.*)?|records(?:\?.*)?|mutations)$#D', $path)) {
+        if (!preg_match('#^(bootstrap|cement/capabilities|cement/reports(?:\?.*)?|cement/customer-statement(?:\?.*)?|cement/files(?:/[a-f0-9]{32})?|auth/(login|role|password|logout|reauthenticate)|sync(?:\?.*)?|records(?:\?.*)?|mutations)$#D', $path)) {
             throw new Problem('Unsupported native MetaForge endpoint', 501);
         }
         $state = $this->vault()->get('metaforge_native') ?? [];

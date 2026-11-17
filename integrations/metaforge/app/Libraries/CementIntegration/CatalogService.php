@@ -21,6 +21,7 @@ final class CatalogService
         NativeStockControls::register($registry);
         NativeReturns::register($registry);
         NativeReservations::register($registry);
+        NativeFleet::register($registry);
         $handler = new self();
         $registry->register('cement.catalog.guard', $handler, 'validate', [
             ['name' => 'recordTypeCode','type' => 'string'],['name' => 'record','type' => 'object'],['name' => 'previous','type' => 'object']]);
@@ -42,7 +43,7 @@ final class CatalogService
     }
     public function validate(string $recordTypeCode, array $record, array $previous, MutationContext $context): array
     {
-        if (!in_array($recordTypeCode, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES,...NativeReturns::TYPES,...NativeReservations::TYPES], true)) {
+        if (!in_array($recordTypeCode, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES,...NativeReturns::TYPES,...NativeReservations::TYPES,...NativeFleet::TYPES], true)) {
             return [K::SERVICE_VALIDATION_ERRORS => [['fieldPath' => 'status','code' => 'cement_posting_unavailable','message' => 'This Cement transaction requires its verified native business runtime; no stock or ledger effect was posted.']]];
         }
         if (in_array($recordTypeCode, NativeInventory::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementInventory'])) {
@@ -62,6 +63,9 @@ final class CatalogService
         }
         if ($recordTypeCode === 'inventory_reservation' && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementReservations'])) {
             throw new \RuntimeException('Native reservations are not activated');
+        }
+        if (in_array($recordTypeCode, NativeFleet::TYPES, true) && !isset(M::properties($context->catalog->metadata($recordTypeCode))['settings']['cementFleet'])) {
+            throw new \RuntimeException('Native fleet services are not activated');
         }
         $private = $record['settings']['cement'] ?? [];
         $oldPrivate = $previous['settings']['cement'] ?? [];
@@ -198,7 +202,7 @@ final class CatalogService
     private function plan(array $entry, MutationContext $context): array
     {
         $type = $entry['recordTypeCode'] ?? '';
-        if (!in_array($type, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES,...NativeReturns::TYPES,...NativeReservations::TYPES], true)) {
+        if (!in_array($type, [...self::MASTERS,'purchase','purchaseItem',...NativeInventory::TYPES,...NativeLoading::TYPES,...NativeSales::TYPES,...NativeStockControls::TYPES,...NativeReturns::TYPES,...NativeReservations::TYPES,...NativeFleet::TYPES], true)) {
             throw new \RuntimeException('Native Cement posting runtime is not installed');
         }
         $meta = $context->catalog->metadata($type);
@@ -225,6 +229,9 @@ final class CatalogService
         }
         if ($type === 'inventory_reservation' && !isset(M::properties($meta)['settings']['cementReservations'])) {
             throw new \RuntimeException('Native reservations are not activated');
+        }
+        if (in_array($type, NativeFleet::TYPES, true) && !isset(M::properties($meta)['settings']['cementFleet'])) {
+            throw new \RuntimeException('Native fleet services are not activated');
         }
         $id = M::id($meta);
         $op = $entry['operation'] ?? null;

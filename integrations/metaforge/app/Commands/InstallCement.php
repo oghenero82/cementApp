@@ -13,7 +13,7 @@ final class InstallCement extends BaseCommand
     protected $group = 'Cement';
     protected $name = 'cement:install-native';
     protected $description = 'Install Cement definitions and guarded catalog services into the native MetaForge catalog.';
-    protected $options = ['--native-reservations' => 'Enable explicit warehouse order reservations.','--native-returns' => 'Enable credits, refunds and original-cost return receipts.','--native-stock-controls' => 'Enable approved counts, adjustments, transfers and damage controls.','--native-sales' => 'Enable customer orders, recognition, receipts and delivery proof.','--native-loading' => 'Enable loading and partial supplier clearance.','--native-inventory' => 'Enable verified movements and stock/cost projections.','--purchase-funding' => 'Enable verified shared Accounting and purchase funding.','--purchase-drafts' => 'Install checked native purchase draft handlers.','--upgrade' => 'Apply the checked capability metadata migration.', '--grant-role' => 'Explicitly grant the installed types to this existing role code (optional).'];
+    protected $options = ['--native-fleet' => 'Enable ordered delivery trips and operating-cost posting.','--native-reservations' => 'Enable explicit warehouse order reservations.','--native-returns' => 'Enable credits, refunds and original-cost return receipts.','--native-stock-controls' => 'Enable approved counts, adjustments, transfers and damage controls.','--native-sales' => 'Enable customer orders, recognition, receipts and delivery proof.','--native-loading' => 'Enable loading and partial supplier clearance.','--native-inventory' => 'Enable verified movements and stock/cost projections.','--purchase-funding' => 'Enable verified shared Accounting and purchase funding.','--purchase-drafts' => 'Install checked native purchase draft handlers.','--upgrade' => 'Apply the checked capability metadata migration.', '--grant-role' => 'Explicitly grant the installed types to this existing role code (optional).'];
     public function run(array $params)
     {
         $db = Database::connect();
@@ -45,7 +45,9 @@ final class InstallCement extends BaseCommand
             $salesRow = $db->table(B::TABLE_SYSTEM)->where('recordCode', 'customer_sales')->get()->getRowArray();
             $returnsRow = $db->table(B::TABLE_SYSTEM)->where('recordCode', 'customer_sale_return')->get()->getRowArray();
             $returnsEnabled = CLI::getOption('native-returns') || ($returnsRow && (json_decode($returnsRow['jsonData'], true, 64, JSON_THROW_ON_ERROR)['settings']['cementReturns'] ?? false));
-            $salesEnabled = $reservationsEnabled || $returnsEnabled || CLI::getOption('native-sales') || ($salesRow && (json_decode($salesRow['jsonData'], true, 64, JSON_THROW_ON_ERROR)['settings']['cementSales'] ?? false));
+            $fleetRow = $db->table(B::TABLE_SYSTEM)->where('recordCode', 'trip')->get()->getRowArray();
+            $fleetEnabled = CLI::getOption('native-fleet') || ($fleetRow && (json_decode($fleetRow['jsonData'], true, 64, JSON_THROW_ON_ERROR)['settings']['cementFleet'] ?? false));
+            $salesEnabled = $fleetEnabled || $reservationsEnabled || $returnsEnabled || CLI::getOption('native-sales') || ($salesRow && (json_decode($salesRow['jsonData'], true, 64, JSON_THROW_ON_ERROR)['settings']['cementSales'] ?? false));
             $loadingEnabled = $salesEnabled || CLI::getOption('native-loading') || ($loadingRow && (json_decode($loadingRow['jsonData'], true, 64, JSON_THROW_ON_ERROR)['settings']['cementLoading'] ?? false));
             $stockControlsRow = $db->table(B::TABLE_SYSTEM)->where('recordCode', 'inventory_stocktake')->get()->getRowArray();
             $stockControlsEnabled = CLI::getOption('native-stock-controls') || ($stockControlsRow && (json_decode($stockControlsRow['jsonData'], true, 64, JSON_THROW_ON_ERROR)['settings']['cementStockControls'] ?? false));
@@ -180,6 +182,20 @@ final class InstallCement extends BaseCommand
                     if ($existing) {
                         $stored = json_decode($existing['jsonData'], true, 64, JSON_THROW_ON_ERROR);
                         if (!isset($stored['settings']['cementReturns'])) {
+                            $store->ensure($type['code'], $root, $oldDefinition);
+                            $new = \App\Libraries\MetaForge\Catalog\CatalogContract::normalize(S::BASE_RECORD_TYPES, $definition, $catalog);
+                            $db->table(B::TABLE_SYSTEM)->where('recordId', $existing['recordId'])->update(['jsonData' => json_encode((object)$new, JSON_THROW_ON_ERROR)]);
+                            $changed = true;
+                        }
+                    }
+                }
+                if ($fleetEnabled && in_array($type['code'], \App\Libraries\CementIntegration\NativeFleet::TYPES, true)) {
+                    $oldDefinition = $definition;
+                    $definition = \App\Libraries\CementIntegration\NativeFleet::definition($definition);
+                    $existing = $db->table(B::TABLE_SYSTEM)->where('recordCode', $type['code'])->get()->getRowArray();
+                    if ($existing) {
+                        $stored = json_decode($existing['jsonData'], true, 64, JSON_THROW_ON_ERROR);
+                        if (!isset($stored['settings']['cementFleet'])) {
                             $store->ensure($type['code'], $root, $oldDefinition);
                             $new = \App\Libraries\MetaForge\Catalog\CatalogContract::normalize(S::BASE_RECORD_TYPES, $definition, $catalog);
                             $db->table(B::TABLE_SYSTEM)->where('recordId', $existing['recordId'])->update(['jsonData' => json_encode((object)$new, JSON_THROW_ON_ERROR)]);

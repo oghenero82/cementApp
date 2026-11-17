@@ -15,6 +15,27 @@ final class SalesMath
         }
         return (int)bcdiv(bcadd(bcmul((string)$total, number_format($accepted, 6, '.', ''), 8), '0', 8), number_format($quantity, 6, '.', ''), 0);
     }
+    public static function fulfilment(array $lines, array $current, float $accepted, ?int $product = null, ?int $unit = null): array
+    {
+        if (!is_finite($accepted) || $accepted < 0 || abs($accepted - round($accepted, 6)) > 0.00000001) {
+            throw new \InvalidArgumentException('Invalid accepted quantity');
+        }usort($lines, fn ($a, $b) => $a['_ID'] <=> $b['_ID']);
+        $result = [];
+        $remaining = $accepted;
+        foreach ($lines as $line) {
+            $before = (float)($current[$line['_ID']] ?? 0);
+            if ($before < 0 || $before > (float)$line['QUANTITY'] + 0.00000001) {
+                throw new \InvalidArgumentException('Invalid fulfilment snapshot');
+            }$used = 0;
+            if (($product === null || $line['PRODUCT_ID'] === $product) && ($unit === null || $line['UNIT_ID'] === $unit)) {
+                $used = min($remaining, max(0, (float)$line['QUANTITY'] - $before));
+            }$result[$line['_ID']] = round($before + $used, 6);
+            $remaining = round($remaining - $used, 6);
+        }
+        if ($remaining > 0.00000001) {
+            throw new \InvalidArgumentException('Accepted quantity exceeds its remaining sale product');
+        }return $result;
+    }
     public static function recognition(int $gross, int $tax, float $accepted, float $quantity): array
     {
         if ($tax < 0 || $tax > $gross) {

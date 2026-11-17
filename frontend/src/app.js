@@ -732,19 +732,21 @@ class CementApplication {
         from,
         to,
         button('Generate report', generate, 'primary'),
-        button('Save snapshot', async () => {
-          try {
-            await this.api.request('reports', {
-              code: select.value,
-              from: from.value,
-              to: to.value,
-              requestId: crypto.randomUUID(),
-            });
-            notify('Report snapshot saved');
-          } catch (error) {
-            notify(error.message, true);
-          }
-        }),
+        this.navigation.reportSnapshots === false
+          ? null
+          : button('Save snapshot', async () => {
+              try {
+                await this.api.request('reports', {
+                  code: select.value,
+                  from: from.value,
+                  to: to.value,
+                  requestId: crypto.randomUUID(),
+                });
+                notify('Report snapshot saved');
+              } catch (error) {
+                notify(error.message, true);
+              }
+            }),
         button('Download CSV', () => {
           const url = new URL('/api/reports', location.origin);
           for (const [key, value] of Object.entries({

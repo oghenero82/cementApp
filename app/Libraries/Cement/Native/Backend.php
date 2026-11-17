@@ -61,9 +61,10 @@ final class Backend
                 'portal/navigation' => $this->navigation($bootstrap, $metadata),
                 'sync' => $this->sync($query, $metadata),
                 'lookups' => $this->lookups($query, $metadata),
+                'reports' => $this->transport->request('GET', 'cement/reports?'.http_build_query($query)),
                 'customers/statement' => $this->transport->request('GET', 'cement/customer-statement?'.http_build_query($query)),
                 'dashboard' => $this->dashboard($query, $metadata),
-                'health' => ['backendMode' => 'metaforge-native','database' => 'remote','registryRevision' => $metadata['revision'],'businessRuntime' => $bootstrap['institution']['jsonData']['settings']['cementRuntime'] ?? 'not_installed'],
+                'health' => ['backendMode' => 'metaforge-native','database' => 'remote','registryRevision' => $metadata['revision'],'businessRuntime' => array_filter($metadata['descriptors'], fn ($d) => ($d['allowedStates'] ?? null) !== null) ? 'partial' : 'catalog_only','enabledRecordTypes' => array_keys(array_filter($metadata['descriptors'], fn ($d) => ($d['allowedStates'] ?? null) !== null))],
                 default => throw new Problem('Native MetaForge capability is not installed: '.$path, 501),
             };
         }
@@ -118,7 +119,12 @@ final class Backend
                 $workspaces[$key] = $w;
             }
         }
-        return ['modules' => $modules,'workspaces' => $workspaces,'roleTitle' => $b['role']['jsonData']['name'] ?? 'MetaForge','canAdmin' => false,'canFinance' => false,'reports' => [],'notice' => 'Connected to MetaForge. Available actions reflect your permissions and enabled services.'];
+        $profitSources = ['trip','trip_destination','customer_sales','customer_sale_item','trip_expense','fuel_transaction','vehicle_maintenance','expense','inventory_movement','delivery_proof','customer_sale_return'];
+        $reports = [];
+        if (($m['descriptors']['trip']['postingAvailable'] ?? false) && !array_diff($profitSources, array_keys($m['recordTypeIds']))) {
+            $reports = array_values(array_filter($catalog->json('report_templates'), fn ($template) => $template['code'] === 'cement.trip_profit'));
+        }
+        return ['modules' => $modules,'workspaces' => $workspaces,'roleTitle' => $b['role']['jsonData']['name'] ?? 'MetaForge','canAdmin' => false,'canFinance' => false,'reports' => $reports,'reportSnapshots' => false,'notice' => 'Connected to MetaForge. Available actions reflect your permissions and enabled services.'];
     }
     private function sync(array $query, array $metadata): array
     {

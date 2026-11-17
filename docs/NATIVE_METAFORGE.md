@@ -1,6 +1,6 @@
 # Native MetaForge integration
 
-The native protocol connects Cement CI4 to MetaForge using server-held cookies, rotating CSRF, context checks, HTTPS, explicit semantic aliases, dynamic RecordType IDs and grouped incremental sync. Verified native services implement purchase funding, warehouse/customer loading, sales, receipts/advances, delivery recognition, returns/refunds, inventory valuation, stock controls and reservations. Remaining native capabilities are listed below. Standalone SQL workflows are independently implemented and tested.
+The native protocol connects Cement CI4 to MetaForge using server-held cookies, rotating CSRF, context checks, HTTPS, explicit semantic aliases, dynamic RecordType IDs and grouped incremental sync. Verified native services implement purchase funding, warehouse/customer loading, sales, receipts/advances, delivery recognition, returns/refunds, inventory valuation, stock controls, reservations and fleet costs/delivery routes. Remaining native capabilities are listed below. Standalone SQL workflows are independently implemented and tested.
 
 ## Installation
 
@@ -15,12 +15,12 @@ A differing extension file requires review and `--update`; replacements retain c
 From that MetaForge checkout, explicitly enable the required services:
 
 ```sh
-php spark cement:install-native --native-returns --native-reservations --native-stock-controls
+php spark cement:install-native --native-returns --native-reservations --native-stock-controls --native-fleet
 # Optional, explicitly reviewed grant to one existing role:
 php spark cement:install-native --grant-role ROLE_CODE
 ```
 
-PHP BCMath is required for native posting. Individual flags are `--purchase-drafts`, `--purchase-funding`, `--native-inventory`, `--native-loading`, `--native-sales`, `--native-returns`, `--native-reservations` and `--native-stock-controls`. Each enables its prerequisites. Rerunning preserves activated handlers. Existing definitions are compared with the expected prior definitions; custom schema drift fails explicitly. No role is granted automatically. The grant option adds broad installed-type permissions to the selected role: use only a reviewed administrator/development role; configure operational role grants separately.
+PHP BCMath is required for native posting. Individual flags are `--purchase-drafts`, `--purchase-funding`, `--native-inventory`, `--native-loading`, `--native-sales`, `--native-returns`, `--native-reservations` `--native-stock-controls` and `--native-fleet`. Each enables its prerequisites. Rerunning preserves activated handlers. Existing definitions are compared with the expected prior definitions; custom schema drift fails explicitly. No role is granted automatically. The grant option adds broad installed-type permissions to the selected role: use only a reviewed administrator/development role; configure operational role grants separately.
 
 The original 51 Cement definitions retain their aliases. The reservation flag adds only the explicitly defined `inventory_reservation` addon and performs a checked module-ID migration. Existing shared Accounting and Cooperative RecordTypes are reused; duplicate financial engines are not installed.
 
@@ -47,6 +47,7 @@ METAFORGE_BASE_URL = 'https://your-metaforge-host'
 - Partial returns cannot exceed transferred quantity/value. They reverse tax, credit outstanding receivables, refund excess cash and optionally receive good/damaged stock at original transferred cost. All financial and inventory effects share the outer native transaction.
 - Stocktakes snapshot quantity and value, reject intervening changes and post approved variances. Atomic transfers, quarantine and write-offs use the same verified movement/ledger services.
 - Reservations hold available good stock against unfulfilled warehouse orders. They block unrelated issues and order resizing, are consumed by their own fulfilment, and can be released while retaining history. Holds do not change on-hand quantity or post journals.
+- Fleet trips have ordered product/unit destinations, vehicle capacity checks and immutable dispatched identity. Destination-specific proof recognises the delivered product at its own price and cost. Fuel, maintenance and operating expenses post shared journals, update odometers and refresh trip totals. Trip completion requires proof for every stop. Destination profitability allocates explicit costs directly and conserves shared transport cents by base quantity; it supports period/trip filters, CSV and XLSX. Native report snapshot saving remains disabled.
 - Customer statements project posted shared recognition, receipts, deposit applications and return/refund journals into period opening/closing balances, CSV and XLSX. This scoped projection does not grant sales roles general ledger access. Dashboard sales totals follow recognised ownership value.
 
 ## Attachments
@@ -69,11 +70,14 @@ python3 tests/cement/native-sales.py
 python3 tests/cement/native-returns.py
 python3 tests/cement/native-stock-controls.py
 python3 tests/cement/native-reservations.py
+python3 tests/cement/native-fleet.py
 node tests/cement/native-browser.mjs
 ```
 
-Returns/reservation journeys reuse the asserted sales/loading setup. Tests cover actual postings, bank mappings, real signature upload/download, deferred ownership, mixed receipts, advances, tax, statements, returns, reservations, replay, permissions/invariants and late-batch rollback. The normal suite currently has 69 PHP tests/448 assertions, eight JavaScript tests and seeder integrity checks. The standalone browser regression exercises 65 collections, 78 tabs, seven roles and connected business transactions.
+Returns/reservation journeys reuse the asserted sales/loading setup. Tests cover actual postings, bank mappings, real signature upload/download, deferred ownership, mixed receipts, advances, tax, statements, returns, reservations, replay, permissions/invariants and late-batch rollback. The normal suite currently has 70 PHP tests/452 assertions, eight JavaScript tests and seeder integrity checks. The standalone browser regression exercises 65 collections, 78 tabs, seven roles and connected business transactions.
 
 ## Remaining work
 
-Native fleet/driver scopes, payroll/Cooperative operations, financial administration/reconciliation, all reporting schedules/imports and delegated posting permissions for operational roles remain unfinished. Native automatic posting approval currently requires administrator/accountant authority; do not grant storekeepers general financial reads as a workaround. Shared finance/Cooperative frontend schema translation is also pending. Production deployment and live email verification require the user's deployment configuration. These limits do not disable the independently tested standalone workflows.
+Native driver assignment scopes, supplier adjustments/payments/incentives, payroll/Cooperative operations, financial administration/reconciliation, the remaining reports/snapshots/schedules/imports and delegated posting permissions for operational roles remain unfinished. Native automatic posting approval currently requires administrator/accountant authority; do not grant storekeepers general financial reads as a workaround. Shared finance/Cooperative frontend schema translation is also pending. Production deployment and live email verification require the user's deployment configuration. These limits do not disable the independently tested standalone workflows.
+
+Historical receipts can collect debt from inactive customers, and authorized returns/corrections can restore or clear inactive products. New sales and dispatch still require active catalogs. Fleet verification includes a mixed-product invoice: separate stops recognise 400 and 300 of revenue, 200 and 150 of goods cost, and exactly 200 of transport cost, yielding 150 contribution.

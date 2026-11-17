@@ -145,6 +145,6 @@ final class NativeReservations
                 $p['_cementGeneratedBy'] = 'cement.reservation';
                 return ['mutationPlans' => [$p]];
             }
-        }throw ValidationException::field('stock','Reservation stock is unavailable');
+        }throw ValidationException::field('stock', 'Reservation stock is unavailable');
     }
 }

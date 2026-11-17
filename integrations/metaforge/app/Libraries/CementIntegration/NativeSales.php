@@ -63,16 +63,28 @@ final class NativeSales
         $old = $r->decode($t, $previous);
         $f = $r->aliases($t);
         $origin = TrustedPlans::origin();
-        $internal = in_array($origin, ['cement.sales.balance','cement.payment','cement.delivery','cement.return'], true);
+        $internal = in_array($origin, ['cement.sales.balance','cement.payment','cement.delivery','cement.return','cement.fleet'], true);
         if ($t === 'customer_payment') {
             return NativePayments::prepare($record, $previous, $recordId, $operation, $context);
+        }
+        if ($t === 'customer_sales' && ($d['SOURCE_TRIP_ID'] ?? null) !== ($old['SOURCE_TRIP_ID'] ?? null)) {
+            if ($origin !== 'cement.fleet') {
+                throw ValidationException::field($f['SOURCE_TRIP_ID'], 'Trip linkage is server-owned');
+            }$matched = false;
+            foreach ($r->rows('trip_destination') as $stop) {
+                if (($stop['SALE_ID'] ?? null) === $recordId && $stop['TRIP_ID'] === $d['SOURCE_TRIP_ID']) {
+                    $matched = true;
+                }
+            }if (!$matched) {
+                throw ValidationException::field($f['SOURCE_TRIP_ID'], 'Trip must have a matching sale destination');
+            }
         }
         if ($old && ($old['STATUS'] ?? 'draft') !== 'draft') {
             if ($t !== 'customer_sales' || !$internal || $operation !== 'update') {
                 throw ValidationException::field($f['STATUS'], 'Posted sale, payment and delivery records are immutable');
             }
             foreach ($old as $a => $v) {
-                if (!in_array($a, ['AMOUNT_PAID','BALANCE_DUE','DELIVERY_STATUS','DELIVERED_AT'], true) && ($d[$a] ?? null) != $v) {
+                if (!in_array($a, ['AMOUNT_PAID','BALANCE_DUE','DELIVERY_STATUS','DELIVERED_AT',...($origin === 'cement.fleet' ? ['SOURCE_TRIP_ID'] : [])], true) && ($d[$a] ?? null) != $v) {
                     throw ValidationException::field($f['STATUS'], 'Posted sale terms are immutable');
                 }
             }
@@ -216,11 +228,24 @@ final class NativeSales
             $qty = (float)$d['ACCEPTED_QUANTITY'];
             $rejected = (float)($d['REJECTED_QUANTITY'] ?? 0);
             $items = self::items($r, $sale['_ID']);
+            $destination = null;
+            if (!empty($d['TRIP_DESTINATION_ID'])) {
+                $destination = $r->find('trip_destination', $d['TRIP_DESTINATION_ID']);
+                $items = array_values(array_filter($items, fn ($line) => $line['PRODUCT_ID'] === $destination['PRODUCT_ID'] && $line['UNIT_ID'] === $destination['UNIT_ID']));
+            }
             $total = array_sum(array_column($items, 'QUANTITY'));
             $accepted = 0;
             $priorRejected = 0;
             foreach ($r->rows('delivery_proof') as $p) {
                 if ($p['_ID'] !== $recordId && $p['SALE_ID'] === $sale['_ID'] && $p['STATUS'] === 'confirmed') {
+                    if ($destination !== null) {
+                        if (empty($p['TRIP_DESTINATION_ID'])) {
+                            throw ValidationException::field($f['TRIP_DESTINATION_ID'], 'Existing unassigned proofs require delivery reconciliation');
+                        }$other = $r->find('trip_destination', $p['TRIP_DESTINATION_ID']);
+                        if ($other['PRODUCT_ID'] !== $destination['PRODUCT_ID'] || $other['UNIT_ID'] !== $destination['UNIT_ID']) {
+                            continue;
+                        }
+                    }
                     $accepted += (float)$p['ACCEPTED_QUANTITY'];
                     $priorRejected += (float)($p['REJECTED_QUANTITY'] ?? 0);
                 }
@@ -241,6 +266,7 @@ final class NativeSales
                     throw ValidationException::field($f['ACCEPTED_QUANTITY'], 'Proof exceeds the destination quantity');
                 }
             }
+            NativeFleet::validateProof($r, $d);
             if (empty($d['RECEIVER_NAME']) || empty($d['SIGNATURE'])) {
                 throw ValidationException::field($f['SIGNATURE'], 'Receiver name and signature are required');
             }
@@ -253,12 +279,25 @@ final class NativeSales
         return $p;
     }
     /** Revenue and COGS are recognised together at the institution's snapshotted ownership event. */
-    private function recognize(NativeRecords $r, array $sale, float $accepted, string $event, int $eventId, int $virtualDeposits = 0): array
+    private function recognize(NativeRecords $r, array $sale, float $accepted, string $event, int $eventId, int $virtualDeposits = 0, ?array $targets = null): array
     {
         $items = self::items($r, $sale['_ID']);
         $total = array_sum(array_column($items, 'QUANTITY'));
         $previous = $sale['_PRIVATE'];
-        [$net,$tax] = SalesMath::recognition(NativeLedger::minor($sale['NET_AMOUNT']), NativeLedger::minor($sale['TAX_AMOUNT']), $accepted, $total);
+        if ($targets === null) {
+            $targets = [];
+            foreach ($items as $line) {
+                $targets[$line['_ID']] = $accepted + 0.000001 >= $total ? (float)$line['QUANTITY'] : (float)$line['QUANTITY'] * $accepted / $total;
+            }
+        }
+        $net = 0;
+        $tax = 0;
+        foreach ($items as $line) {
+            [$grossPart,$taxPart] = SalesMath::recognition(NativeLedger::minor($line['LINE_AMOUNT']), NativeLedger::minor($line['TAX_AMOUNT']), $targets[$line['_ID']], (float)$line['QUANTITY']);
+            $net += $grossPart;
+            $tax += $taxPart;
+        }
+
         $delta = $net - ($previous['recognizedMinor'] ?? 0);
         $taxDelta = $tax - ($previous['recognizedTaxMinor'] ?? 0);
         if ($delta < 0 || $taxDelta < 0) {
@@ -291,7 +330,7 @@ final class NativeSales
         $reservationDemand = [];
         foreach ($items as $n => $line) {
             $before = (float)($previous['fulfilled'][$line['_ID']] ?? 0);
-            $fulfilled = $accepted + 0.000001 >= $total ? (float)$line['QUANTITY'] : (float)$line['QUANTITY'] * $accepted / $total;
+            $fulfilled = (float)$targets[$line['_ID']];
             $qty = round($fulfilled - $before, 6);
             if ($qty <= 0) {
                 continue;
@@ -348,7 +387,7 @@ final class NativeSales
             $sale = $r->find('customer_sales', $d['SALE_ID']);
             return ['mutationPlans' => [$this->refresh($r, $sale, 'cement.sales.balance')]];
         }
-        if ($operation === 'delete' || in_array($origin, ['cement.sales.balance','cement.payment','cement.delivery','cement.return'], true)) {
+        if ($operation === 'delete' || in_array($origin, ['cement.sales.balance','cement.payment','cement.delivery','cement.return','cement.fleet'], true)) {
             return [];
         }
         if ($t === 'customer_sales') {
@@ -373,7 +412,17 @@ final class NativeSales
                     $rejectedTotal += (float)($p['REJECTED_QUANTITY'] ?? 0);
                 }
             }$total = array_sum(array_column(self::items($r, $sale['_ID']), 'QUANTITY'));
-            $plans = $sale['OWNERSHIP_TRANSFER_POLICY'] === 'delivery-transfer' ? $this->recognize($r, $sale, $accepted, 'DELIVERY', $recordId) : [];
+            $targets = null;
+            if ($sale['OWNERSHIP_TRANSFER_POLICY'] === 'delivery-transfer') {
+                $destination = !empty($d['TRIP_DESTINATION_ID']) ? $r->find('trip_destination', $d['TRIP_DESTINATION_ID']) : null;
+                try {
+                    $targets = SalesMath::fulfilment(self::items($r, $sale['_ID']), $sale['_PRIVATE']['fulfilled'] ?? [], (float)$d['ACCEPTED_QUANTITY'], $destination['PRODUCT_ID'] ?? null, $destination['UNIT_ID'] ?? null);
+                } catch (\InvalidArgumentException $e) {
+                    throw ValidationException::field('quantity', $e->getMessage());
+                }
+            }
+            $plans = $targets !== null ? $this->recognize($r, $sale, $accepted, 'DELIVERY', $recordId, 0, $targets) : [];
+            $plans = [...$plans,...NativeFleet::proofPlans($r, $d)];
             $plans[] = $this->refresh($r, $sale, 'cement.delivery', ['DELIVERY_STATUS' => $accepted + 0.000001 >= $total ? 'delivered' : ($accepted + $rejectedTotal + 0.000001 >= $total ? 'completed_with_rejection' : 'partial'),'DELIVERED_AT' => $d['DELIVERED_DATE']]);
             if (!empty($sale['SOURCE_LOADING_ID'])) {
                 $load = $r->find('cement_loading', $sale['SOURCE_LOADING_ID']);

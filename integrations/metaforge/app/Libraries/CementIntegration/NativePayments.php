@@ -131,9 +131,6 @@ final class NativePayments
         if ($amount <= 0) {
             throw ValidationException::field($f['AMOUNT'], 'Receive a positive amount');
         }$customer = $r->find('customer', (int)$d['CUSTOMER_ID']);
-        if ($customer['STATUS'] !== 'active') {
-            throw ValidationException::field($f['CUSTOMER_ID'], 'Customer must be active');
-        }
         if (isset($d['POSTED_JOURNAL_ID'])) {
             throw ValidationException::field($f['POSTED_JOURNAL_ID'], 'Journal linkage is derived from its authoritative source');
         }$candidates = [];

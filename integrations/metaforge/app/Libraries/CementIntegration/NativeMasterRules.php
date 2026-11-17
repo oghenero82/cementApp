@@ -39,6 +39,9 @@ final class NativeMasterRules
                 }
             }
         }
+        if ($type === 'vehicle' && isset($d['ODOMETER']) && $d['ODOMETER'] < ($old['ODOMETER'] ?? 0)) {
+            throw ValidationException::field($f['ODOMETER'], 'Vehicle odometer cannot decrease');
+        }
         foreach (match($type) {
             'customer' => ['CREDIT_LIMIT','PAYMENT_TERMS_DAYS'],'product' => ['PACKAGE_SIZE','PACKAGE_WEIGHT_KG','UNITS_PER_BAG','BAGS_PER_PALLET'],'price_list_item' => ['MIN_QUANTITY','MAX_QUANTITY','UNIT_PRICE'],default => []
         } as $a) {

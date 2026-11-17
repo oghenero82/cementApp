@@ -59,6 +59,17 @@ try {
       page.getByRole('heading', { name: meta.descriptors[type].title, exact: true, level: 1 }),
     ).toBeVisible();
   }
+  const health = await (await context.request.get(origin + '/api/health')).json();
+  expect(health.businessRuntime).toBe('partial');
+  await page.goto(origin + '/#reports');
+  await expect(
+    page.getByRole('heading', { name: 'Management reports', exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole('heading', { name: 'Trip Profitability by Destination', exact: true }),
+  ).toBeVisible({ timeout: 30000 });
+  await expect(page.getByRole('button', { name: 'Save snapshot', exact: true })).toHaveCount(0);
+  await page.goto(origin + '/#records/inventory_reservation');
   await mkdir('test-results', { recursive: true });
   await page.screenshot({ path: 'test-results/native-reservations-desktop.png', fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
@@ -66,7 +77,7 @@ try {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);
   console.log(
-    'PASS native browser login, real supplier create/edit/persistence, transaction collections, reservation action metadata and desktop/mobile layout',
+    'PASS native browser login, real supplier create/edit/persistence, transaction collections, reservation action metadata, trip profitability, health and desktop/mobile layout',
   );
 } finally {
   await browser.close();

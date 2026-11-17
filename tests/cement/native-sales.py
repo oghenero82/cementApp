@@ -102,6 +102,9 @@ posted_tax=call('mutation',{'requestId':str(uuid.uuid4()),'registryRevision':met
 assert bal(accounts['TaxPayable'])['closingCredit']=='45.00';assert float(bal(accounts['SalesRevenue'])['closingCredit'])==revenue_before+600
 statement=call('customers/statement?'+urllib.parse.urlencode({'customerId':advance_customer}));assert statement['closingReceivable']==145 and statement['closingDeposit']==0
 assert next(x['jsonData']['settings']['cement']['allocations'] for x in direct('records?recordTypeId='+str(types['customer_payment']))['records'] if x['recordId']==advance_id)==historical
+update_guard('customer',ids['customer'],'STATUS','inactive')
+inactive_receipt=call('mutation',batch([entry('customer_payment',{'CODE':code+'-INACTIVE-DEBT','CUSTOMER_ID':ids['customer'],'SALE_ID':saleid,'AMOUNT':100,'PAYMENT_DATE':today_text+'T00:00:00Z','PAYMENT_METHOD':'bank','STATUS':'completed'})]));assert next(x['data'][sf['BALANCE_DUE']] for x in inactive_receipt['changes'] if x['recordTypeCode']=='customer_sales')==1400
+update_guard('customer',ids['customer'],'STATUS','active')
 print('PASS native unallocated advance, FIFO invoice allocation, residual deposits and rollback of allocations with a failed invoice batch')
 print('PASS native real signature upload/download, invalid-reference rejection, deferred ownership recognition, partial delivery, deposit application and authoritative period customer statements')
 call('auth/logout',{});direct('auth/logout',{})
