@@ -15,6 +15,7 @@ const browser = await chromium.launch({
 try {
   const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
   const page = await context.newPage();
+  page.setDefaultTimeout(30000);
   const errors = [];
   page.on('pageerror', (e) => errors.push(e.message));
   await page.goto(origin);
@@ -59,6 +60,31 @@ try {
       page.getByRole('heading', { name: meta.descriptors[type].title, exact: true, level: 1 }),
     ).toBeVisible();
   }
+  const schemeCode = 'BROWSER-SCHEME-' + randomUUID();
+  await page.goto(origin + '/#records/supplier_incentive_scheme');
+  await page.getByRole('button', { name: '+ New record' }).click();
+  const field = (alias) => page.locator('#field-supplier_incentive_scheme-' + alias);
+  await field('CODE').fill(schemeCode);
+  await field('NAME').fill('Browser cumulative incentive');
+  await expect(field('SUPPLIER_ID').locator('option')).not.toHaveCount(1);
+  await field('SUPPLIER_ID').selectOption(await field('SUPPLIER_ID').locator('option').nth(1).getAttribute('value'));
+  await field('BASIS').selectOption('loading_quantity');
+  await field('CALCULATION_TYPE').selectOption('per_quantity');
+  await field('RATE').fill('2');
+  await field('VALID_FROM').fill(new Date().toISOString().slice(0, 10));
+  await field('STATUS').selectOption('active');
+  await expect(field('PRODUCT_IDS').locator('option')).not.toHaveCount(0);
+  const productIds = await field('PRODUCT_IDS').locator('option').evaluateAll((options) => options.slice(0, 2).map((o) => o.value));
+  await field('PRODUCT_IDS').selectOption(productIds);
+  await page.getByRole('button', { name: 'Save record', exact: true }).click();
+  await expect(page.locator('#overlay')).toBeEmpty({ timeout: 30000 });
+  await page.getByRole('searchbox', { name: 'Search records', exact: true }).fill(schemeCode);
+  await expect(page.locator('main .panel-table')).toContainText(schemeCode);
+  await page.getByRole('button', { name: 'View →' }).click();
+  await page.getByRole('button', { name: 'Edit record', exact: true }).click();
+  await expect(field('PRODUCT_IDS')).toHaveValues(productIds);
+  await expect(field('BASIS')).toHaveValue('loading_quantity');
+  await page.keyboard.press('Escape');
   const health = await (await context.request.get(origin + '/api/health')).json();
   expect(health.businessRuntime).toBe('partial');
   await page.goto(origin + '/#reports');
@@ -77,8 +103,13 @@ try {
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   expect(errors).toEqual([]);
   console.log(
-    'PASS native browser login, real supplier create/edit/persistence, transaction collections, reservation action metadata, trip profitability, health and desktop/mobile layout',
+    'PASS native browser login, real supplier create/edit/persistence, incentive enum/multiple-reference form persistence, transaction collections, reservation action metadata, trip profitability, health and desktop/mobile layout',
   );
+} catch (error) {
+  await mkdir('test-results', { recursive: true });
+  const page = browser.contexts()[0]?.pages()[0];
+  if (page) await page.screenshot({ path: 'test-results/native-browser-failure.png', fullPage: true }).catch(() => {});
+  throw error;
 } finally {
   await browser.close();
 }

@@ -67,6 +67,28 @@ final class Metadata
                 if ($type === 'inventory_movement' && $field['alias'] === 'COST_POLICY') {
                     $field['default'] = $bootstrap['institution']['jsonData']['settings']['inventoryValuationMethod'] ?? 'weighted_average';
                 }
+                if (isset($definition['settings']['cementIncentives'])) {
+                    if ($type === 'supplier_incentive_scheme') {
+                        $field['options'] = match($field['alias']) {
+                            'BASIS' => ['purchase_quantity','purchase_amount','loading_quantity','loading_amount'],'CALCULATION_TYPE' => ['percent','per_quantity','fixed'],default => null
+                        };
+                        if (in_array($field['alias'], ['PRODUCT_IDS','DEPOT_IDS'], true)) {
+                            $field['target'] = $field['alias'] === 'PRODUCT_IDS' ? 'product' : 'supplier_depot';
+                            $field['multiple'] = true;
+                        }
+                    }
+                    if ($type === 'supplier_incentive') {
+                        $field['description'] = match($field['alias']) {
+                            'SCHEME_ID' => 'Scheme accrual is cumulative through the benefit date; prior verified awards are deducted.','PURCHASE_ID','LOADING_ID' => 'Optional audit reference; scheme totals cover all qualifying records.','ACTUAL_AMOUNT' => 'Calculated for a scheme; enter the earned amount for a manual benefit.',default => ''
+                        };
+                    }
+                    if ($type === 'supplier_incentive' && $field['alias'] === 'ACTUAL_AMOUNT') {
+                        $field['required'] = false;
+                    }
+                    if ($type === 'supplier_incentive' && $field['alias'] === 'BENEFIT_TYPE') {
+                        $field['options'] = ['cash','rebate','credit_note','manual'];
+                    }
+                }
                 $fields[] = $field;
                 if (($properties['readOnly'] ?? false) === true) {
                     $readonly[] = $field['alias'];
@@ -138,6 +160,18 @@ final class Metadata
                 $states = $privateAllowed ? ['draft','completed'] : ['draft'];
                 $posting = $privateAllowed;
                 $readonly[] = 'JOURNAL_ID';
+            }
+            if (isset($definition['settings']['cementIncentives'])) {
+                $states = match($type) {
+                    'supplier_incentive_scheme' => ['active','inactive'],'supplier_incentive' => $privateAllowed ? ['draft','verified'] : ['draft'],default => $privateAllowed ? ['draft','completed'] : ['draft']
+                };
+                $posting = $privateAllowed && $type !== 'supplier_incentive_scheme';
+                if (isset($aliases['JOURNAL_ID'])) {
+                    $readonly[] = 'JOURNAL_ID';
+                }
+                if ($type === 'supplier_incentive') {
+                    $readonly = array_merge($readonly, ['AMOUNT_RECEIVED','BASIS_QUANTITY','BASIS_AMOUNT','RATE']);
+                }
             }
             $descriptors[$type] = ['title' => $definition['name'] ?? $catalog->types[$type]['name'],'module' => $catalog->types[$type]['module'],'fields' => $fields,'canWrite' => $canWrite,'canDelete' => $canWrite && in_array('delete', $definition['settings']['cementOperations'] ?? [], true),'readOnlyAliases' => array_values(array_unique(array_merge($readonly, Services::OWNED[$type] ?? []))),'allowedStates' => $states,'postingAvailable' => $posting,'serviceOwned' => in_array($type, ['inventory_stock','inventory_cost_layer','account_balance','report_result','report_delivery','cement_audit_event'], true)];
         }

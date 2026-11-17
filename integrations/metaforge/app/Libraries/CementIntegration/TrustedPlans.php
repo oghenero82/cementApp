@@ -6,6 +6,11 @@ namespace App\Libraries\CementIntegration;
 final class TrustedPlans
 {
     private static array $origins = [];
+    private static array $entries = [];
+    public static function inside(): bool
+    {
+        return self::$entries ? (bool)self::$entries[array_key_last(self::$entries)] : false;
+    }
     public static function origin(): ?string
     {
         return self::$origins ? self::$origins[array_key_last(self::$origins)] : null;
@@ -38,13 +43,17 @@ final class TrustedPlans
                     throw new \InvalidArgumentException('Batch references must point to an earlier record');
                 }$plan['data'][$field] = $bindings[$target];
             }
+            $entry = $plan['_cementEntry'] ?? self::inside();
+            unset($plan['_cementEntry']);
             $origin = $plan['_cementGeneratedBy'] ?? self::origin();
             unset($plan['_cementGeneratedBy']);
             self::$origins[] = $origin;
+            self::$entries[] = $entry;
             try {
                 $row = $execute($plan);
             } finally {
                 array_pop(self::$origins);
+                array_pop(self::$entries);
             }
             if (!is_int($row['recordId'] ?? null) || $row['recordId'] <= 0) {
                 throw new \RuntimeException('Native plan did not return its physical identity');

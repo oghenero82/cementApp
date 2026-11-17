@@ -71,6 +71,37 @@ export class FormRenderer {
       } else if (this.type === 'cement_loading' && alias === 'ALLOCATION_ROWS') {
         control = this.allocations(initial || []);
         wrap.classList.add('full');
+      } else if (field.multiple && field.target) {
+        control = el('select', { id, name: code, multiple: true, size: 5 });
+        const initialIds = new Set((initial || []).map(String));
+        if (this.context.metadata.descriptors[field.target])
+          for (const row of this.context.data.all(field.target))
+            control.append(
+              el(
+                'option',
+                { value: row.recordId, selected: initialIds.has(String(row.recordId)) },
+                this.context.data.label(field.target, row),
+              ),
+            );
+        control.customRead = () =>
+          [...control.selectedOptions].map((option) => Number(option.value));
+        this.context.api
+          .request('lookups', undefined, { recordTypeCode: this.type, alias })
+          .then((result) => {
+            const selected = new Set([...control.selectedOptions].map((option) => option.value));
+            control.replaceChildren(
+              ...result.items.map((item) =>
+                el(
+                  'option',
+                  { value: item.id, selected: selected.has(String(item.id)) },
+                  item.label,
+                ),
+              ),
+            );
+          })
+          .catch((error) => {
+            wrap.querySelector('.field-error').textContent = error.message;
+          });
       } else if (alias === 'STATUS') {
         const states = this.states();
         control = el(
@@ -111,6 +142,15 @@ export class FormRenderer {
           .catch((error) => {
             wrap.querySelector('.field-error').textContent = error.message;
           });
+      } else if (Array.isArray(field.options) && field.options.length) {
+        control = el(
+          'select',
+          {},
+          ...(field.required ? [] : [el('option', { value: '' }, 'Select…')]),
+          ...field.options.map((value) =>
+            el('option', { value, selected: String(value) === String(initial) }, String(value)),
+          ),
+        );
       } else if (field.type === 'boolean') {
         control = el('input', { type: 'checkbox', checked: initial === true });
       } else if (['array', 'object'].includes(field.type)) {
@@ -149,6 +189,7 @@ export class FormRenderer {
       }
       this.controls.set(alias, { control, field, wrap });
       wrap.append(label, control, el('small', { class: 'field-error', id: id + '-error' }));
+      if (field.description) wrap.append(el('small', { class: 'field-help' }, field.description));
       fields.append(wrap);
     }
     this.form.append(

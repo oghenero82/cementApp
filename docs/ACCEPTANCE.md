@@ -20,12 +20,12 @@ The 20 seeded reports compute from persistent records and ledgers. Generated sna
 
 The rendering sweep proves routes/tabs mount, not that every possible combination of business inputs has been exhaustively tested. This is a substantial new application and needs business-owner review with representative institutional data before production use.
 
-Local validation completed: **51 PHP tests / 188 assertions**, **7 JavaScript tests**, the seeder integrity check, install/migration/seeding/route commands, and the browser regression suite. Browser checks cover **65 collections, 10 module dashboards, 78 workspace tabs and 7 role logins**. These are local results; the GitHub Actions workflow has been added but has not been observed running.
+Local validation completed: **73 PHP tests / 468 assertions**, **8 JavaScript tests**, the seeder integrity check, install/migration/seeding/route commands, and the browser regression suite. Browser checks cover **65 collections, 10 module dashboards, 78 workspace tabs and 7 role logins**. These are local results; the GitHub Actions workflow has been added but has not been observed running.
 
 ## Integration and operating limits
 
 - The validated standalone database is SQLite. A MySQL storage adapter has not been implemented.
-- The uploaded MetaForge source was installed against an isolated MariaDB database and passed native bootstrap, session login, authorized metadata, sync, invalid-mutation rejection and logout. Its native protocol differs from the current Cement-compatible gateway contract and it contains no Cement runtime handlers. Complete Cement posting through native MetaForge remains unimplemented; see [source validation](METAFORGE_UPLOAD_VALIDATION.md). The deployed URL and secure credentials remain necessary for live verification.
+- The uploaded MetaForge source runs against isolated MariaDB with verified HTTPS. Native services now post purchase funding/instalments, loading, inventory, sales/receipts/advances, returns/refunds, reservations, fleet costs and supplier incentives into the existing shared Accounting journals/balances. Actual integration journeys cover replay and rollback. Native operational permissions, driver scopes, payroll/Cooperative, finance administration and the remaining reports/imports are still incomplete; see [current native behavior and limits](NATIVE_METAFORGE.md). Production URLs and secure credentials remain necessary for deployed-service verification.
 - SMTP and real recipient delivery require deployment configuration and have not been live-tested. Disabled transport leaves delivery pending. A claimed send interrupted by a crash requires operator review.
 - Local accounting uses one base currency. Foreign-currency posting requires an explicit conversion adapter.
 - Imports support quoted/multiline CSV and the first XLSX worksheet. XLSX formulas are rejected; supply calculated values. XLSX output and browser PDF printing are supported.
@@ -33,6 +33,6 @@ Local validation completed: **51 PHP tests / 188 assertions**, **7 JavaScript te
 
 ## Delivery follow-up
 
-A prebuilt standalone package was assembled from commit `2d863f9`, production Composer dependencies and built assets, with a local PHP launcher and the requested report/import endpoint aliases. Package startup, first-run institution creation, session persistence and an empty SQL-backed dashboard passed. No test database, user session, `.env`, credentials or Git history is included. Native catalog integration progress and remaining posting limitations are documented in `NATIVE_METAFORGE.md`.
+A prebuilt standalone package was assembled from commit `2d863f9`, production Composer dependencies and built assets, with a local PHP launcher and the requested report/import endpoint aliases. Package startup, first-run institution creation, session persistence and an empty SQL-backed dashboard passed. No test database, user session, `.env`, credentials or Git history is included. Native integration progress and remaining capabilities are documented in `NATIVE_METAFORGE.md`.
 
-Native extension follow-up: atomic linked catalog batches and purchase/item drafts passed against the actual isolated MetaForge server, including totals, quantity/cost snapshots, exact replay and complete rollback after a late child failure. Native financial posting remains unavailable; see `NATIVE_METAFORGE.md`.
+Native extension evidence and the remaining work are maintained in [NATIVE_METAFORGE.md](NATIVE_METAFORGE.md). The original standalone package predates these native extensions.

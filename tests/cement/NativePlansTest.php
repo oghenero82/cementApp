@@ -68,4 +68,27 @@ final class NativePlansTest extends TestCase
         self::assertArrayNotHasKey('_cementRecordRef', $seen[1]);
     }
 
+    public function testEntryAuthorityIsInheritedAndClearedOnFailure(): void
+    {
+        self::assertFalse(TrustedPlans::inside());
+        $outer = ['mutationPlans' => [['_cementEntry' => true, '_cementGeneratedBy' => 'cement.test']], 'results' => []];
+        try {
+            TrustedPlans::apply($outer, function ($plan) {
+                self::assertTrue(TrustedPlans::inside());
+                self::assertArrayNotHasKey('_cementEntry', $plan);
+                $nested = ['mutationPlans' => [[]], 'results' => []];
+                TrustedPlans::apply($nested, function () {
+                    self::assertTrue(TrustedPlans::inside());
+                    self::assertSame('cement.test', TrustedPlans::origin());
+                    throw new RuntimeException('Rollback');
+                });
+            });
+            self::fail('Failure was swallowed');
+        } catch (RuntimeException $e) {
+            self::assertSame('Rollback', $e->getMessage());
+        }
+        self::assertFalse(TrustedPlans::inside());
+        self::assertNull(TrustedPlans::origin());
+    }
+
 }

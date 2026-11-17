@@ -15,12 +15,12 @@ A differing extension file requires review and `--update`; replacements retain c
 From that MetaForge checkout, explicitly enable the required services:
 
 ```sh
-php spark cement:install-native --native-returns --native-reservations --native-stock-controls --native-fleet --native-supplier-payments
+php spark cement:install-native --native-returns --native-reservations --native-stock-controls --native-fleet --native-supplier-payments --native-incentives
 # Optional, explicitly reviewed grant to one existing role:
 php spark cement:install-native --grant-role ROLE_CODE
 ```
 
-PHP BCMath is required for native posting. Individual flags are `--purchase-drafts`, `--purchase-funding`, `--native-inventory`, `--native-loading`, `--native-sales`, `--native-returns`, `--native-reservations` `--native-stock-controls` `--native-fleet` and `--native-supplier-payments`. Each enables its prerequisites. Rerunning preserves activated handlers. Existing definitions are compared with the expected prior definitions; custom schema drift fails explicitly. No role is granted automatically. The grant option adds broad installed-type permissions to the selected role: use only a reviewed administrator/development role; configure operational role grants separately.
+PHP BCMath is required for native posting. Individual flags are `--purchase-drafts`, `--purchase-funding`, `--native-inventory`, `--native-loading`, `--native-sales`, `--native-returns`, `--native-reservations` `--native-stock-controls` `--native-fleet` `--native-supplier-payments` and `--native-incentives`. Each enables its prerequisites. Rerunning preserves activated handlers. Existing definitions are compared with the expected prior definitions; custom schema drift fails explicitly. No role is granted automatically. The grant option adds broad installed-type permissions to the selected role: use only a reviewed administrator/development role; configure operational role grants separately.
 
 The original 51 Cement definitions retain their aliases. The reservation flag adds only the explicitly defined `inventory_reservation` addon and performs a checked module-ID migration. Existing shared Accounting and Cooperative RecordTypes are reused; duplicate financial engines are not installed.
 
@@ -39,6 +39,8 @@ METAFORGE_BASE_URL = 'https://your-metaforge-host'
 ## Business behavior
 
 - Atomic linked batches use real native IDs, versions, registry revisions and the original UUID. Late failures roll back all children, stock projections and journals; exact replay returns the original result. Queued payload keys are never silently rewritten after metadata changes.
+- Business writes must enter the authorized Cement mutation service. Direct native record-mode writes cannot bypass its registry, version and invariant checks; trusted nested services retain their entry scope only for the transaction.
+- Supplier incentive schemes accrue cumulatively from qualifying paid purchases or confirmed loadings through the benefit date. Product/depot scopes, effective dates and thresholds apply; prior verified awards are deducted. Earned terms are locked. Verified benefits debit supplier receivables and credit incentive income; partial receipts debit bank and credit those receivables, with overreceipt and duplicate-award guards. Purchase/loading links are audit references rather than scope overrides. Enable institution policy `enableIncentiveSchemes` and configure incentive receivable/income/bank accounts.
 - Supplier payments support partial instalments. Purchase cash counters derive from completed payments and direct funding snapshots. The funding action posts only the outstanding balance; a final instalment settles the purchase without creating another funding journal. Partially funded terms are locked, future payments remain drafts and overpayment is rejected.
 - Purchase drafts calculate discounted entitlement and unit snapshots. Funding posts once to existing shared journals and annual account balances. The native lifecycle remains `DRAFT` → `WAIT_POSTING` → `POSTED`; posted lines are immutable. Configure active posting accounts in institution currency and exactly one open fiscal year for the posting date.
 - Confirmed movement history drives FIFO/weighted-average stock and cost layers. Effective confirmation order is preserved. Transfers conserve cost; future effects remain drafts. Catalog guards preserve a transacted product's base unit and require active transaction products/locations/suppliers.
@@ -68,6 +70,7 @@ CEMENT_NATIVE_TEST_POLICY=fifo python3 tests/cement/native-inventory.py
 CEMENT_NATIVE_TEST_POLICY=weighted_average python3 tests/cement/native-inventory.py
 python3 tests/cement/native-loading.py
 python3 tests/cement/native-supplier-payments.py
+python3 tests/cement/native-incentives.py
 python3 tests/cement/native-sales.py
 python3 tests/cement/native-returns.py
 python3 tests/cement/native-stock-controls.py
@@ -76,10 +79,10 @@ python3 tests/cement/native-fleet.py
 node tests/cement/native-browser.mjs
 ```
 
-Returns/reservation journeys reuse the asserted sales/loading setup. Tests cover actual postings, bank mappings, real signature upload/download, deferred ownership, mixed receipts, advances, tax, statements, returns, reservations, replay, permissions/invariants and late-batch rollback. The normal suite currently has 70 PHP tests/452 assertions, eight JavaScript tests and seeder integrity checks. The standalone browser regression exercises 65 collections, 78 tabs, seven roles and connected business transactions.
+Returns/reservation journeys reuse the asserted sales/loading setup. Tests cover actual postings, bank mappings, real signature upload/download, deferred ownership, mixed receipts, advances, tax, statements, returns, reservations, replay, permissions/invariants and late-batch rollback. The normal suite currently has 73 PHP tests/468 assertions, eight JavaScript tests and seeder integrity checks. The standalone browser regression exercises 65 collections, 78 tabs, seven roles and connected business transactions.
 
 ## Remaining work
 
-Native driver assignment scopes, supplier adjustments/incentives, payroll/Cooperative operations, financial administration/reconciliation, the remaining reports/snapshots/schedules/imports and delegated posting permissions for operational roles remain unfinished. Native automatic posting approval currently requires administrator/accountant authority; do not grant storekeepers general financial reads as a workaround. Shared finance/Cooperative frontend schema translation is also pending. Production deployment and live email verification require the user's deployment configuration. These limits do not disable the independently tested standalone workflows.
+Native driver assignment scopes, supplier adjustments, payroll/Cooperative operations, financial administration/reconciliation, the remaining reports/snapshots/schedules/imports and delegated posting permissions for operational roles remain unfinished. Native automatic posting approval currently requires administrator/accountant authority; do not grant storekeepers general financial reads as a workaround. Shared finance/Cooperative frontend schema translation is also pending. Production deployment and live email verification require the user's deployment configuration. These limits do not disable the independently tested standalone workflows.
 
 Historical receipts can collect debt from inactive customers, and authorized returns/corrections can restore or clear inactive products. New sales and dispatch still require active catalogs. Fleet verification includes a mixed-product invoice: separate stops recognise 400 and 300 of revenue, 200 and 150 of goods cost, and exactly 200 of transport cost, yielding 150 contribution.
