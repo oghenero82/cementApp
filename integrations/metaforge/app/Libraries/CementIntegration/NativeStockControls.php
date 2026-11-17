@@ -216,7 +216,7 @@ final class NativeStockControls
         } else {
             $plans[] = self::movement($r, $t, $recordId, ['PRODUCT_ID' => $d['PRODUCT_ID'],'STOCK_CONDITION' => $d['CONDITION'],'QTY_BASE' => $d['QUANTITY'],'SOURCE_LOCATION_ID' => $d['LOCATION_ID']], 'cement.damage');
             if ($d['DECISION'] === 'quarantine') {
-                $plans[] = self::movement($r,$t,$recordId,['PRODUCT_ID' => $d['PRODUCT_ID'],'STOCK_CONDITION' => 'damaged','QTY_BASE' => $d['QUANTITY'],'UNIT_COST' => (int)$record['settings']['cement']['costMinor'] / 100 / (float)$d['QUANTITY'],'DESTINATION_LOCATION_ID' => $d['LOCATION_ID']],'cement.damage');
+                $plans[] = self::movement($r, $t, $recordId, ['PRODUCT_ID' => $d['PRODUCT_ID'],'STOCK_CONDITION' => 'damaged','QTY_BASE' => $d['QUANTITY'],'UNIT_COST' => (int)$record['settings']['cement']['costMinor'] / 100 / (float)$d['QUANTITY'],'DESTINATION_LOCATION_ID' => $d['LOCATION_ID']], 'cement.damage');
             }
         }
         return ['mutationPlans' => $plans];

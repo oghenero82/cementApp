@@ -31,12 +31,7 @@ final class NativeSales
     }
     private static function paid(NativeRecords $r, int $id): int
     {
-        $v = 0;
-        foreach ($r->rows('customer_payment') as $p) {
-            if (($p['SALE_ID'] ?? null) === $id && $p['STATUS'] === 'completed') {
-                $v += NativeLedger::minor($p['AMOUNT']);
-            }
-        }return $v;
+        return NativePayments::paid($r, $id);
     }
     private function price(NativeRecords $r, array $sale, array $item): ?array
     {
@@ -69,12 +64,8 @@ final class NativeSales
         $f = $r->aliases($t);
         $origin = TrustedPlans::origin();
         $internal = in_array($origin, ['cement.sales.balance','cement.payment','cement.delivery'], true);
-        if ($t === 'customer_payment' && $old && $old['STATUS'] === 'completed' && $origin === 'cement.payment' && $operation === 'update') {
-            foreach ($old as $a => $v) {
-                if ($a !== 'POSTED_JOURNAL_ID' && ($d[$a] ?? null) != $v) {
-                    throw ValidationException::field($f['STATUS'], 'Completed payment terms are immutable');
-                }
-            }return [];
+        if ($t === 'customer_payment') {
+            return NativePayments::prepare($record, $previous, $recordId, $operation, $context);
         }
         if ($old && ($old['STATUS'] ?? 'draft') !== 'draft') {
             if ($t !== 'customer_sales' || !$internal || $operation !== 'update') {
@@ -112,6 +103,9 @@ final class NativeSales
                 throw ValidationException::field($f['AGREED_UNIT_PRICE'], 'Use an effective price tier; price override is disabled');
             }
             $product = $r->find('product', (int)$d['PRODUCT_ID']);
+            if ($product['STATUS'] !== 'active') {
+                throw ValidationException::field($f['PRODUCT_ID'], 'Product must be active');
+            }
             $factor = $product['BASE_UNIT_ID'] === $d['UNIT_ID'] ? 1 : (($product['PACKAGE_UNIT_ID'] ?? null) === $d['UNIT_ID'] ? ($product['PACKAGE_SIZE'] ?? 0) : 0);
             try {
                 $data = SalesMath::line(array_replace($d, ['AGREED_UNIT_PRICE' => $agreed]), (float)$factor);
@@ -157,6 +151,9 @@ final class NativeSales
                 $tax += NativeLedger::minor($line['TAX_AMOUNT'] ?? 0);
             }
             $paid = $recordId ? self::paid($r, $recordId) : 0;
+            $advances = $state === 'invoiced' ? NativePayments::invoiceAdvances($r, $recordId, (int)$d['CUSTOMER_ID'], $net) : [];
+            $advanceMinor = array_sum(array_column($advances, 'amountMinor'));
+            $paid += $advanceMinor;
             $customer = $r->find('customer', (int)$d['CUSTOMER_ID']);
             if ($customer['STATUS'] !== 'active') {
                 throw ValidationException::field($f['CUSTOMER_ID'], 'Customer must be active');
@@ -181,52 +178,20 @@ final class NativeSales
             }
             $proposed = $r->encode($t, ['GROSS_AMOUNT' => NativeLedger::decimal($gross),'DISCOUNT_AMOUNT' => NativeLedger::decimal(max(0, $gross - ($net - $tax))),'TAX_AMOUNT' => NativeLedger::decimal($tax),'NET_AMOUNT' => NativeLedger::decimal($net),'AMOUNT_PAID' => NativeLedger::decimal($paid),'BALANCE_DUE' => NativeLedger::decimal(max(0, $net - $paid)),'CURRENCY' => $currency,'OWNERSHIP_TRANSFER_POLICY' => $policy,'DELIVERY_STATUS' => $old['DELIVERY_STATUS'] ?? 'pending']);
             if ($state === 'invoiced') {
-                $proposed['settings'] = ['cement' => $previous['settings']['cement'] ?? []];
+                $proposed['settings'] = ['cement' => array_replace($previous['settings']['cement'] ?? [], ['invoiceAdvanceAllocations' => $advances])];
             }
             if ($state === 'invoiced' && $policy === 'loading-transfer') {
-                $snapshot = $previous['settings']['cement'] ?? [];
+                $snapshot = array_replace($previous['settings']['cement'] ?? [], ['invoiceAdvanceAllocations' => $advances]);
                 $snapshot['recognizedMinor'] = $net;
                 $snapshot['recognizedTaxMinor'] = $tax;
-                $snapshot['appliedDepositsMinor'] = 0;
+                $snapshot['appliedDepositsMinor'] = NativePayments::deposits($r, $recordId) + $advanceMinor;
                 foreach ($items as $line) {
                     $snapshot['fulfilled'][$line['_ID']] = (float)$line['QUANTITY'];
-                }foreach ($r->rows('customer_payment') as $payment) {
-                    if (($payment['SALE_ID'] ?? null) === $recordId && $payment['STATUS'] === 'completed') {
-                        $snapshot['appliedDepositsMinor'] += (int)($payment['_PRIVATE']['depositMinor'] ?? 0);
-                    }
-                }$snapshot['appliedDepositsMinor'] = min($net, $snapshot['appliedDepositsMinor']);
+                }
+                $snapshot['appliedDepositsMinor'] = min($net, $snapshot['appliedDepositsMinor']);
                 $proposed['settings'] = ['cement' => $snapshot];
             }
             return ['proposedData' => $proposed];
-        }
-        if ($t === 'customer_payment') {
-            if (!in_array($d['STATUS'] ?? 'draft', ['draft','completed'], true)) {
-                throw ValidationException::field($f['STATUS'], 'Invalid payment state');
-            }
-            if (empty($d['SALE_ID'])) {
-                throw ValidationException::field($f['SALE_ID'], 'Select the sale receiving this payment');
-            }$sale = $r->find('customer_sales', $d['SALE_ID']);
-            if ($sale['CUSTOMER_ID'] !== $d['CUSTOMER_ID']) {
-                throw ValidationException::field($f['CUSTOMER_ID'], 'Payment customer must match the sale');
-            }
-            $amount = NativeLedger::minor($d['AMOUNT']);
-            if ($amount <= 0 || $amount > NativeLedger::minor($sale['NET_AMOUNT']) - self::paid($r, $sale['_ID'])) {
-                throw ValidationException::field($f['AMOUNT'], 'Payment exceeds the remaining sale amount');
-            }
-            if (($d['STATUS'] ?? 'draft') === 'completed') {
-                (new NativeLedger())->authorizePosting($context);
-                if ($d['PAYMENT_DATE'] > gmdate('Y-m-d H:i:s')) {
-                    throw ValidationException::field($f['PAYMENT_DATE'], 'Future payments must remain drafts');
-                }
-            }
-            if (isset($d['POSTED_JOURNAL_ID'])) {
-                throw ValidationException::field($f['POSTED_JOURNAL_ID'], 'Journal linkage is derived from the authoritative journal source');
-            }
-            if (($d['STATUS'] ?? 'draft') === 'completed') {
-                $recognized = (int)($sale['_PRIVATE']['recognizedMinor'] ?? 0);
-                $receivable = min($amount, max(0, $recognized - self::paid($r, $sale['_ID'])));
-                return ['proposedData' => ['settings' => ['cement' => ['depositMinor' => $amount - $receivable,'receivableMinor' => $receivable]]]];
-            }return [];
         }
         // Delivery proof controls recognition for delivery-transfer and always advances physical delivery counters.
         $sale = $r->find('customer_sales', (int)$d['SALE_ID']);
@@ -243,13 +208,28 @@ final class NativeSales
             $items = self::items($r, $sale['_ID']);
             $total = array_sum(array_column($items, 'QUANTITY'));
             $accepted = 0;
+            $priorRejected = 0;
             foreach ($r->rows('delivery_proof') as $p) {
                 if ($p['_ID'] !== $recordId && $p['SALE_ID'] === $sale['_ID'] && $p['STATUS'] === 'confirmed') {
                     $accepted += (float)$p['ACCEPTED_QUANTITY'];
+                    $priorRejected += (float)($p['REJECTED_QUANTITY'] ?? 0);
                 }
             }
-            if (count(array_unique(array_column($items, 'UNIT_ID'))) !== 1 || !is_finite($qty) || $qty <= 0 || !is_finite($rejected) || $rejected < 0 || $accepted + $qty + $rejected > $total + 0.000001) {
+            if (count(array_unique(array_column($items, 'UNIT_ID'))) !== 1 || !is_finite($qty) || $qty < 0 || !is_finite($rejected) || $rejected < 0 || $qty + $rejected <= 0 || abs($qty - round($qty, 6)) > 0.00000001 || abs($rejected - round($rejected, 6)) > 0.00000001 || $accepted + $priorRejected + $qty + $rejected > $total + 0.000001) {
                 throw ValidationException::field($f['ACCEPTED_QUANTITY'], 'Delivery exceeds remaining sale quantity or mixes incompatible units');
+            }
+            if (!empty($d['TRIP_DESTINATION_ID'])) {
+                $stop = $r->find('trip_destination', $d['TRIP_DESTINATION_ID']);
+                if (($stop['SALE_ID'] ?? null) !== $sale['_ID']) {
+                    throw ValidationException::field($f['TRIP_DESTINATION_ID'], 'Delivery destination belongs to another sale');
+                }$stopQty = $qty + $rejected;
+                foreach ($r->rows('delivery_proof') as $proof) {
+                    if ($proof['_ID'] !== $recordId && ($proof['TRIP_DESTINATION_ID'] ?? null) === $stop['_ID'] && $proof['STATUS'] === 'confirmed') {
+                        $stopQty += (float)$proof['ACCEPTED_QUANTITY'] + (float)($proof['REJECTED_QUANTITY'] ?? 0);
+                    }
+                }if ($stopQty > (float)$stop['QUANTITY'] + 0.000001) {
+                    throw ValidationException::field($f['ACCEPTED_QUANTITY'], 'Proof exceeds the destination quantity');
+                }
             }
             if (empty($d['RECEIVER_NAME']) || empty($d['SIGNATURE'])) {
                 throw ValidationException::field($f['SIGNATURE'], 'Receiver name and signature are required');
@@ -263,17 +243,26 @@ final class NativeSales
         return $p;
     }
     /** Revenue and COGS are recognised together at the institution's snapshotted ownership event. */
-    private function recognize(NativeRecords $r, array $sale, float $accepted, string $event, int $eventId): array
+    private function recognize(NativeRecords $r, array $sale, float $accepted, string $event, int $eventId, int $virtualDeposits = 0): array
     {
         $items = self::items($r, $sale['_ID']);
         $total = array_sum(array_column($items, 'QUANTITY'));
         $previous = $sale['_PRIVATE'];
-        $net = SalesMath::portion(NativeLedger::minor($sale['NET_AMOUNT']), $accepted, $total);
-        $tax = SalesMath::portion(NativeLedger::minor($sale['TAX_AMOUNT']), $accepted, $total);
+        [$net,$tax] = SalesMath::recognition(NativeLedger::minor($sale['NET_AMOUNT']), NativeLedger::minor($sale['TAX_AMOUNT']), $accepted, $total);
         $delta = $net - ($previous['recognizedMinor'] ?? 0);
         $taxDelta = $tax - ($previous['recognizedTaxMinor'] ?? 0);
         if ($delta < 0 || $taxDelta < 0) {
             throw ValidationException::field('quantity', 'Recognized sale value cannot decrease');
+        }
+        $customer = $r->find('customer', $sale['CUSTOMER_ID']);
+        $due = max(0, $net - self::paid($r, $sale['_ID']) - $virtualDeposits);
+        foreach ($r->rows('customer_sales') as $other) {
+            if ($other['_ID'] !== $sale['_ID'] && $other['CUSTOMER_ID'] === $sale['CUSTOMER_ID']) {
+                $due += max(0, (int)($other['_PRIVATE']['recognizedMinor'] ?? 0) - self::paid($r, $other['_ID']));
+            }
+        }
+        if ((($r->settings()['allowCreditSales'] ?? true) === false && $due > 0) || (($customer['CREDIT_LIMIT'] ?? 0) > 0 && $due > NativeLedger::minor($customer['CREDIT_LIMIT']))) {
+            throw ValidationException::field('customer', 'Ownership recognition exceeds permitted customer credit');
         }
         $plans = [];
         $settings = $r->settings();
@@ -314,12 +303,7 @@ final class NativeSales
         $previous['recognizedMinor'] = $net;
         $previous['recognizedTaxMinor'] = $tax;
         // Payments received before recognition remain deposits until the ownership event.
-        $depositPaid = 0;
-        foreach ($r->rows('customer_payment') as $p) {
-            if (($p['SALE_ID'] ?? null) === $sale['_ID'] && $p['STATUS'] === 'completed') {
-                $depositPaid += (int)($p['_PRIVATE']['depositMinor'] ?? 0);
-            }
-        }
+        $depositPaid = NativePayments::deposits($r, $sale['_ID']) + $virtualDeposits;
         $apply = min($depositPaid, $net);
         $reclass = $apply - ($previous['appliedDepositsMinor'] ?? 0);
         if ($reclass > 0) {
@@ -338,6 +322,9 @@ final class NativeSales
         $d = $r->decode($t, $record);
         $old = $r->decode($t, $previous);
         $origin = TrustedPlans::origin();
+        if ($t === 'customer_payment') {
+            return NativePayments::effects($record, $recordId, $operation, $context);
+        }
         if ($t === 'customer_sale_item') {
             $sale = $r->find('customer_sales', $d['SALE_ID']);
             return ['mutationPlans' => [$this->refresh($r, $sale, 'cement.sales.balance')]];
@@ -349,45 +336,26 @@ final class NativeSales
             if ($d['STATUS'] !== 'invoiced' || ($old['STATUS'] ?? 'draft') === 'invoiced') {
                 return [];
             }$sale = $r->find($t, $recordId);
+            $advanceAllocations = $sale['_PRIVATE']['invoiceAdvanceAllocations'] ?? [];
+            $advancePlans = NativePayments::advancePlans($r, $recordId, $advanceAllocations);
+            $advanceMinor = array_sum(array_column($advanceAllocations, 'amountMinor'));
             $sale['_PRIVATE'] = $previous['settings']['cement'] ?? [];
             if ($d['OWNERSHIP_TRANSFER_POLICY'] === 'loading-transfer') {
-                return ['mutationPlans' => $this->recognize($r, $sale, array_sum(array_column(self::items($r, $recordId), 'QUANTITY')), 'INVOICE', $recordId)];
-            }return [];
-        }
-        if ($t === 'customer_payment' && $d['STATUS'] === 'completed') {
-            $sale = $r->find('customer_sales', $d['SALE_ID']);
-            $settings = $r->settings();
-            $amount = NativeLedger::minor($d['AMOUNT']);
-            $receivedBefore = self::paid($r, $sale['_ID']) - $amount;
-            $recognized = (int)($sale['_PRIVATE']['recognizedMinor'] ?? 0);
-            $receivableAmount = min($amount, max(0, $recognized - $receivedBefore));
-            $deposit = $amount - $receivableAmount;
-            $bank = 0;
-            if (!empty($d['BANK_ACCOUNT_ID'])) {
-                $bank = (int)($r->raw('bank_account', $d['BANK_ACCOUNT_ID'])['glAccountId'] ?? 0);
-            }if (!$bank) {
-                $bank = (int)($settings['cementReceiptBankAccountId'] ?? 0);
-            }$receivable = (int)($r->find('customer', $sale['CUSTOMER_ID'])['ACCOUNT_ID'] ?? $settings['cementReceivablesAccountId'] ?? 0);
-            $entries = [[$bank,$amount,0]];
-            if ($receivableAmount) {
-                $entries[] = [$receivable,0,$receivableAmount];
-            }if ($deposit) {
-                $entries[] = [(int)($settings['cementCustomerDepositsAccountId'] ?? 0),0,$deposit];
-            }
-            $plans = (new NativeLedger())->postingPlans($context, 'customer_payment', $recordId, 'CEMENT-RECEIPT-'.$recordId, 'Customer receipt '.$d['CODE'], $entries);
-            $plans[] = $this->refresh($r, $sale, 'cement.payment');
-            return ['mutationPlans' => $plans];
+                return ['mutationPlans' => [...$advancePlans,...$this->recognize($r, $sale, array_sum(array_column(self::items($r, $recordId), 'QUANTITY')), 'INVOICE', $recordId, $advanceMinor)]];
+            }return ['mutationPlans' => $advancePlans];
         }
         if ($t === 'delivery_proof' && $d['STATUS'] === 'confirmed') {
             $sale = $r->find('customer_sales', $d['SALE_ID']);
             $accepted = 0;
+            $rejectedTotal = 0;
             foreach ($r->rows('delivery_proof') as $p) {
                 if ($p['SALE_ID'] === $sale['_ID'] && $p['STATUS'] === 'confirmed') {
                     $accepted += (float)$p['ACCEPTED_QUANTITY'];
+                    $rejectedTotal += (float)($p['REJECTED_QUANTITY'] ?? 0);
                 }
             }$total = array_sum(array_column(self::items($r, $sale['_ID']), 'QUANTITY'));
             $plans = $sale['OWNERSHIP_TRANSFER_POLICY'] === 'delivery-transfer' ? $this->recognize($r, $sale, $accepted, 'DELIVERY', $recordId) : [];
-            $plans[] = $this->refresh($r, $sale, 'cement.delivery', ['DELIVERY_STATUS' => $accepted + 0.000001 >= $total ? 'delivered' : 'partial','DELIVERED_AT' => $d['DELIVERED_DATE']]);
+            $plans[] = $this->refresh($r, $sale, 'cement.delivery', ['DELIVERY_STATUS' => $accepted + 0.000001 >= $total ? 'delivered' : ($accepted + $rejectedTotal + 0.000001 >= $total ? 'completed_with_rejection' : 'partial'),'DELIVERED_AT' => $d['DELIVERED_DATE']]);
             if (!empty($sale['SOURCE_LOADING_ID'])) {
                 $load = $r->find('cement_loading', $sale['SOURCE_LOADING_ID']);
                 $item = $r->find('purchaseItem', $load['PURCHASE_ITEM_ID']);

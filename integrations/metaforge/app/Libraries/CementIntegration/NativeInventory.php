@@ -79,6 +79,14 @@ final class NativeInventory
             if (($d['MOVEMENT_DATE'] ?? '') > gmdate('Y-m-d H:i:s')) {
                 throw ValidationException::field($r->aliases($recordTypeCode)['MOVEMENT_DATE'], 'Future stock effects must remain draft');
             }
+            if ($r->find('product', (int)$d['PRODUCT_ID'])['STATUS'] !== 'active') {
+                throw ValidationException::field('product', 'Product must be active');
+            }
+            foreach (['SOURCE_LOCATION_ID','DESTINATION_LOCATION_ID'] as $a) {
+                if (!empty($d[$a]) && $r->find('inventory_location', $d[$a])['STATUS'] !== 'active') {
+                    throw ValidationException::field('location', 'Inventory location must be active');
+                }
+            }
             (new NativeLedger())->authorizePosting($context);
             $history = $this->history($r);
             $history = array_values(array_filter($history, fn ($m) => $m['_ID'] !== $recordId));

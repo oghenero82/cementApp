@@ -63,7 +63,7 @@ final class CatalogService
             $f = $nativeSettings['cementFieldAliases'];
             $computedSales = isset($nativeSettings['cementSales']) && (($recordTypeCode === 'customer_sales' && ($record[$f['STATUS']] ?? null) === 'invoiced') || ($recordTypeCode === 'customer_payment' && ($record[$f['STATUS']] ?? null) === 'completed'));
             $computedControls = isset($nativeSettings['cementStockControls']) && ($recordTypeCode === 'inventory_transfer' || $recordTypeCode === 'inventory_stocktake_line' || ($recordTypeCode === 'damaged_goods' && ($record[$f['STATUS']] ?? null) === 'confirmed'));
-            if (!$computedLoading && !$computedSales && !$computedControls && !in_array(TrustedPlans::origin(), ['cement.loading','cement.sales','cement.sales.balance','cement.payment','cement.delivery','cement.stocktake','cement.transfer','cement.damage','cement.return'], true)) {
+            if (!$computedLoading && !$computedSales && !$computedControls && !in_array(TrustedPlans::origin(), ['cement.loading','cement.sales','cement.sales.balance','cement.advance','cement.payment','cement.delivery','cement.stocktake','cement.transfer','cement.damage','cement.return'], true)) {
                 throw new \RuntimeException('Cement processing snapshots are server-owned');
             }
         }
@@ -97,6 +97,7 @@ final class CatalogService
                 }
             }
         }
+        NativeMasterRules::validate($recordTypeCode, $record, $previous, $context);
         NativeFiles::validate($context, $recordTypeCode, (new NativeRecords($context))->decode($recordTypeCode, $record));
         return [];
     }

@@ -5,6 +5,12 @@ require_once ROOTPATH.'integrations/metaforge/app/Libraries/CementIntegration/Na
 require_once ROOTPATH.'integrations/metaforge/app/Libraries/CementIntegration/SalesMath.php';
 final class NativeSalesMathTest extends TestCase
 {
+    protected function setUp(): void {if(!extension_loaded('bcmath'))self::markTestSkipped('Native accounting requires BCMath');}
+    public function testTaxCannotAdvanceWhenGrossRecognitionDoesNotAdvance(): void
+    {
+        self::assertSame([2,0],SalesMath::recognition(101,50,1.99,100));self::assertSame([2,0],SalesMath::recognition(101,50,2,100));self::assertSame([101,50],SalesMath::recognition(101,50,100,100));
+        $prior=[0,0];for($step=1;$step<=100;$step++){$next=SalesMath::recognition(101,50,$step,100);self::assertLessThanOrEqual($next[0]-$prior[0],$next[1]-$prior[1]);$prior=$next;}
+    }
     public function testPartialRecognitionConservesResidualCents(): void
     {
         self::assertSame(3333,SalesMath::portion(10001,1,3));self::assertSame(6667,SalesMath::portion(10001,2,3));self::assertSame(10001,SalesMath::portion(10001,3,3));self::assertSame(0,SalesMath::portion(1,0.000001,1));

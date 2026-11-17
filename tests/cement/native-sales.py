@@ -59,9 +59,47 @@ def deliver(qty,suffix):
  return call('mutation',batch([entry('delivery_proof',{'CODE':code+'-DELIVERY-'+suffix,'SALE_ID':dsid,'DELIVERED_DATE':today_text+'T00:00:00Z','ACCEPTED_QUANTITY':qty,'RECEIVER_NAME':'Receiver','SIGNATURE':signature,'STATUS':'confirmed'})]))
 first=deliver(4,'PART');assert bal(accounts['CustomerDeposits'])['closingCredit']=='0.00';assert float(bal(accounts['SalesRevenue'])['closingCredit'])==float(before_revenue)+800;assert float(bal(accounts['CostOfSales'])['closingDebit'])==float(before_cogs)+400
 call('mutation',batch([entry('customer_payment',{'CODE':code+'-PREPAY-2','CUSTOMER_ID':ids['customer'],'SALE_ID':dsid,'AMOUNT':1000,'PAYMENT_DATE':today_text+'T00:00:00Z','PAYMENT_METHOD':'bank','STATUS':'completed'})]));assert bal(accounts['CustomerDeposits'])['closingCredit']=='700.00'
+def update_guard(t,record_id,alias,value,expected=200):
+ raw=next(x for x in direct('records?recordTypeId='+str(types[t]))['records'] if x['recordId']==record_id)
+ request={'requestId':str(uuid.uuid4()),'registryRevision':meta['revision'],'recordTypeCode':t,'recordTypeId':meta['recordTypeIds'][t],'recordId':record_id,'version':max(1,raw['mutationId']),'operation':'update','data':{meta['fieldsByRecordType'][t][alias]:value}}
+ return call('mutation',request,expected)
+update_guard('customer',ids['customer'],'CREDIT_LIMIT',1000)
+blocked=entry('delivery_proof',{'CODE':code+'-CREDIT-BLOCK','SALE_ID':dsid,'DELIVERED_DATE':today_text+'T00:00:00Z','ACCEPTED_QUANTITY':6,'RECEIVER_NAME':'Receiver','SIGNATURE':signature,'STATUS':'confirmed'})
+call('mutation',batch([blocked]),422);assert float(bal(accounts['CostOfSales'])['closingDebit'])==float(before_cogs)+400
+update_guard('customer',ids['customer'],'CREDIT_LIMIT',100000)
 last=deliver(6,'FINAL');assert bal(accounts['CustomerDeposits'])['closingCredit']=='0.00';assert float(bal(accounts['SalesRevenue'])['closingCredit'])==float(before_revenue)+2000;assert float(bal(accounts['CostOfSales'])['closingDebit'])==float(before_cogs)+1000;assert next(x['data'][sf['DELIVERY_STATUS']] for x in last['changes'] if x['recordTypeCode']=='customer_sales')=='delivered'
 statement=call('customers/statement?'+urllib.parse.urlencode({'customerId':ids['customer']}));assert statement['closingReceivable']==4000 and statement['closingDeposit']==0
 future=(today+datetime.timedelta(days=1)).isoformat();period=call('customers/statement?'+urllib.parse.urlencode({'customerId':ids['customer'],'from':future}));assert period['openingReceivable']==4000 and period['rows']==[]
 call('customers/statement?'+urllib.parse.urlencode({'customerId':ids['customer'],'from':'2026-02-31'}),expected=422)
+newunit=call('mutation',batch([entry('unit_of_measure',{'CODE':code+'-OTHER-U','NAME':'Other unit','SYMBOL':code+'-OTHER','DIMENSION':'count','STATUS':'active'},'unit')]))['resultMap']['unit']
+update_guard('product',masters['product'],'BASE_UNIT_ID',newunit,422)
+update_guard('customer',ids['customer'],'CREDIT_LIMIT',-1,422)
+# Advances exist independently of a sale and keep historical allocations when later invoices arrive.
+settings['ownershipTransferPolicy']='loading-transfer'
+direct('mutations',{'requestId':str(uuid.uuid4()),'mode':'record_mode','mutations':[{'recordTypeId':b['institution']['recordTypeId'],'recordId':b['institution']['recordId'],'operation':'update','data':{'settings':settings}}]});meta=call('meta/field-registry')
+advance_customer=call('mutation',batch([entry('customer',{'CODE':code+'-ADV-CUSTOMER','COMPANY_NAME':'Advance customer','CUSTOMER_TYPE':'company','STATUS':'active'},'customer')]))['resultMap']['customer']
+advance=entry('customer_payment',{'CODE':code+'-ADVANCE','CUSTOMER_ID':advance_customer,'AMOUNT':1000,'PAYMENT_DATE':today_text+'T00:00:00Z','PAYMENT_METHOD':'bank','STATUS':'completed'},'advance');advance_request=batch([advance]);paid_advance=call('mutation',advance_request);assert call('mutation',advance_request)['mutationId']==paid_advance['mutationId'];advance_id=paid_advance['resultMap']['advance']
+assert bal(accounts['CustomerDeposits'])['closingCredit']=='1000.00'
+future_sale=call('mutation',batch([entry('customer_sales',{'CODE':code+'-ADV-SALE','CUSTOMER_ID':advance_customer,'SALE_DATE':today_text,'WAREHOUSE_ID':more['warehouse'],'CURRENCY':'NGN','STATUS':'draft'},'sale'),entry('customer_sale_item',{'CODE':code+'-ADV-LINE','SALE_ID':{'$ref':'sale'},'PRODUCT_ID':masters['product'],'UNIT_ID':masters['unit'],'QUANTITY':10,'AGREED_UNIT_PRICE':200,'STATUS':'draft'},'line')]))
+future_root=next(x for x in future_sale['changes'] if x['recordTypeCode']=='customer_sales');future_invoice={'recordTypeCode':'customer_sales','recordTypeId':meta['recordTypeIds']['customer_sales'],'recordId':future_root['recordId'],'version':future_root['version'],'operation':'update','data':{sf['STATUS']:'invoiced'}}
+call('mutation',batch([future_invoice,entry('supplier',{'CODE':code,'NAME':'Duplicate','STATUS':'active'})]),422)
+assert bal(accounts['CustomerDeposits'])['closingCredit']=='1000.00'
+raw=next(x for x in direct('records?recordTypeId='+str(types['customer_payment']))['records'] if x['recordId']==advance_id);assert raw['jsonData']['settings']['cement']['unallocatedMinor']==100000
+applied=call('mutation',batch([future_invoice]));assert next(x['data'][sf['AMOUNT_PAID']] for x in applied['changes'] if x['recordTypeCode']=='customer_sales')==1000;assert bal(accounts['CustomerDeposits'])['closingCredit']=='0.00'
+statement=call('customers/statement?'+urllib.parse.urlencode({'customerId':advance_customer}));assert statement['closingReceivable']==1000 and statement['closingDeposit']==0
+# A receipt without a selected sale allocates to existing invoices before retaining an excess advance.
+unassigned=entry('customer_payment',{'CODE':code+'-FIFO-RECEIPT','CUSTOMER_ID':advance_customer,'AMOUNT':1500,'PAYMENT_DATE':today_text+'T00:00:00Z','PAYMENT_METHOD':'bank','STATUS':'completed'})
+remaining=call('mutation',batch([unassigned]));assert next(x['data'][sf['AMOUNT_PAID']] for x in remaining['changes'] if x['recordTypeCode']=='customer_sales')==2000
+statement=call('customers/statement?'+urllib.parse.urlencode({'customerId':advance_customer}));assert statement['closingReceivable']==0 and statement['closingDeposit']==500
+# Tax recognition posts a separate payable while applying only the remaining advance.
+historical=next(x['jsonData']['settings']['cement']['allocations'] for x in direct('records?recordTypeId='+str(types['customer_payment']))['records'] if x['recordId']==advance_id)
+revenue_before=float(bal(accounts['SalesRevenue'])['closingCredit'])
+taxdraft=call('mutation',batch([entry('customer_sales',{'CODE':code+'-TAX-SALE','CUSTOMER_ID':advance_customer,'SALE_DATE':today_text,'WAREHOUSE_ID':more['warehouse'],'CURRENCY':'NGN','STATUS':'draft'},'sale'),entry('customer_sale_item',{'CODE':code+'-TAX-LINE','SALE_ID':{'$ref':'sale'},'PRODUCT_ID':masters['product'],'UNIT_ID':masters['unit'],'QUANTITY':3,'AGREED_UNIT_PRICE':200,'TAX_RATE':7.5,'STATUS':'draft'},'line')]))
+taxroot=next(x for x in taxdraft['changes'] if x['recordTypeCode']=='customer_sales');assert taxroot['data'][sf['NET_AMOUNT']]==645
+posted_tax=call('mutation',{'requestId':str(uuid.uuid4()),'registryRevision':meta['revision'],'recordTypeCode':'customer_sales','recordTypeId':meta['recordTypeIds']['customer_sales'],'recordId':taxroot['recordId'],'version':taxroot['version'],'operation':'update','data':{sf['STATUS']:'invoiced'}})
+assert bal(accounts['TaxPayable'])['closingCredit']=='45.00';assert float(bal(accounts['SalesRevenue'])['closingCredit'])==revenue_before+600
+statement=call('customers/statement?'+urllib.parse.urlencode({'customerId':advance_customer}));assert statement['closingReceivable']==145 and statement['closingDeposit']==0
+assert next(x['jsonData']['settings']['cement']['allocations'] for x in direct('records?recordTypeId='+str(types['customer_payment']))['records'] if x['recordId']==advance_id)==historical
+print('PASS native unallocated advance, FIFO invoice allocation, residual deposits and rollback of allocations with a failed invoice batch')
 print('PASS native real signature upload/download, invalid-reference rejection, deferred ownership recognition, partial delivery, deposit application and authoritative period customer statements')
 call('auth/logout',{});direct('auth/logout',{})

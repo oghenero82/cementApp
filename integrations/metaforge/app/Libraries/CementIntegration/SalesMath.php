@@ -15,6 +15,13 @@ final class SalesMath
         }
         return (int)bcdiv(bcadd(bcmul((string)$total, number_format($accepted, 6, '.', ''), 8), '0', 8), number_format($quantity, 6, '.', ''), 0);
     }
+    public static function recognition(int $gross, int $tax, float $accepted, float $quantity): array
+    {
+        if ($tax < 0 || $tax > $gross) {
+            throw new \InvalidArgumentException('Invalid sale tax');
+        }$recognized = self::portion($gross, $accepted, $quantity);
+        return [$recognized,$recognized === 0 ? 0 : self::portion($tax, (float)$recognized, (float)$gross)];
+    }
     public static function line(array $d, float $factor): array
     {
         $qty = (float)($d['QUANTITY'] ?? 0);

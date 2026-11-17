@@ -68,6 +68,9 @@ final class PurchaseDrafts
         }
         if ($recordTypeCode === 'purchase') {
             $settings = M::properties($context->catalog->record('institution', $context->auth['institutionId']))['settings'] ?? [];
+            if ($this->find($context, 'supplier', (int)$d['SUPPLIER_ID'])['STATUS'] !== 'active') {
+                throw ValidationException::field('supplier', 'Supplier must be active');
+            }
             $currency = $settings['defaultCurrency'] ?? 'NGN';
             if (($d['CURRENCY'] ?? $currency) !== $currency) {
                 throw ValidationException::field('currency', 'Purchase currency must match the institution currency');
@@ -141,6 +144,9 @@ final class PurchaseDrafts
             throw ValidationException::field('discount', 'Discount exceeds the unit price');
         }
         $product = $this->find($context, 'product', (int)$d['PRODUCT_ID']);
+        if ($product['STATUS'] !== 'active') {
+            throw ValidationException::field('product', 'Product must be active');
+        }
         $factor = $product['BASE_UNIT_ID'] === $d['UNIT_ID'] ? 1 : (($product['PACKAGE_UNIT_ID'] ?? null) === $d['UNIT_ID'] ? ($product['PACKAGE_SIZE'] ?? 0) : 0);
         if ($factor <= 0) {
             throw ValidationException::field('unitId', 'Declare the product unit conversion first');
